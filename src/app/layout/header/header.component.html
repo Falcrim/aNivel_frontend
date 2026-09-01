@@ -1,0 +1,61 @@
+<header class="h-16 sm:h-20 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-3.5 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+  <!-- Left: Mobile toggle + Breadcrumbs -->
+  <div class="flex items-center gap-2.5 sm:gap-4 min-w-0">
+    <button
+      type="button"
+      (click)="toggleMobileSidebar.emit()"
+      class="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors shrink-0"
+      aria-label="Abrir menú"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="min-w-0">
+      <div class="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-400 font-bold tracking-wide uppercase truncate">
+        <span>aNivel</span>
+        <span>/</span>
+        <span class="text-amber-600 font-bold truncate">{{ currentSection() }}</span>
+      </div>
+      <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight leading-tight truncate">
+        {{ currentTitle() }}
+      </h1>
+    </div>
+  </div>
+
+  <!-- Right: Quick actions and badges -->
+  <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+    <!-- Fast Direct links -->
+    <a
+      routerLink="/catalogo-materiales"
+      class="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-amber-700 bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-200 transition-all shadow-2xs"
+    >
+      <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+      Catálogo Maestro
+    </a>
+
+    <a
+      routerLink="/obras"
+      class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all shadow-2xs"
+    >
+      <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" />
+      </svg>
+      Ver Obras
+    </a>
+
+    <!-- Avatar / User Profile -->
+    <div class="flex items-center gap-2 pl-2 border-l border-slate-200 shrink-0">
+      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-black text-xs shadow-sm shadow-amber-500/20">
+        AD
+      </div>
+      <div class="hidden md:block text-left">
+        <p class="text-xs font-bold text-slate-900 leading-none">Admin aNivel</p>
+        <p class="text-[10px] text-slate-400 leading-none mt-1">Superusuario</p>
+      </div>
+    </div>
+  </div>
+</header>

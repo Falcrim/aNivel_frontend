@@ -1,0 +1,204 @@
+<app-modal
+  [isOpen]="isOpen()"
+  title="Vincular Ítem Global / Paquete"
+  subtitle="Busca y vincula compras preventivas o paquetes cerrados del catálogo"
+  (close)="handleClose()"
+>
+  <form (submit)="$event.preventDefault(); submit()" class="space-y-4">
+    <!-- Filtros de Catálogo: Subcategoría y Buscador -->
+    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+      <div class="flex items-center justify-between">
+        <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          Filtros de Catálogo
+        </label>
+        @if (searchTerm() || subcatFilter() !== null) {
+          <button
+            type="button"
+            (click)="clearFilters()"
+            class="text-[11px] font-bold text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1 cursor-pointer"
+          >
+            Limpiar filtros
+          </button>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+        <div class="sm:col-span-5">
+          <select
+            [ngModel]="subcatFilter()"
+            (ngModelChange)="onSubcategorySelect($event ? +$event : null)"
+            name="globalModalSubcatFilter"
+            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          >
+            <option [value]="null">Todas las subcategorías</option>
+            @for (s of subcategoryService.subcategories(); track s.id) {
+              <option [value]="s.id">{{ s.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="sm:col-span-7">
+          <div class="relative">
+            <input
+              type="text"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="onSearchInput($event)"
+              name="globalModalSearchInput"
+              placeholder="Buscar material..."
+              class="w-full pl-8 pr-8 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 placeholder-slate-400 shadow-2xs"
+            />
+            <div class="absolute left-2.5 top-2.5 text-slate-400 pointer-events-none">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            @if (searchTerm()) {
+              <button
+                type="button"
+                (click)="onSearchInput('')"
+                class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Select Material -->
+    <div class="space-y-1.5">
+      <div class="flex items-center justify-between">
+        <label for="globalCatalogSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+          Material del Catálogo *
+        </label>
+        <span class="text-[11px] font-bold text-slate-400">
+          {{ filteredCatalogItems().length }} disponible{{ filteredCatalogItems().length === 1 ? '' : 's' }}
+        </span>
+      </div>
+
+      @if (filteredCatalogItems().length > 0) {
+        <select
+          id="globalCatalogSelect"
+          [ngModel]="selectedItem()?.id"
+          (ngModelChange)="onItemChange(catalogService.items().find(i => i.id === +$event) || null)"
+          name="globalCatalogItem"
+          required
+          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 font-medium shadow-2xs"
+        >
+          @for (item of filteredCatalogItems(); track item.id) {
+            <option [value]="item.id">
+              {{ item.name }} ({{ item.subcategory_detail?.name || 'Subcat' }}) — {{ item.unit_purchase_detail?.abbreviation }} — Ref: ${{ item.price_per_purchase_unit }}
+            </option>
+          }
+        </select>
+      } @else {
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center space-y-1.5">
+          <p class="text-xs text-slate-600 font-medium">
+            No se encontraron materiales para vincular.
+          </p>
+          <button
+            type="button"
+            (click)="clearFilters()"
+            class="text-xs font-bold text-amber-600 hover:text-amber-700 underline cursor-pointer"
+          >
+            Restablecer filtros
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Inputs Row with Affixes -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label for="globalQtyPurchase" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Cantidad a Comprar *
+        </label>
+        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all">
+          <input
+            id="globalQtyPurchase"
+            type="number"
+            step="0.01"
+            min="0.01"
+            [(ngModel)]="quantityPurchase"
+            name="globalQtyPurchase"
+            required
+            class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+          />
+          <span class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 pointer-events-none">
+            {{ selectedItem()?.unit_purchase_detail?.abbreviation || 'u' }}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <label for="globalPrice" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Precio Unit. Compra ($)
+        </label>
+        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all">
+          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">$</span>
+          <input
+            id="globalPrice"
+            type="number"
+            step="0.01"
+            [(ngModel)]="price"
+            name="globalPrice"
+            placeholder="0.00"
+            class="w-full pl-8 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label for="globalDetail" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        Detalle / Observación
+      </label>
+      <input
+        id="globalDetail"
+        type="text"
+        [(ngModel)]="detail"
+        name="globalDetail"
+        placeholder="Ej. Kit para inicio de obra..."
+        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+      />
+    </div>
+
+    <!-- Live Total Card -->
+    <div class="p-3.5 rounded-2xl bg-purple-50/80 border border-purple-200/80 flex items-center justify-between text-xs">
+      <span class="font-bold text-purple-900">Total Compra Global:</span>
+      <span class="text-sm font-black font-mono tabular-nums text-purple-900">
+        ${{ ((quantityPurchase() || 0) * (price() || 0)).toLocaleString('es-CL', { minimumFractionDigits: 2 }) }}
+      </span>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="handleClose()"
+        [disabled]="isProcessing()"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="!selectedItem() || !quantityPurchase() || isProcessing()"
+        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 active:scale-95 cursor-pointer"
+      >
+        @if (isProcessing()) {
+          <svg class="animate-spin w-4 h-4 text-white inline-block mr-1" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+        }
+        Guardar Ítem Global
+      </button>
+    </div>
+  </form>
+</app-modal>

@@ -1,0 +1,138 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-left text-xs text-slate-600">
+    <thead class="bg-slate-50/80 text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200/80">
+      <tr>
+        @if (showSubcategoryColumn()) {
+          <th scope="col" class="px-5 py-3.5">Subcategoría</th>
+        }
+        <th scope="col" class="px-5 py-3.5">Material / Detalle</th>
+        <th scope="col" class="px-3 py-3.5 text-center">Tipo</th>
+        <th scope="col" class="px-4 py-3.5 text-right">Cómputo Obra</th>
+        <th scope="col" class="px-3 py-3.5 text-center">Factor / Merma</th>
+        <th scope="col" class="px-4 py-3.5 text-right">Compra Requerida</th>
+        <th scope="col" class="px-4 py-3.5 text-right">Precio Unit.</th>
+        <th scope="col" class="px-5 py-3.5 text-right font-black text-slate-900">Costo Estimado</th>
+        <th scope="col" class="px-4 py-3.5 text-right">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 bg-white">
+      @for (item of items(); track item.id) {
+        <tr class="hover:bg-amber-50/20 transition-colors group">
+          <!-- Subcategory Name (only if flat view) -->
+          @if (showSubcategoryColumn()) {
+            <td class="px-5 py-3.5 font-bold text-slate-800 text-xs">
+              {{ item.subcategory_detail?.name || 'Subcategoría #' + item.subcategory }}
+            </td>
+          }
+
+          <!-- Name & Detail -->
+          <td class="px-5 py-3.5">
+            <div class="font-bold text-slate-900 text-[13px] tracking-tight group-hover:text-amber-700 transition-colors">
+              {{ item.name }}
+            </div>
+            @if (item.detail) {
+              <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">{{ item.detail }}</div>
+            }
+            <div class="flex items-center gap-2 mt-1">
+              @if (item.catalog_item) {
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                  <span class="w-1 h-1 rounded-full bg-indigo-500"></span>
+                  Catálogo #{{ item.catalog_item }}
+                </span>
+              } @else {
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/60">
+                  <span class="w-1 h-1 rounded-full bg-amber-500"></span>
+                  Ítem Ad-hoc
+                </span>
+              }
+              @if (item.weight_total && +item.weight_total > 0) {
+                <span class="text-[10px] text-slate-400 font-mono">
+                  &bull; {{ item.weight_total }} kg
+                </span>
+              }
+            </div>
+          </td>
+
+          <!-- Tipo (Global / Normal) -->
+          <td class="px-3 py-3.5 text-center">
+            @if (item.is_global) {
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/70 shadow-2xs">
+                Global
+              </span>
+            } @else {
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200/80 shadow-2xs">
+                Normal
+              </span>
+            }
+          </td>
+
+          <!-- Cómputo Obra -->
+          <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs">
+            @if (!item.is_global) {
+              <span class="font-medium text-slate-700">{{ item.quantity_obra ? (+item.quantity_obra).toFixed(2) : '-' }}</span>
+              <span class="text-[10px] text-slate-400 font-sans ml-1">{{ item.unit_measure_detail?.abbreviation }}</span>
+            } @else {
+              <span class="text-slate-300 font-sans text-xs">-</span>
+            }
+          </td>
+
+          <!-- Factor / Merma -->
+          <td class="px-3 py-3.5 text-center font-mono tabular-nums text-[11px]">
+            @if (!item.is_global) {
+              <span class="text-slate-700 font-semibold">x{{ item.conversion_factor }}</span>
+              <span class="text-amber-700/80 text-[10px] block font-medium">
+                +{{ item.waste_pct | appPercent }}
+              </span>
+            } @else {
+              <span class="text-slate-300 font-sans text-xs">-</span>
+            }
+          </td>
+
+          <!-- Compra Requerida -->
+          <td class="px-4 py-3.5 text-right font-mono tabular-nums">
+            <span class="text-sm font-extrabold text-amber-900 bg-amber-50/80 px-2 py-0.5 rounded-lg border border-amber-200/70">
+              {{ (+item.quantity_purchase).toFixed(2) }}
+            </span>
+            <span class="text-[10px] text-slate-500 font-sans block mt-0.5">{{ item.unit_purchase_detail?.abbreviation }}</span>
+          </td>
+
+          <!-- Precio Unitario -->
+          <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs text-slate-700 font-medium">
+            {{ item.price_per_purchase_unit | appCurrency }}
+          </td>
+
+          <!-- Costo Estimado -->
+          <td class="px-5 py-3.5 text-right font-mono tabular-nums text-[13px] font-black text-slate-900">
+            {{ item.estimated_cost | appCurrency }}
+          </td>
+
+          <!-- Acciones -->
+          <td class="px-4 py-3.5 text-right">
+            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                (click)="edit.emit(item)"
+                class="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all cursor-pointer shadow-2xs"
+                title="Editar línea"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                (click)="delete.emit(item)"
+                class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all cursor-pointer shadow-2xs"
+                title="Eliminar del presupuesto"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,334 @@
+<div class="space-y-6 animate-in fade-in duration-300">
+  <!-- Controls Bar: Title, Search, View Mode, New Button -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+    <!-- Search Box -->
+    <div class="relative w-full sm:max-w-md min-w-0">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Buscar obra por nombre o ID..."
+        class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-2xs"
+      />
+    </div>
+
+    <!-- View Mode Selector & New Button -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto shrink-0">
+      <!-- Grid / Table toggle -->
+      <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200/80 justify-center w-full sm:w-auto shadow-2xs">
+        <button
+          type="button"
+          (click)="viewMode.set('grid')"
+          [ngClass]="viewMode() === 'grid' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+          title="Vista Cuadrícula"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Cards</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="viewMode.set('table')"
+          [ngClass]="viewMode() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+          title="Vista Tabla"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+          </svg>
+          <span>Tabla</span>
+        </button>
+      </div>
+
+      <!-- New Project Action -->
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+        Nueva Obra
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Skeletons -->
+  @if (projectService.loading()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="p-6 rounded-3xl bg-white border border-slate-200/80 animate-pulse h-44 space-y-4 shadow-xs">
+          <div class="flex justify-between">
+            <div class="w-10 h-10 rounded-2xl bg-slate-100"></div>
+            <div class="w-16 h-5 rounded-full bg-slate-100"></div>
+          </div>
+          <div class="w-3/4 h-6 rounded bg-slate-100"></div>
+          <div class="w-1/2 h-4 rounded bg-slate-100"></div>
+        </div>
+      }
+    </div>
+  } @else if (filteredProjects().length === 0) {
+    <!-- Empty State -->
+    @if (searchTerm()) {
+      <app-empty-state
+        iconType="search"
+        title="Sin coincidencias para la búsqueda"
+        description="No se encontró ninguna obra con el término especificado. Intenta con otra palabra clave."
+        actionText="Limpiar búsqueda"
+        (action)="searchTerm.set('')"
+      />
+    } @else {
+      <app-empty-state
+        iconType="project"
+        title="No hay obras registradas"
+        description="Comienza registrando tu primera obra o proyecto de construcción para organizar sus categorías y presupuestos."
+        actionText="Registrar Primera Obra"
+        (action)="openCreateModal()"
+      />
+    }
+  } @else {
+    <!-- Grid View -->
+    @if (viewMode() === 'grid') {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (project of filteredProjects(); track project.id) {
+          <div
+            class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 hover:border-amber-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+          >
+            <div>
+              <!-- Card Header -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-black text-xs sm:text-sm font-mono tabular-nums shadow-2xs">
+                  #{{ project.id }}
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    (click)="openEditModal(project)"
+                    class="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                    title="Editar nombre"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="openDeleteModal(project)"
+                    class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                    title="Eliminar obra"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Project Name -->
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-3 sm:mt-4 group-hover:text-amber-600 transition-colors line-clamp-1">
+                {{ project.name }}
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">Obra registrada en aNivel</p>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="mt-5 sm:mt-6 pt-3.5 sm:pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400 font-mono tabular-nums font-medium">ID: {{ project.id }}</span>
+
+              <a
+                [routerLink]="['/obras', project.id]"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-500 text-amber-800 hover:text-white border border-amber-200 text-xs font-extrabold transition-all shadow-2xs active:scale-95 cursor-pointer"
+              >
+                Abrir Presupuesto
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Table View -->
+      <div class="overflow-x-auto rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-xs">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+            <tr>
+              <th scope="col" class="px-6 py-4">ID</th>
+              <th scope="col" class="px-6 py-4">Nombre de la Obra</th>
+              <th scope="col" class="px-6 py-4 text-center">Estado</th>
+              <th scope="col" class="px-6 py-4 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (project of filteredProjects(); track project.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="px-6 py-4 font-mono tabular-nums text-xs text-amber-700 font-bold">#{{ project.id }}</td>
+                <td class="px-6 py-4 font-bold text-slate-900">
+                  <a [routerLink]="['/obras', project.id]" class="hover:text-amber-600 transition-colors">
+                    {{ project.name }}
+                  </a>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Activa
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a
+                      [routerLink]="['/obras', project.id]"
+                      class="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 hover:bg-amber-50 border border-amber-200 transition-colors"
+                    >
+                      Abrir
+                    </a>
+                    <button
+                      type="button"
+                      (click)="openEditModal(project)"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                      title="Editar"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="openDeleteModal(project)"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      title="Eliminar"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+
+<!-- Modal: Crear Obra -->
+<app-modal
+  [isOpen]="isCreateModalOpen()"
+  title="Registrar Nueva Obra"
+  subtitle="Ingresa los datos principales del proyecto de construcción"
+  (close)="closeCreateModal()"
+>
+  <form (submit)="$event.preventDefault(); submitCreate()" class="space-y-5">
+    <div>
+      <label for="newProjectName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        Nombre de la Obra *
+      </label>
+      <input
+        id="newProjectName"
+        type="text"
+        [(ngModel)]="projectNameForm"
+        name="projectNameForm"
+        required
+        placeholder="Ej. Torre Costanera, Remodelación Plaza..."
+        class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-2xs font-medium"
+        autofocus
+      />
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="closeCreateModal()"
+        [disabled]="isProcessing()"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="!projectNameForm().trim() || isProcessing()"
+        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer active:scale-95"
+      >
+        @if (isProcessing()) {
+          <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+        }
+        Guardar Obra
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal: Editar Obra -->
+<app-modal
+  [isOpen]="isEditModalOpen()"
+  title="Editar Nombre de Obra"
+  subtitle="Modifica la denominación del proyecto seleccionado"
+  (close)="closeEditModal()"
+>
+  <form (submit)="$event.preventDefault(); submitEdit()" class="space-y-5">
+    <div>
+      <label for="editProjectName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        Nombre de la Obra *
+      </label>
+      <input
+        id="editProjectName"
+        type="text"
+        [(ngModel)]="projectNameForm"
+        name="projectNameForm"
+        required
+        class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-2xs font-medium"
+      />
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="closeEditModal()"
+        [disabled]="isProcessing()"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="!projectNameForm().trim() || isProcessing()"
+        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer active:scale-95"
+      >
+        @if (isProcessing()) {
+          <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+        }
+        Actualizar
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal: Eliminar Obra -->
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Eliminar Obra"
+  [message]="'¿Estás seguro de que deseas eliminar permanentemente la obra \'' + (selectedProject()?.name || '') + '\'? Esta acción no se puede deshacer y borrará también las líneas de presupuesto asociadas.'"
+  confirmText="Sí, eliminar obra"
+  [loading]="isProcessing()"
+  (confirm)="submitDelete()"
+  (cancel)="closeDeleteModal()"
+/>

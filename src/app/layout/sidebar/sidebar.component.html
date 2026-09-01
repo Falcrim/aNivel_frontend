@@ -1,0 +1,149 @@
+<!-- Backdrop for mobile -->
+@if (isMobileOpen()) {
+  <div
+    class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs lg:hidden"
+    (click)="closeMobile.emit()"
+  ></div>
+}
+
+<!-- Sidebar Container -->
+<aside
+  class="fixed top-0 left-0 bottom-0 z-40 w-72 bg-white border-r border-slate-200/80 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-xs"
+  [ngClass]="isMobileOpen() ? 'translate-x-0' : '-translate-x-full'"
+>
+  <!-- Brand Logo & Header -->
+  <div class="h-20 flex items-center justify-between px-6 border-b border-slate-100 bg-white">
+    <a routerLink="/dashboard" class="flex items-center gap-3 group">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-500 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+        <!-- Level / Ruler Icon -->
+        <svg class="w-6 h-6 text-white font-bold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M2 12h20M7 8v8m5-6v4m5-6v4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-xl font-black tracking-tight text-slate-900">a<span class="text-amber-600">Nivel</span></span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-bold uppercase tracking-wider">v2.0</span>
+        </div>
+        <p class="text-[11px] text-slate-500 font-medium">Control de Obras & Presupuestos</p>
+      </div>
+    </a>
+
+    <!-- Close button for mobile -->
+    <button
+      type="button"
+      (click)="closeMobile.emit()"
+      class="lg:hidden p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Navigation Content -->
+  <div class="flex-1 overflow-y-auto px-4 py-6 space-y-7 scrollbar-thin">
+    <!-- Active Core Modules -->
+    <div>
+      <div class="px-3 mb-2 flex items-center justify-between">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Módulos Activos</span>
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      </div>
+
+      <nav class="space-y-1.5">
+        @for (item of navItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            [routerLinkActiveOptions]="{ exact: item.exact }"
+            routerLinkActive="bg-amber-50 text-amber-900 border-amber-200/80 font-bold shadow-xs"
+            class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl border border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all group"
+            (click)="closeMobile.emit()"
+          >
+            <!-- SVG Icons -->
+            <div class="w-5 h-5 flex items-center justify-center shrink-0 text-slate-500 group-hover:text-amber-600">
+              @if (item.icon === 'dashboard') {
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              } @else if (item.icon === 'building') {
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              } @else if (item.icon === 'catalog') {
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              } @else if (item.icon === 'layers') {
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              } @else if (item.icon === 'ruler') {
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 6l3 18h12l3-18H3zm3 0h12M9 10h6m-5 4h4m-3 4h2" />
+                </svg>
+              }
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium leading-tight truncate">{{ item.label }}</div>
+              @if (item.subtitle) {
+                <div class="text-[11px] text-slate-400 group-hover:text-slate-500 truncate">{{ item.subtitle }}</div>
+              }
+            </div>
+          </a>
+        }
+      </nav>
+    </div>
+
+    <!-- Future Architectural Modules -->
+    <div>
+      <div class="px-3 mb-2 flex items-center justify-between">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Próximos Módulos</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">Fase 2</span>
+      </div>
+
+      <div class="space-y-1.5 opacity-70">
+        @for (fut of futureItems; track fut.label) {
+          <div class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 text-slate-500 select-none">
+            <div class="w-5 h-5 flex items-center justify-center shrink-0 text-slate-400">
+              @if (fut.icon === 'users') {
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              } @else if (fut.icon === 'calculator') {
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              } @else {
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-medium text-slate-700 truncate">{{ fut.label }}</div>
+              <div class="text-[10px] text-slate-400 truncate">{{ fut.subtitle }}</div>
+            </div>
+            <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-400 font-semibold">Pronto</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Workspace Card -->
+  <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+    <div class="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-bold text-xs">
+        aN
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-bold text-slate-800 truncate">Espacio Principal</p>
+        <p class="text-[10px] text-emerald-600 flex items-center gap-1 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Core & Materials API
+        </p>
+      </div>
+    </div>
+  </div>
+</aside>

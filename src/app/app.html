@@ -1,0 +1,30 @@
+<div class="min-h-screen bg-slate-50 text-slate-900 flex font-sans antialiased selection:bg-amber-500 selection:text-white">
+  <!-- Sidebar -->
+  <app-sidebar
+    [isMobileOpen]="isMobileSidebarOpen()"
+    (closeMobile)="closeMobileSidebar()"
+  />
+
+  <!-- Main Content Layout -->
+  <div class="flex-1 flex flex-col min-w-0 lg:pl-72">
+    <!-- Header -->
+    <app-header
+      (toggleMobileSidebar)="toggleMobileSidebar()"
+    />
+
+    <!-- Main View Outlet -->
+    <main class="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto min-w-0">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 sm:py-6 px-4 sm:px-8 border-t border-slate-200/80 bg-white text-center text-[11px] sm:text-xs text-slate-500">
+      <p>
+        <span class="font-bold text-slate-700">aNivel</span> &copy; 2026 &bull; Plataforma de Gestión de Obras, Catálogos y Control de Costos.
+      </p>
+    </footer>
+  </div>
+
+  <!-- Global Toast Notifications Container -->
+  <app-toast-container />
+</div>

@@ -1,0 +1,512 @@
+<div class="space-y-6 animate-in fade-in duration-300">
+  <!-- Controls & Action Bar -->
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+    <!-- Left: Search & Subcategory Filter -->
+    <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1 min-w-0">
+      <!-- Search Input -->
+      <div class="relative w-full sm:max-w-xs min-w-0">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar material en catálogo..."
+          class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+        />
+      </div>
+
+      <!-- Filter Subcategory -->
+      <select
+        [ngModel]="selectedSubcategoryFilter()"
+        (ngModelChange)="selectedSubcategoryFilter.set($event ? +$event : null)"
+        class="w-full sm:w-auto px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+      >
+        <option [value]="null">Todas las subcategorías</option>
+        @for (s of subcategoryService.subcategories(); track s.id) {
+          <option [value]="s.id">{{ s.name }}</option>
+        }
+      </select>
+
+      <!-- Active switch -->
+      <label class="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none py-1 sm:py-0">
+        <input
+          type="checkbox"
+          [ngModel]="onlyActiveFilter()"
+          (ngModelChange)="onlyActiveFilter.set($event)"
+          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+        />
+        Solo activos
+      </label>
+    </div>
+
+    <!-- Right: View Mode Toggle & New Button -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+      <!-- Toggle Grouped vs Table -->
+      <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 w-full sm:w-auto justify-center shadow-2xs">
+        <button
+          type="button"
+          (click)="viewMode.set('grouped')"
+          [ngClass]="viewMode() === 'grouped' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+        >
+          Por Subcategoría
+        </button>
+        <button
+          type="button"
+          (click)="viewMode.set('table')"
+          [ngClass]="viewMode() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+        >
+          Tabla Plana
+        </button>
+      </div>
+
+      <!-- New Material Action -->
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+        Nuevo Material
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (catalogService.loading()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="p-6 rounded-3xl bg-white border border-slate-200 animate-pulse h-48 shadow-xs"></div>
+      }
+    </div>
+  } @else if (filteredItems().length === 0) {
+    <!-- Empty State -->
+    <app-empty-state
+      iconType="category"
+      title="No hay materiales en el catálogo"
+      description="Crea plantillas maestras de materiales para reutilizarlas en el armado de presupuestos de todas tus obras."
+      actionText="Crear Primer Material"
+      (action)="openCreateModal()"
+    />
+  } @else {
+    <!-- VIEW 1: GROUPED BY SUBCATEGORY -->
+    @if (viewMode() === 'grouped') {
+      <div class="space-y-6">
+        @for (group of filteredGrouped(); track group.subcategory_id) {
+          <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
+            <!-- Header of Subcategory Group -->
+            <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+                  {{ group.subcategory_name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="min-w-0">
+                  <h4 class="text-sm font-black text-slate-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span class="truncate">{{ group.subcategory_name }}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shadow-2xs whitespace-nowrap">
+                      {{ group.items_count }} materiales
+                    </span>
+                  </h4>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                (click)="openCreateModal(group.subcategory_id)"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-800 hover:text-white hover:bg-amber-500 bg-amber-50/80 border border-amber-200 hover:border-amber-500 transition-all cursor-pointer shadow-2xs active:scale-95 ml-auto sm:ml-0"
+              >
+                + Añadir aquí
+              </button>
+            </div>
+
+            <!-- Table for Group Items -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-white text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
+                  <tr>
+                    <th scope="col" class="px-5 py-3">Nombre / Descripción</th>
+                    <th scope="col" class="px-4 py-3 text-center">Unidad Obra</th>
+                    <th scope="col" class="px-4 py-3 text-center">Unidad Compra</th>
+                    <th scope="col" class="px-4 py-3 text-center">Factor Conversión</th>
+                    <th scope="col" class="px-4 py-3 text-center">Merma</th>
+                    <th scope="col" class="px-4 py-3 text-right">Precio Ref. ($)</th>
+                    <th scope="col" class="px-4 py-3 text-center">Estado</th>
+                    <th scope="col" class="px-4 py-3 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  @for (item of group.items; track item.id) {
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                      <td class="px-5 py-3.5">
+                        <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                        @if (item.description) {
+                          <div class="text-[11px] text-slate-400 mt-0.5">{{ item.description }}</div>
+                        }
+                      </td>
+                      <td class="px-4 py-3.5 text-center font-medium">
+                        <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[11px]">
+                          {{ item.unit_measure_detail?.abbreviation || 'N/A' }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3.5 text-center font-medium">
+                        <span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold">
+                          {{ item.unit_purchase_detail?.abbreviation || 'N/A' }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3.5 text-center font-mono tabular-nums font-medium text-slate-700 text-xs">
+                        1 {{ item.unit_purchase_detail?.abbreviation }} = {{ item.conversion_factor }} {{ item.unit_measure_detail?.abbreviation }}
+                      </td>
+                      <td class="px-4 py-3.5 text-center font-mono tabular-nums font-semibold text-amber-700">
+                        {{ item.waste_pct | appPercent }}
+                      </td>
+                      <td class="px-4 py-3.5 text-right font-mono tabular-nums font-bold text-slate-900 text-xs">
+                        {{ item.price_per_purchase_unit | appCurrency }}
+                      </td>
+                      <td class="px-4 py-3.5 text-center">
+                        @if (item.is_active) {
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                            Activo
+                          </span>
+                        } @else {
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 shadow-2xs">
+                            Inactivo
+                          </span>
+                        }
+                      </td>
+                      <td class="px-4 py-3.5 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            (click)="openEditModal(item)"
+                            class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                            title="Editar"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            (click)="openDeleteModal(item)"
+                            class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            title="Eliminar"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- VIEW 2: FLAT TABLE -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-200">
+              <tr>
+                <th scope="col" class="px-5 py-4">ID</th>
+                <th scope="col" class="px-5 py-4">Nombre / Descripción</th>
+                <th scope="col" class="px-4 py-4">Subcategoría</th>
+                <th scope="col" class="px-4 py-4 text-center">Unidad Obra</th>
+                <th scope="col" class="px-4 py-4 text-center">Unidad Compra</th>
+                <th scope="col" class="px-4 py-4 text-center">Factor Conversión</th>
+                <th scope="col" class="px-4 py-4 text-right">Precio Ref. ($)</th>
+                <th scope="col" class="px-4 py-4 text-center">Estado</th>
+                <th scope="col" class="px-4 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @for (item of filteredItems(); track item.id) {
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-amber-700">#{{ item.id }}</td>
+                  <td class="px-5 py-3.5">
+                    <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                    @if (item.description) {
+                      <div class="text-[11px] text-slate-400">{{ item.description }}</div>
+                    }
+                  </td>
+                  <td class="px-4 py-3.5 font-semibold text-slate-700">
+                    {{ item.subcategory_detail?.name }}
+                  </td>
+                  <td class="px-4 py-3.5 text-center">
+                    {{ item.unit_measure_detail?.abbreviation }}
+                  </td>
+                  <td class="px-4 py-3.5 text-center font-bold text-amber-800">
+                    {{ item.unit_purchase_detail?.abbreviation }}
+                  </td>
+                  <td class="px-4 py-3.5 text-center font-mono tabular-nums">
+                    1 {{ item.unit_purchase_detail?.abbreviation }} = {{ item.conversion_factor }} {{ item.unit_measure_detail?.abbreviation }}
+                  </td>
+                  <td class="px-4 py-3.5 text-right font-mono tabular-nums font-bold text-slate-900">
+                    {{ item.price_per_purchase_unit | appCurrency }}
+                  </td>
+                  <td class="px-4 py-3.5 text-center">
+                    @if (item.is_active) {
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                        Activo
+                      </span>
+                    } @else {
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 shadow-2xs">
+                        Inactivo
+                      </span>
+                    }
+                  </td>
+                  <td class="px-4 py-3.5 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        (click)="openEditModal(item)"
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                      >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="openDeleteModal(item)"
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: CREAR / EDITAR MATERIAL EN CATÁLOGO MAESTRO -->
+<!-- ========================================================================= -->
+<app-modal
+  [isOpen]="isCreateModalOpen() || isEditModalOpen()"
+  [title]="isCreateModalOpen() ? 'Nuevo Material en Catálogo' : 'Editar Material del Catálogo'"
+  subtitle="Define especificaciones, unidades y precio referencial"
+  maxWidthClass="max-w-2xl"
+  (close)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
+>
+  <form (submit)="$event.preventDefault(); isCreateModalOpen() ? submitCreate() : submitEdit()" class="space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label for="matSubcatSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Subcategoría *
+        </label>
+        <select
+          id="matSubcatSelect"
+          [(ngModel)]="formSubcategoryId"
+          name="formSubcat"
+          required
+          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+        >
+          @for (s of subcategoryService.subcategories(); track s.id) {
+            <option [value]="s.id">{{ s.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label for="matNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Nombre del Material *
+        </label>
+        <input
+          id="matNameInput"
+          type="text"
+          [(ngModel)]="formName"
+          name="formName"
+          required
+          placeholder="Ej. Fierro corrugado 12mm..."
+          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label for="matDescInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        Descripción / Especificación General
+      </label>
+      <input
+        id="matDescInput"
+        type="text"
+        [(ngModel)]="formDescription"
+        name="formDescription"
+        placeholder="Ej. Barras de 12 metros según norma técnica..."
+        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+      />
+    </div>
+
+    <!-- Units and Conversion -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div>
+        <label for="matUomSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Unidad Obra *
+        </label>
+        <select
+          id="matUomSelect"
+          [(ngModel)]="formUnitMeasureId"
+          name="formUom"
+          required
+          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+        >
+          @for (u of uomService.units(); track u.id) {
+            <option [value]="u.id">{{ u.name }} ({{ u.abbreviation }})</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label for="matPuSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Unidad Compra *
+        </label>
+        <select
+          id="matPuSelect"
+          [(ngModel)]="formUnitPurchaseId"
+          name="formPu"
+          required
+          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+        >
+          @for (p of puService.units(); track p.id) {
+            <option [value]="p.id">{{ p.name }} ({{ p.abbreviation }})</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label for="matConvFactorInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Factor Conversión *
+        </label>
+        <input
+          id="matConvFactorInput"
+          type="number"
+          step="0.0001"
+          min="0.0001"
+          [(ngModel)]="formConversionFactor"
+          name="formConvFactor"
+          required
+          placeholder="Ej. 12.00"
+          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden focus:border-amber-500 shadow-2xs"
+        />
+      </div>
+    </div>
+
+    <!-- Weight, Waste, Price -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div>
+        <label for="matWasteInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          % Merma Sugerida
+        </label>
+        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
+          <input
+            id="matWasteInput"
+            type="number"
+            step="1"
+            min="0"
+            max="100"
+            [(ngModel)]="formWastePct"
+            name="formWaste"
+            placeholder="0"
+            class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden pr-8"
+          />
+          <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">%</span>
+        </div>
+      </div>
+
+      <div>
+        <label for="matWeightInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Peso en kg / unidad
+        </label>
+        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
+          <input
+            id="matWeightInput"
+            type="number"
+            step="0.0001"
+            min="0"
+            [(ngModel)]="formWeight"
+            name="formWeight"
+            placeholder="0.00"
+            class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden pr-8"
+          />
+          <span class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 pointer-events-none">kg</span>
+        </div>
+      </div>
+
+      <div>
+        <label for="matPriceInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Precio Unit. Ref. ($)
+        </label>
+        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
+          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">$</span>
+          <input
+            id="matPriceInput"
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="formPrice"
+            name="formPrice"
+            placeholder="0.00"
+            class="w-full pl-8 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Active checkbox -->
+    <div class="flex items-center gap-2 pt-2">
+      <input
+        id="matIsActiveInput"
+        type="checkbox"
+        [(ngModel)]="formIsActive"
+        name="formIsActive"
+        class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+      />
+      <label for="matIsActiveInput" class="text-xs font-bold text-slate-700 cursor-pointer">
+        Material activo para presupuestación
+      </label>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
+        [disabled]="isProcessing()"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="!formName().trim() || !formSubcategoryId() || isProcessing()"
+        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+      >
+        {{ isCreateModalOpen() ? 'Crear Material' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- CONFIRM DELETE MODAL -->
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Eliminar Material del Catálogo"
+  [message]="'¿Estás seguro de que deseas eliminar \'' + (itemToDelete()?.name || '') + '\' del catálogo maestro?'"
+  confirmText="Sí, eliminar"
+  [loading]="isProcessing()"
+  (confirm)="submitDelete()"
+  (cancel)="closeDeleteModal()"
+/>

@@ -1,0 +1,445 @@
+<div class="space-y-6 animate-in fade-in duration-300">
+  <!-- Top Navigation / Action Bar -->
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+    <!-- View Tabs -->
+    <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 w-full lg:w-auto justify-center shadow-2xs">
+      <button
+        type="button"
+        (click)="activeTab.set('hierarchy')"
+        [ngClass]="activeTab() === 'hierarchy' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+        class="flex-1 lg:flex-initial px-3 sm:px-3.5 py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
+      >
+        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span class="truncate">Jerárquica</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="activeTab.set('table')"
+        [ngClass]="activeTab() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+        class="flex-1 lg:flex-initial px-3 sm:px-3.5 py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
+      >
+        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+        </svg>
+        <span class="truncate">Subcategorías ({{ enrichedSubcategories().length }})</span>
+      </button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+      <button
+        type="button"
+        (click)="openCreateCategoryModal()"
+        class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer"
+      >
+        <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+        Nueva Categoría
+      </button>
+
+      <button
+        type="button"
+        (click)="openCreateSubcategoryModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+        Nueva Subcategoría
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 1: Hierarchy / Master-Detail View -->
+  @if (activeTab() === 'hierarchy') {
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left: Categories Master List (4 Cols) -->
+      <div class="lg:col-span-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Categorías Maestras</h3>
+            <p class="text-[11px] text-slate-400">Nivel 1 de clasificación</p>
+          </div>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-amber-800 font-mono tabular-nums">
+            {{ categoriesWithCount().length }}
+          </span>
+        </div>
+
+        <!-- Categories List -->
+        @if (categoryService.loading() && categoriesWithCount().length === 0) {
+          <div class="space-y-2">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <div class="h-14 rounded-2xl bg-slate-100 animate-pulse"></div>
+            }
+          </div>
+        } @else if (categoriesWithCount().length === 0) {
+          <div class="p-6 text-center border border-dashed border-slate-200 rounded-2xl space-y-2">
+            <p class="text-xs text-slate-500">No hay categorías maestras creadas.</p>
+            <button
+              (click)="openCreateCategoryModal()"
+              class="text-xs text-amber-600 font-bold hover:underline"
+            >
+              + Crear categoría
+            </button>
+          </div>
+        } @else {
+          <div class="space-y-2">
+            @for (cat of categoriesWithCount(); track cat.id) {
+              <div
+                (click)="selectCategory(cat)"
+                [ngClass]="selectedCategory()?.id === cat.id ? 'bg-amber-500 text-white font-bold border-amber-500 shadow-sm shadow-amber-500/20' : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-slate-100'"
+                class="p-3.5 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all group"
+              >
+                <div class="flex items-center gap-3 min-w-0">
+                  <div
+                    [ngClass]="selectedCategory()?.id === cat.id ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-slate-200'"
+                    class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition-colors shadow-2xs"
+                  >
+                    {{ cat.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <span class="text-xs truncate">{{ cat.name }}</span>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span
+                    [ngClass]="selectedCategory()?.id === cat.id ? 'bg-white/20 text-white' : 'bg-slate-200/80 text-slate-700'"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tabular-nums"
+                  >
+                    {{ cat.count }}
+                  </span>
+
+                  <button
+                    type="button"
+                    (click)="$event.stopPropagation(); openEditCategoryModal(cat)"
+                    [ngClass]="selectedCategory()?.id === cat.id ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-slate-800 hover:bg-slate-200'"
+                    class="p-1 rounded-lg transition-colors cursor-pointer"
+                    title="Editar categoría"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="$event.stopPropagation(); openDeleteCategoryModal(cat)"
+                    [ngClass]="selectedCategory()?.id === cat.id ? 'hover:bg-rose-600 text-white' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'"
+                    class="p-1 rounded-lg transition-colors cursor-pointer"
+                    title="Eliminar categoría"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Right: Subcategories Detail for Selected Category (8 Cols) -->
+      <div class="lg:col-span-8 space-y-4">
+        @if (selectedCategory(); as selCat) {
+          <div class="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-5">
+            <!-- Detail Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-bold text-sm shadow-2xs">
+                  {{ selCat.name.charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-900">{{ selCat.name }}</h3>
+                  <p class="text-xs text-slate-400">
+                    {{ currentSubcategories().length }} subcategorías asociadas
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                (click)="openCreateSubcategoryModal(selCat.id)"
+                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer self-start sm:self-auto"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+                + Subcategoría en {{ selCat.name }}
+              </button>
+            </div>
+
+            <!-- Inline Quick Add Input -->
+            <form (submit)="$event.preventDefault(); submitQuickSubcategory()" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <input
+                type="text"
+                [(ngModel)]="quickSubcategoryName"
+                name="quickSubName"
+                placeholder="Añadir subcategoría rápida en {{ selCat.name }}..."
+                class="flex-1 px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+              />
+              <button
+                type="submit"
+                [disabled]="!quickSubcategoryName().trim() || isProcessing()"
+                class="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all disabled:opacity-40 cursor-pointer shadow-2xs active:scale-95"
+              >
+                Añadir Rápido
+              </button>
+            </form>
+
+            <!-- Subcategories List in Selected Category -->
+            @if (currentSubcategories().length === 0) {
+              <div class="p-8 text-center border border-dashed border-slate-200 rounded-2xl space-y-2">
+                <p class="text-xs text-slate-500">Esta categoría aún no tiene subcategorías.</p>
+              </div>
+            } @else {
+              <div class="divide-y divide-slate-100 border border-slate-100 rounded-2xl overflow-hidden">
+                @for (sub of currentSubcategories(); track sub.id) {
+                  <div class="p-3.5 bg-slate-50/50 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                      <span class="text-xs font-bold text-slate-800 truncate">{{ sub.name }}</span>
+                      <span class="text-[10px] text-slate-400 font-mono tabular-nums">#{{ sub.id }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        (click)="openEditSubcategoryModal(sub)"
+                        class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-200/80 transition-colors"
+                        title="Editar subcategoría"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="openDeleteSubcategoryModal(sub)"
+                        class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        title="Eliminar subcategoría"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="p-8 text-center bg-white border border-slate-200/80 rounded-3xl shadow-xs">
+            <p class="text-xs text-slate-400">Selecciona una categoría de la izquierda para ver y gestionar sus subcategorías.</p>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- TAB 2: Flat Subcategories Table -->
+    <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden space-y-4 p-4 sm:p-5">
+      <!-- Search and Filter in Table View -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="relative flex-1 max-w-sm">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Buscar subcategoría..."
+            class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          />
+        </div>
+
+        <select
+          [ngModel]="filterCategory()"
+          (ngModelChange)="filterCategory.set($event ? +$event : null)"
+          class="w-full sm:w-auto px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+        >
+          <option [value]="null">Todas las categorías</option>
+          @for (c of categoryService.categories(); track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-200">
+        <table class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-200">
+            <tr>
+              <th scope="col" class="px-5 py-3.5">ID</th>
+              <th scope="col" class="px-5 py-3.5">Subcategoría</th>
+              <th scope="col" class="px-5 py-3.5">Categoría Padre</th>
+              <th scope="col" class="px-5 py-3.5 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (sub of filteredSubcategories(); track sub.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-amber-700">#{{ sub.id }}</td>
+                <td class="px-5 py-3.5 font-bold text-slate-900 text-[13px]">{{ sub.name }}</td>
+                <td class="px-5 py-3.5">
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                    {{ sub.category_name }}
+                  </span>
+                </td>
+                <td class="px-5 py-3.5 text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      type="button"
+                      (click)="openEditSubcategoryModal(sub)"
+                      class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                      title="Editar"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="openDeleteSubcategoryModal(sub)"
+                      class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      title="Eliminar"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Modals -->
+<!-- Modal 1: Category Create/Edit -->
+<app-modal
+  [isOpen]="isCategoryModalOpen()"
+  [title]="categoryFormMode() === 'create' ? 'Nueva Categoría Maestra' : 'Editar Categoría Maestra'"
+  subtitle="Las categorías maestras representan el primer nivel de división presupuestaria"
+  (close)="closeCategoryModal()"
+>
+  <form (submit)="$event.preventDefault(); submitCategory()" class="space-y-4">
+    <div>
+      <label for="catNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        Nombre de la Categoría *
+      </label>
+      <input
+        id="catNameInput"
+        type="text"
+        [(ngModel)]="categoryNameForm"
+        name="catNameForm"
+        required
+        placeholder="Ej. Materiales, Mano de Obra, Subcontratos..."
+        class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+      />
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="closeCategoryModal()"
+        [disabled]="isProcessing()"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="!categoryNameForm().trim() || isProcessing()"
+        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+      >
+        {{ categoryFormMode() === 'create' ? 'Crear Categoría' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal 2: Subcategory Create/Edit -->
+<app-modal
+  [isOpen]="isSubcategoryModalOpen()"
+  [title]="subcategoryFormMode() === 'create' ? 'Nueva Subcategoría' : 'Editar Subcategoría'"
+  subtitle="Agrupación de segundo nivel que clasifica materiales o ítems de costo"
+  (close)="closeSubcategoryModal()"
+>
+  <form (submit)="$event.preventDefault(); submitSubcategory()" class="space-y-4">
+    <div>
+      <label for="subcatCategorySelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        Categoría Padre *
+      </label>
+      <select
+        id="subcatCategorySelect"
+        [(ngModel)]="subcategoryCategoryIdForm"
+        name="subcatCatSelect"
+        required
+        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+      >
+        @for (cat of categoryService.categories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div>
+      <label for="subcatNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        Nombre de la Subcategoría *
+      </label>
+      <input
+        id="subcatNameInput"
+        type="text"
+        [(ngModel)]="subcategoryNameForm"
+        name="subcatNameInput"
+        required
+        placeholder="Ej. Fierros, Cementos, Áridos, Pinturas..."
+        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+      />
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="closeSubcategoryModal()"
+        [disabled]="isProcessing()"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="!subcategoryNameForm().trim() || !subcategoryCategoryIdForm() || isProcessing()"
+        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+      >
+        {{ subcategoryFormMode() === 'create' ? 'Crear Subcategoría' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal 3: Delete Category Confirm -->
+<app-confirm-dialog
+  [isOpen]="isDeleteCategoryOpen()"
+  title="Eliminar Categoría"
+  [message]="'¿Estás seguro de que deseas eliminar la categoría \'' + (categoryToDelete()?.name || '') + '\' y sus subcategorías asociadas?'"
+  confirmText="Sí, eliminar"
+  [loading]="isProcessing()"
+  (confirm)="submitDeleteCategory()"
+  (cancel)="closeDeleteCategoryModal()"
+/>
+
+<!-- Modal 4: Delete Subcategory Confirm -->
+<app-confirm-dialog
+  [isOpen]="isDeleteSubcategoryOpen()"
+  title="Eliminar Subcategoría"
+  [message]="'¿Estás seguro de que deseas eliminar la subcategoría \'' + (subcategoryToDelete()?.name || '') + '\'?'"
+  confirmText="Sí, eliminar"
+  [loading]="isProcessing()"
+  (confirm)="submitDeleteSubcategory()"
+  (cancel)="closeDeleteSubcategoryModal()"
+/>
