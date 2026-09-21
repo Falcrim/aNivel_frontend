@@ -8,11 +8,12 @@ import { MaterialCatalogItem } from '../../../../../core/models/material-catalog
 import { FromCatalogPayload } from '../../../../../core/models/material-budget.model';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { CurrencyClpPipe } from '../../../../../shared/pipes/currency-clp.pipe';
+import { CustomSelectComponent, CustomSelectOption } from '../../../../../shared/components/custom-select/custom-select.component';
 
 @Component({
   selector: 'app-add-from-catalog-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, CurrencyClpPipe],
+  imports: [CommonModule, FormsModule, ModalComponent, CurrencyClpPipe, CustomSelectComponent],
   templateUrl: './add-from-catalog-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -31,12 +32,30 @@ export class AddFromCatalogModalComponent {
   // Filters & State
   readonly searchTerm = signal<string>('');
   readonly subcatFilter = signal<number | null>(null);
+  readonly selectedItemId = signal<number | null>(null);
   readonly selectedItem = signal<MaterialCatalogItem | null>(null);
   readonly quantityObra = signal<number | null>(null);
   readonly wastePct = signal<number>(0);
   readonly priceOverride = signal<number | null>(null);
   readonly detail = signal<string>('');
   readonly isProcessing = signal<boolean>(false);
+
+  // Select Options
+  readonly subcatFilterOptions = computed<CustomSelectOption<number | null>[]>(() => [
+    { label: 'Todas las subcategorías', value: null },
+    ...this.subcategoryService.subcategories().map((s) => ({
+      label: s.name,
+      value: s.id,
+    })),
+  ]);
+
+  readonly catalogItemOptions = computed<CustomSelectOption<number | null>[]>(() =>
+    this.filteredCatalogItems().map((item) => ({
+      label: item.name,
+      value: item.id,
+      subtitle: `${item.subcategory_detail?.name || 'Subcat'} — 1 ${item.unit_purchase_detail?.abbreviation || 'u'} = ${item.conversion_factor} ${item.unit_measure_detail?.abbreviation || 'u'} — Ref: $${item.price_per_purchase_unit || 0}`,
+    }))
+  );
 
   // Filtered catalog items
   readonly filteredCatalogItems = computed(() => {
@@ -125,8 +144,14 @@ export class AddFromCatalogModalComponent {
     }
   }
 
+  onItemIdChange(id: number | null): void {
+    const item = this.catalogService.items().find((i) => i.id === id) ?? null;
+    this.onItemChange(item);
+  }
+
   onItemChange(item: MaterialCatalogItem | null): void {
     this.selectedItem.set(item);
+    this.selectedItemId.set(item?.id ?? null);
     if (item) {
       const waste = Number(item.waste_pct) || 0;
       this.wastePct.set(waste * 100);

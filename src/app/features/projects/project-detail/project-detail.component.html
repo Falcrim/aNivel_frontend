@@ -1,7 +1,7 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <!-- Back navigation & Main Obra Header -->
   <div class="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5">
-    <div class="space-y-1.5">
+    <div class="space-y-2">
       <div class="flex items-center gap-2">
         <a
           routerLink="/obras"
@@ -18,9 +18,50 @@
         <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
           {{ projectService.selectedProject()?.name || 'Obra #' + id() }}
         </h2>
-        <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-          Obra Activa #{{ id() }}
-        </span>
+
+        <!-- Status Badge -->
+        @switch (projectService.selectedProject()?.status) {
+          @case ('active') {
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Activa
+            </span>
+          }
+          @case ('paused') {
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
+              Pausada
+            </span>
+          }
+          @case ('cancelled') {
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
+              Cancelada
+            </span>
+          }
+          @case ('completed') {
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs">
+              Finalizada
+            </span>
+          }
+          @default {
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              En Presupuesto
+            </span>
+          }
+        }
+
+        <!-- Botón Editar Obra -->
+        <button
+          type="button"
+          (click)="openEditProjectModal()"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 hover:bg-amber-50 text-slate-600 hover:text-amber-700 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
+          title="Editar nombre, estado, metros cuadrados o tipo de cambio"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          Editar Obra
+        </button>
       </div>
 
       <p class="text-xs text-slate-500 max-w-2xl">
@@ -28,28 +69,80 @@
       </p>
     </div>
 
-    <!-- Right Header Stats (Total Materials Cost and Weight) -->
-    @if (budgetService.summary(); as sum) {
-      <div class="flex items-center gap-4 bg-slate-50/80 border border-slate-200/90 p-3.5 rounded-2xl self-start md:self-auto shadow-2xs">
-        <div>
-          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Presupuesto Materiales</span>
-          <span class="text-lg font-black text-amber-700 font-mono tabular-nums">
-            {{ sum.total_materials_cost | appCurrency }}
-          </span>
-        </div>
-        <div class="h-8 w-px bg-slate-200"></div>
-        <div>
-          <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Peso Estimado</span>
-          <span class="text-lg font-black text-slate-800 font-mono tabular-nums">
-            {{ sum.total_materials_weight_kg | appWeight }}
-          </span>
-        </div>
+    <!-- Right Header Stats: Superficie m2, T/C USD, Total Obra (Bs), Total Obra ($) -->
+    <div class="flex flex-wrap items-center gap-3.5 bg-slate-50/90 border border-slate-200/90 p-3.5 rounded-2xl self-start md:self-auto shadow-2xs">
+      <div>
+        <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Superficie</span>
+        <span class="text-base font-black text-slate-800 font-mono tabular-nums">
+          {{ projectService.selectedProject()?.built_area || 0 }} m²
+        </span>
       </div>
-    }
+
+      <div class="h-7 w-px bg-slate-200"></div>
+
+      <div>
+        <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Tipo Cambio</span>
+        <span class="text-base font-black text-slate-800 font-mono tabular-nums">
+          {{ projectService.selectedProject()?.exchange_rate || 6.97 }} Bs/$
+        </span>
+      </div>
+
+      <div class="h-7 w-px bg-slate-200"></div>
+
+      <div>
+        <span class="text-[10px] uppercase font-bold text-amber-700 block tracking-wider">Total Obra (Bs)</span>
+        <span class="text-base font-black text-amber-700 font-mono tabular-nums">
+          {{ projectTotalCostBs() | appCurrency }}
+        </span>
+      </div>
+
+      <div class="h-7 w-px bg-slate-200"></div>
+
+      <div>
+        <span class="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">Total Obra ($)</span>
+        <span class="text-base font-black text-slate-900 font-mono tabular-nums">
+          {{ projectTotalCostUsd() | appUsd }}
+        </span>
+      </div>
+    </div>
   </div>
 
-  <!-- Main 2-Column Layout: Categories Sidebar + Active Category Budget -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <!-- Mode Switcher: Presupuesto vs Gastos Reales & Compras -->
+  <div class="flex items-center gap-2 p-1.5 bg-slate-200/60 border border-slate-200/80 rounded-2xl w-fit shadow-2xs">
+    <button
+      type="button"
+      (click)="activeMode.set('budget')"
+      [ngClass]="activeMode() === 'budget' ? 'bg-white text-slate-900 font-black shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 font-bold border border-transparent'"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition-all cursor-pointer"
+    >
+      <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+      <span>Presupuesto de Obra</span>
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+        Planificación
+      </span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeMode.set('expenses')"
+      [ngClass]="activeMode() === 'expenses' ? 'bg-white text-slate-900 font-black shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 font-bold border border-transparent'"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition-all cursor-pointer"
+    >
+      <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+      </svg>
+      <span>Gastos Reales & Compras</span>
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        Ejecución
+      </span>
+    </button>
+  </div>
+
+  @if (activeMode() === 'budget') {
+    <!-- Main 2-Column Layout: Categories Sidebar + Active Category Budget -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     <!-- LEFT: Categories Internal Menu (3 Cols) -->
     <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-3xl p-5 shadow-xs space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -66,12 +159,12 @@
           <button
             type="button"
             (click)="selectCategory(cat)"
-            [ngClass]="selectedCategory()?.id === cat.id ? 'bg-amber-500 text-white font-bold shadow-md shadow-amber-500/25 border-amber-500' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80 font-medium'"
+            [ngClass]="(!isDocumentsViewSelected() && selectedCategory()?.id === cat.id) ? 'bg-amber-500 text-white font-bold shadow-md shadow-amber-500/25 border-amber-500' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80 font-medium'"
             class="w-full text-left p-3 rounded-2xl border transition-all flex items-center justify-between gap-2 cursor-pointer group"
           >
             <div class="flex items-center gap-2.5 min-w-0">
               <div
-                [ngClass]="selectedCategory()?.id === cat.id ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-slate-200'"
+                [ngClass]="(!isDocumentsViewSelected() && selectedCategory()?.id === cat.id) ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-slate-200'"
                 class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0"
               >
                 {{ cat.name.charAt(0).toUpperCase() }}
@@ -79,19 +172,19 @@
               <span class="text-xs truncate">{{ cat.name }}</span>
             </div>
 
-            @if (cat.name.toLowerCase().includes('material')) {
+            @if (cat.name.toLowerCase().includes('material') || cat.name.toLowerCase().includes('mano')) {
               <span
-                [ngClass]="selectedCategory()?.id === cat.id ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-800 border border-amber-200'"
+                [ngClass]="(!isDocumentsViewSelected() && selectedCategory()?.id === cat.id) ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-800 border border-amber-200'"
                 class="px-2 py-0.5 rounded-full text-[10px] font-bold"
               >
                 Activo
               </span>
             } @else {
               <span
-                [ngClass]="selectedCategory()?.id === cat.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500'"
+                [ngClass]="(!isDocumentsViewSelected() && selectedCategory()?.id === cat.id) ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500'"
                 class="px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase"
               >
-                Fase 2
+                Fase 3
               </span>
             }
           </button>
@@ -102,6 +195,52 @@
         }
       </nav>
 
+      <!-- Documentación & Respaldos Section -->
+      <div class="pt-3 border-t border-slate-100 space-y-1.5">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+            Documentación de Obra
+          </span>
+          <span class="text-[10px] font-bold text-slate-400 font-mono">
+            {{ documentService.documents().length }} docs
+          </span>
+        </div>
+
+        <button
+          type="button"
+          (click)="selectDocumentsView()"
+          [ngClass]="isDocumentsViewSelected() ? 'bg-amber-500 text-white font-bold shadow-md shadow-amber-500/25 border-amber-500' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80 font-medium'"
+          class="w-full text-left p-3 rounded-2xl border transition-all flex items-center justify-between gap-2 cursor-pointer group"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div
+              [ngClass]="isDocumentsViewSelected() ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-slate-200'"
+              class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <span class="text-xs truncate block font-bold">Cotizaciones y Archivos</span>
+              <span
+                [ngClass]="isDocumentsViewSelected() ? 'text-amber-100' : 'text-slate-400'"
+                class="text-[10px] block truncate"
+              >
+                Respaldos y proformas
+              </span>
+            </div>
+          </div>
+
+          <span
+            [ngClass]="isDocumentsViewSelected() ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-800 border border-amber-200'"
+            class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 font-mono"
+          >
+            {{ documentService.documents().length }}
+          </span>
+        </button>
+      </div>
+
       <!-- Category explanation info box -->
       <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/60 space-y-1.5 text-xs">
         <div class="flex items-center gap-1.5 text-amber-800 font-bold">
@@ -111,22 +250,41 @@
           Lógica de Presupuesto
         </div>
         <p class="text-slate-600 text-[11px] leading-relaxed">
-          Cada categoría agrupa sus subcategorías e ítems. En <strong>Materiales</strong>, la cantidad a comprar se calcula automáticamente con cómputo, merma y factor de conversión con redondeo hacia arriba.
+          Cada categoría agrupa sus subcategorías e ítems. En <strong>Materiales</strong> se calculan compras comerciales con merma. En <strong>Mano de Obra</strong> se calculan actividades por metrado o paquetes directos con costo por m².
         </p>
       </div>
     </div>
 
-    <!-- RIGHT: Active Category Budget Content (9 Cols) -->
+    <!-- RIGHT: Active Category Budget Content or Documents (9 Cols) -->
     <div class="lg:col-span-9 space-y-6">
-      @if (isMaterialsCategorySelected()) {
+
+      <!-- ===================================================================== -->
+      <!-- CASO 0: COTIZACIONES Y DOCUMENTOS DE LA OBRA                         -->
+      <!-- ===================================================================== -->
+      @if (isDocumentsViewSelected()) {
+        <app-project-documents [projectId]="projectIdNumber()" />
+      }
+
+      <!-- ===================================================================== -->
+      <!-- CASO 1: CATEGORÍA MATERIALES                                          -->
+      <!-- ===================================================================== -->
+      @else if (isMaterialsCategorySelected()) {
         <!-- Summary Cards for Material Budget -->
         @if (budgetService.summary(); as sum) {
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Costo Total</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Precio Total (Bs)</span>
               <span class="text-xl font-black text-slate-900 mt-1 block font-mono tabular-nums">
                 {{ sum.total_materials_cost | appCurrency }}
               </span>
+            </div>
+
+            <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total en Dólares ($)</span>
+              <span class="text-xl font-black text-amber-700 mt-1 block font-mono tabular-nums">
+                {{ materialTotalCostUsd() | appUsd }}
+              </span>
+              <span class="text-[10px] text-slate-400 block font-mono">T/C: {{ projectService.selectedProject()?.exchange_rate || 6.97 }} Bs/$</span>
             </div>
 
             <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
@@ -137,20 +295,16 @@
             </div>
 
             <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Líneas</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ítems Totales</span>
               <span class="text-xl font-black text-slate-900 mt-1 block font-mono tabular-nums">{{ sum.total_items }} ítems</span>
-            </div>
-
-            <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Origen</span>
-              <span class="text-xs font-extrabold text-slate-700 mt-1.5 block">
+              <span class="text-[10px] text-slate-500 block font-medium">
                 {{ sum.from_catalog_count }} Catálogo / {{ sum.custom_items_count }} Ad-hoc
               </span>
             </div>
           </div>
         }
 
-        <!-- Actions & Filter Bar -->
+        <!-- Actions & Filter Bar - Materiales -->
         <div class="bg-white border border-slate-200/80 p-4 rounded-3xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <!-- Search box -->
           <div class="relative flex-1 max-w-xs">
@@ -185,118 +339,131 @@
                 [ngClass]="budgetViewMode() === 'flat' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
                 class="px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
               >
-                Tabla Plana
+                Todos los Ítems
               </button>
             </div>
 
-            <!-- Add from Catalog (Primary CTA) -->
+            <!-- Botones de Acción -->
             <button
               type="button"
               (click)="openFromCatalogModal()"
-              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 cursor-pointer active:scale-95"
+              class="px-3.5 py-2 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs hover:shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Desde Catálogo
+            </button>
+
+            <button
+              type="button"
+              (click)="openFromCatalogGlobalModal()"
+              class="px-3.5 py-2 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs hover:shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              Ítem Global
+            </button>
+
+            <button
+              type="button"
+              (click)="openCustomItemModal()"
+              class="px-4 py-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md shadow-amber-600/20 active:scale-95 flex items-center gap-1.5 cursor-pointer"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
               </svg>
-              Vincular Material
+              + Ítem Personalizado
             </button>
 
-            <!-- Add Global / Paquete -->
+            <!-- Atajo Cotizaciones y Archivos -->
             <button
               type="button"
-              (click)="openFromCatalogGlobalModal()"
-              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title="Agregar compra preventiva o paquete global"
+              (click)="selectDocumentsView()"
+              class="px-3.5 py-2 rounded-2xl bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 hover:border-amber-300 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              title="Ver y adjuntar cotizaciones de proveedores para esta obra"
             >
-              + Ítem Global
-            </button>
-
-            <!-- Add Custom Ad-hoc -->
-            <button
-              type="button"
-              (click)="openCustomItemModal()"
-              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title="Crear material ad-hoc directamente en obra"
-            >
-              + Ad-hoc
+              <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Cotizaciones ({{ documentService.documents().length }})
             </button>
           </div>
         </div>
 
-        <!-- Budget View 1: Grouped by Subcategories -->
+        <!-- Budget View Mode Content - Materiales -->
         @if (budgetViewMode() === 'grouped') {
-          @if (filteredGroupedBudget().length === 0) {
-            <app-empty-state
-              iconType="project"
-              title="Presupuesto de Materiales Vacío"
-              description="Aún no se han vinculado materiales a esta obra. Comienza vinculando ítems desde el catálogo maestro o agregando compras ad-hoc."
-              actionText="Vincular Primer Material"
-              (action)="openFromCatalogModal()"
-            />
-          } @else {
-            <div class="space-y-6">
-              @for (group of filteredGroupedBudget(); track group.subcategory_id) {
-                <div class="bg-white border border-slate-200/80 rounded-3xl shadow-xs overflow-hidden">
-                  <!-- Subcategory Header -->
-                  <div class="px-6 py-4 bg-slate-50/80 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-black text-xs shadow-2xs">
-                        {{ group.subcategory_name.charAt(0).toUpperCase() }}
-                      </div>
-                      <div>
-                        <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                          {{ group.subcategory_name }}
-                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shadow-2xs">
-                            {{ group.items_count }} ítems
-                          </span>
-                        </h4>
-                      </div>
-                    </div>
-
-                    <!-- Subtotal & Quick Add in this subcategory -->
-                    <div class="flex items-center gap-4">
-                      @if (+group.subtotal_weight > 0) {
-                        <div class="text-right">
-                          <span class="text-[10px] font-bold text-slate-400 block uppercase">Peso Subcategoría</span>
-                          <span class="text-sm font-black text-slate-700 font-mono tabular-nums">
-                            {{ group.subtotal_weight | appWeight }}
-                          </span>
-                        </div>
-                        <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
-                      }
-
-                      <div class="text-right">
-                        <span class="text-[10px] font-bold text-slate-400 block uppercase">Subtotal Subcategoría</span>
-                        <span class="text-sm font-black text-slate-900 font-mono tabular-nums">
-                          {{ group.subtotal_cost | appCurrency }}
-                        </span>
-                      </div>
-
-                      <button
-                        type="button"
-                        (click)="openFromCatalogModal(group.subcategory_id)"
-                        class="p-2 rounded-xl text-amber-700 hover:text-white hover:bg-amber-500 border border-amber-200 hover:border-amber-500 transition-all font-bold text-xs cursor-pointer shadow-2xs active:scale-95"
-                        title="Vincular material en esta subcategoría"
-                      >
-                        + Vincular
-                      </button>
-                    </div>
+          <div class="space-y-4">
+            @for (group of filteredGroupedBudget(); track group.subcategory_id) {
+              <div class="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs">
+                <!-- Group Header -->
+                <div class="p-4 bg-slate-50/70 border-b border-slate-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                    <h4 class="text-sm font-black text-slate-900 tracking-tight">
+                      {{ group.subcategory_name }}
+                    </h4>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200">
+                      {{ group.items_count }} ítems
+                    </span>
                   </div>
 
-                  <!-- Items Table in this Subcategory -->
-                  <app-budget-items-table
-                    [items]="group.items"
-                    [showSubcategoryColumn]="false"
-                    (edit)="openEditItemModal($event)"
-                    (delete)="openDeleteItemModal($event)"
-                  />
+                  <div class="flex items-center gap-4 text-xs font-medium">
+                    <div class="text-right">
+                      <span class="text-[10px] text-slate-400 block font-bold uppercase">Subtotal Materiales</span>
+                      <span class="font-black text-slate-900 font-mono tabular-nums">
+                        {{ group.subtotal_cost | appCurrency }}
+                      </span>
+                    </div>
+
+                    @if (group.subtotal_weight > 0) {
+                      <div class="text-right pl-3 border-l border-slate-200">
+                        <span class="text-[10px] text-slate-400 block font-bold uppercase">Peso</span>
+                        <span class="font-bold text-slate-700 font-mono tabular-nums">
+                          {{ group.subtotal_weight | appWeight }}
+                        </span>
+                      </div>
+                    }
+
+                    <button
+                      type="button"
+                      (click)="openFromCatalogModal(group.subcategory_id)"
+                      class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-amber-50 text-slate-700 hover:text-amber-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                      title="Agregar ítem en esta subcategoría"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Agregar
+                    </button>
+                  </div>
                 </div>
-              }
-            </div>
-          }
+
+                <!-- Group Table -->
+                <app-budget-items-table
+                  [items]="group.items"
+                  [showSubcategoryColumn]="false"
+                  (edit)="openEditItemModal($event)"
+                  (delete)="openDeleteItemModal($event)"
+                />
+              </div>
+            } @empty {
+              <div class="bg-white border border-slate-200/80 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+                <p class="text-slate-500 text-xs">No hay ítems registrados en el presupuesto de materiales.</p>
+                <button
+                  type="button"
+                  (click)="openFromCatalogModal()"
+                  class="px-4 py-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-600/20"
+                >
+                  Agregar primer material desde catálogo
+                </button>
+              </div>
+            }
+          </div>
         } @else {
-          <!-- Budget View 2: Flat Full Table -->
-          <div class="bg-white border border-slate-200/80 rounded-3xl shadow-xs overflow-hidden">
+          <!-- Flat Items Table View - Materiales -->
+          <div class="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs">
             <app-budget-items-table
               [items]="filteredBudgetItems()"
               [showSubcategoryColumn]="true"
@@ -305,8 +472,205 @@
             />
           </div>
         }
+
+      <!-- ===================================================================== -->
+      <!-- CASO 2: CATEGORÍA MANO DE OBRA                                        -->
+      <!-- ===================================================================== -->
+      } @else if (isLaborCategorySelected()) {
+        <!-- Summary Cards for Labor Budget -->
+        @if (laborBudgetService.summary(); as lsum) {
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Mano de Obra</span>
+              <span class="text-xl font-black text-slate-900 mt-1 block font-mono tabular-nums">
+                {{ lsum.total_labor_cost_bs | appCurrency }}
+              </span>
+            </div>
+
+            <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total en Dólares ($)</span>
+              <span class="text-xl font-black text-amber-700 mt-1 block font-mono tabular-nums">
+                {{ lsum.total_labor_cost_usd | appUsd }}
+              </span>
+              <span class="text-[10px] text-slate-400 block font-mono">T/C: {{ lsum.exchange_rate }} Bs/$</span>
+            </div>
+
+            <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Costo por m² ($)</span>
+              <span class="text-xl font-black text-slate-900 mt-1 block font-mono tabular-nums">
+                {{ lsum.cost_per_m2_usd | appUsd }} / m²
+              </span>
+              <span class="text-[10px] text-slate-400 block font-mono">Área: {{ lsum.built_area }} m²</span>
+            </div>
+
+            <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Tareas</span>
+              <span class="text-xl font-black text-slate-900 mt-1 block font-mono tabular-nums">
+                {{ lsum.total_items }} tareas
+              </span>
+              <span class="text-[10px] text-slate-500 block font-medium">
+                {{ lsum.from_catalog_count }} Catálogo / {{ lsum.custom_items_count }} Ad-hoc
+              </span>
+            </div>
+          </div>
+        }
+
+        <!-- Actions & Filter Bar - Mano de Obra -->
+        <div class="bg-white border border-slate-200/80 p-4 rounded-3xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <!-- Search box -->
+          <div class="relative flex-1 max-w-xs">
+            <input
+              type="text"
+              [(ngModel)]="budgetSearchTerm"
+              placeholder="Buscar tarea o contratista..."
+              class="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+            />
+            <div class="absolute left-3 top-3 text-slate-400 pointer-events-none">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- View Mode and Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Toggle Grouped vs Flat View -->
+            <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 shadow-2xs">
+              <button
+                type="button"
+                (click)="budgetViewMode.set('grouped')"
+                [ngClass]="budgetViewMode() === 'grouped' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+                class="px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+              >
+                Por Etapa
+              </button>
+              <button
+                type="button"
+                (click)="budgetViewMode.set('flat')"
+                [ngClass]="budgetViewMode() === 'flat' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+                class="px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+              >
+                Todas las Tareas
+              </button>
+            </div>
+
+            <!-- Botones de Acción Mano de Obra -->
+            <button
+              type="button"
+              (click)="openAddLaborFromCatalogModal()"
+              class="px-3.5 py-2 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs hover:shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Desde Catálogo
+            </button>
+
+            <button
+              type="button"
+              (click)="openAddLaborCustomModal()"
+              class="px-4 py-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md shadow-amber-600/20 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+              </svg>
+              + Tarea Personalizada
+            </button>
+          </div>
+        </div>
+
+        <!-- Budget View Mode Content - Mano de Obra -->
+        @if (budgetViewMode() === 'grouped') {
+          <div class="space-y-4">
+            @for (group of filteredGroupedLabor(); track group.subcategory_id) {
+              <div class="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs">
+                <!-- Group Header -->
+                <div class="p-4 bg-slate-50/70 border-b border-slate-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                    <h4 class="text-sm font-black text-slate-900 tracking-tight">
+                      {{ group.subcategory_name }}
+                    </h4>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200">
+                      {{ group.items_count }} tareas
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-4 text-xs font-medium">
+                    <div class="text-right">
+                      <span class="text-[10px] text-slate-400 block font-bold uppercase">Subtotal Bs</span>
+                      <span class="font-black text-slate-900 font-mono tabular-nums">
+                        {{ group.subtotal_cost_bs | appCurrency }}
+                      </span>
+                    </div>
+
+                    <div class="text-right pl-3 border-l border-slate-200">
+                      <span class="text-[10px] text-slate-400 block font-bold uppercase">Subtotal $</span>
+                      <span class="font-bold text-amber-700 font-mono tabular-nums">
+                        {{ group.subtotal_cost_usd | appUsd }}
+                      </span>
+                    </div>
+
+                    @if (group.cost_per_m2_usd > 0) {
+                      <div class="text-right pl-3 border-l border-slate-200">
+                        <span class="text-[10px] text-slate-400 block font-bold uppercase">$/m²</span>
+                        <span class="font-bold text-slate-700 font-mono tabular-nums">
+                          {{ group.cost_per_m2_usd | appUsd }} / m²
+                        </span>
+                      </div>
+                    }
+
+                    <button
+                      type="button"
+                      (click)="openAddLaborCustomModal(group.subcategory_id)"
+                      class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-amber-50 text-slate-700 hover:text-amber-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                      title="Agregar tarea en esta etapa"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Agregar
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Group Table -->
+                <app-labor-items-table
+                  [items]="group.items"
+                  [showSubcategoryColumn]="false"
+                  (edit)="openEditLaborItemModal($event)"
+                  (delete)="openDeleteLaborItemModal($event)"
+                />
+              </div>
+            } @empty {
+              <div class="bg-white border border-slate-200/80 rounded-3xl p-12 text-center space-y-3 shadow-xs">
+                <p class="text-slate-500 text-xs">No hay tareas de mano de obra registradas en esta obra.</p>
+                <button
+                  type="button"
+                  (click)="openAddLaborCustomModal()"
+                  class="px-4 py-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-600/20"
+                >
+                  Agregar primera tarea de mano de obra
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Flat Items Table View - Mano de Obra -->
+          <div class="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs">
+            <app-labor-items-table
+              [items]="filteredLaborItems()"
+              [showSubcategoryColumn]="true"
+              (edit)="openEditLaborItemModal($event)"
+              (delete)="openDeleteLaborItemModal($event)"
+            />
+          </div>
+        }
+
+      <!-- ===================================================================== -->
+      <!-- CASO 3: OTRAS CATEGORÍAS EN FASE 3                                    -->
+      <!-- ===================================================================== -->
       } @else {
-        <!-- Placeholder for Non-Materials Categories (Mano de obra, etc.) -->
         <div class="bg-white border border-slate-200/80 rounded-3xl p-12 text-center space-y-4 shadow-xs">
           <div class="w-16 h-16 rounded-3xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-bold text-2xl mx-auto shadow-2xs">
             {{ selectedCategory()?.name?.charAt(0)?.toUpperCase() || 'C' }}
@@ -314,20 +678,32 @@
           <div class="space-y-1">
             <h3 class="text-lg font-black text-slate-900">{{ selectedCategory()?.name }}</h3>
             <p class="text-xs text-slate-500 max-w-md mx-auto">
-              El módulo presupuestario para la categoría "{{ selectedCategory()?.name }}" está en desarrollo para la siguiente fase. Actualmente la categoría activa y operativa es <strong>Materiales</strong>.
+              El módulo presupuestario para la categoría "{{ selectedCategory()?.name }}" está planificado para la siguiente fase. Actualmente las categorías activas son <strong>Materiales</strong> y <strong>Mano de Obra</strong>.
             </p>
           </div>
         </div>
       }
     </div>
   </div>
+  } @else {
+    <!-- Gastos Reales & Compras de la Obra -->
+    <app-project-expenses [projectId]="projectIdNumber()" />
+  }
 </div>
 
 <!-- ========================================================================= -->
-<!-- CHILD MODALS (MODULARIZADOS) -->
+<!-- MODALS - PROYECTO                                                        -->
 <!-- ========================================================================= -->
+<app-edit-project-modal
+  [isOpen]="isEditProjectModalOpen()"
+  [project]="projectService.selectedProject()"
+  (close)="isEditProjectModalOpen.set(false)"
+  (saved)="refreshBudget()"
+/>
 
-<!-- 1. Vincular Material desde Catálogo -->
+<!-- ========================================================================= -->
+<!-- MODALS - MATERIALES                                                       -->
+<!-- ========================================================================= -->
 <app-add-from-catalog-modal
   [isOpen]="isFromCatalogModalOpen()"
   [projectId]="projectIdNumber()"
@@ -336,7 +712,6 @@
   (saved)="refreshBudget()"
 />
 
-<!-- 2. Vincular Ítem Global / Paquete -->
 <app-add-global-item-modal
   [isOpen]="isFromCatalogGlobalModalOpen()"
   [projectId]="projectIdNumber()"
@@ -344,7 +719,6 @@
   (saved)="refreshBudget()"
 />
 
-<!-- 3. Crear Ítem Personalizado (Ad-hoc) -->
 <app-add-custom-item-modal
   [isOpen]="isCustomItemModalOpen()"
   [projectId]="projectIdNumber()"
@@ -353,7 +727,6 @@
   (saved)="refreshBudget()"
 />
 
-<!-- 4. Editar Ítem de Presupuesto -->
 <app-edit-budget-item-modal
   [isOpen]="isEditItemModalOpen()"
   [item]="itemToEdit()"
@@ -362,7 +735,6 @@
   (saved)="refreshBudget()"
 />
 
-<!-- 5. Confirmar Eliminación -->
 <app-confirm-dialog
   [isOpen]="isDeleteItemModalOpen()"
   title="Eliminar Ítem del Presupuesto"
@@ -372,4 +744,42 @@
   [loading]="isProcessing()"
   (confirm)="submitDeleteItem()"
   (cancel)="closeDeleteItemModal()"
+/>
+
+<!-- ========================================================================= -->
+<!-- MODALS - MANO DE OBRA                                                     -->
+<!-- ========================================================================= -->
+<app-add-labor-from-catalog-modal
+  [isOpen]="isAddLaborFromCatalogOpen()"
+  [projectId]="projectIdNumber()"
+  [presetSubcategoryId]="presetLaborSubcategoryId()"
+  (close)="isAddLaborFromCatalogOpen.set(false)"
+  (saved)="refreshBudget()"
+/>
+
+<app-add-labor-custom-item-modal
+  [isOpen]="isAddLaborCustomOpen()"
+  [projectId]="projectIdNumber()"
+  [presetSubcategoryId]="presetLaborSubcategoryId()"
+  (close)="isAddLaborCustomOpen.set(false)"
+  (saved)="refreshBudget()"
+/>
+
+<app-edit-labor-item-modal
+  [isOpen]="isEditLaborItemOpen()"
+  [item]="laborItemToEdit()"
+  [projectId]="projectIdNumber()"
+  (close)="isEditLaborItemOpen.set(false); laborItemToEdit.set(null)"
+  (saved)="refreshBudget()"
+/>
+
+<app-confirm-dialog
+  [isOpen]="isDeleteLaborItemOpen()"
+  title="Eliminar Tarea de Mano de Obra"
+  [message]="'¿Estás seguro de que deseas eliminar &quot;' + (laborItemToDelete()?.name || 'esta tarea') + '&quot; del presupuesto de mano de obra?'"
+  confirmText="Eliminar Tarea"
+  [isDanger]="true"
+  [loading]="isProcessing()"
+  (confirm)="submitDeleteLaborItem()"
+  (cancel)="closeDeleteLaborItemModal()"
 />

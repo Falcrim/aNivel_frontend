@@ -8,25 +8,19 @@
   <form (submit)="$event.preventDefault(); submit()" class="space-y-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label for="customSubcatSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Subcategoría *
-        </label>
-        <select
-          id="customSubcatSelect"
-          [(ngModel)]="form().subcategory"
-          name="customSubcat"
-          required
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 font-medium shadow-2xs"
-        >
-          @for (s of subcategoryService.subcategories(); track s.id) {
-            <option [value]="s.id">{{ s.name }}</option>
-          }
-        </select>
+        <app-custom-select
+          [options]="subcategoryOptions()"
+          [value]="form().subcategory"
+          (valueChange)="updateFormSubcat($event)"
+          label="Subcategoría"
+          [required]="true"
+          placeholder="Seleccionar subcategoría..."
+        />
       </div>
 
       <div>
-        <label for="custName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Nombre del Material *
+        <label for="custName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Nombre del Material <span class="text-rose-500">*</span>
         </label>
         <input
           id="custName"
@@ -35,7 +29,7 @@
           name="custName"
           required
           placeholder="Ej. Aditivo acelerante especial..."
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+          class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-hidden focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 shadow-2xs font-medium"
         />
       </div>
     </div>
@@ -43,45 +37,33 @@
     <!-- Units -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div>
-        <label for="custUom" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Unidad Obra *
-        </label>
-        <select
-          id="custUom"
-          [(ngModel)]="form().unit_measure"
-          name="custUom"
-          required
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
-        >
-          @for (u of uomService.units(); track u.id) {
-            <option [value]="u.id">{{ u.name }} ({{ u.abbreviation }})</option>
-          }
-        </select>
+        <app-custom-select
+          [options]="uomOptions()"
+          [value]="form().unit_measure"
+          (valueChange)="updateFormUom($event)"
+          label="Unidad Obra"
+          [required]="true"
+          placeholder="Unidad de obra..."
+        />
       </div>
 
       <div>
-        <label for="custPu" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Unidad Compra *
-        </label>
-        <select
-          id="custPu"
-          [(ngModel)]="form().unit_purchase"
-          name="custPu"
-          required
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
-        >
-          @for (p of puService.units(); track p.id) {
-            <option [value]="p.id">{{ p.name }} ({{ p.abbreviation }})</option>
-          }
-        </select>
+        <app-custom-select
+          [options]="puOptions()"
+          [value]="form().unit_purchase"
+          (valueChange)="updateFormPu($event)"
+          label="Unidad Compra"
+          [required]="true"
+          placeholder="Unidad de compra..."
+        />
       </div>
 
       <div>
         <label for="custPrice" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Precio Unit. Compra ($) *
+          Precio Unit. Compra (Bs) *
         </label>
         <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all shadow-2xs">
-          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">$</span>
+          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none font-mono">Bs</span>
           <input
             id="custPrice"
             type="number"
@@ -91,7 +73,7 @@
             name="custPrice"
             required
             placeholder="0.00"
-            class="w-full pl-8 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+            class="w-full pl-9 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
           />
         </div>
       </div>

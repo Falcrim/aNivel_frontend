@@ -13,7 +13,7 @@ export class WeightKgPipe implements PipeTransform {
     if (isNaN(num) || num <= 0) {
       return '0 kg';
     }
-    return `${num.toLocaleString('es-CL', {
+    return `${num.toLocaleString('en-US', {
       maximumFractionDigits: maxDecimals,
     })} kg`;
   }

@@ -1,0 +1,357 @@
+<div class="space-y-6">
+  <!-- Summary Bento Cards Header -->
+  @if (documentService.summary(); as sum) {
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Documentos Totales</span>
+        <span class="text-xl font-black text-slate-900 mt-1 block font-mono tabular-nums">
+          {{ sum.total_documents }}
+        </span>
+        <span class="text-[10px] text-slate-400 block font-medium">
+          {{ sum.quotations_count }} cotizaciones / {{ sum.technical_sheets_count }} fichas
+        </span>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cotizaciones Materiales</span>
+        <span class="text-xl font-black text-amber-600 mt-1 block font-mono tabular-nums">
+          {{ sum.quotations_count }}
+        </span>
+        <span class="text-[10px] text-slate-400 block font-medium">
+          {{ sum.technical_sheets_count }} fichas técnicas
+        </span>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Cotizado (Bs)</span>
+        <span class="text-xl font-black text-slate-900 mt-1 block font-mono tabular-nums">
+          {{ sum.total_quoted_bob | appCurrency }}
+        </span>
+        <span class="text-[10px] text-slate-400 block font-medium">Suma proformas en Bs</span>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Cotizado ($)</span>
+        <span class="text-xl font-black text-emerald-700 mt-1 block font-mono tabular-nums">
+          {{ sum.total_quoted_usd | appUsd }}
+        </span>
+        <span class="text-[10px] text-slate-400 block font-medium">Suma proformas en USD</span>
+      </div>
+    </div>
+  }
+
+  <!-- Filter & Actions Bar -->
+  <div class="bg-white border border-slate-200/80 p-4 rounded-3xl shadow-xs space-y-3">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <!-- Search Bar -->
+      <div class="relative flex-1 max-w-md">
+        <svg
+          class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+          placeholder="Buscar por concepto, archivo, proveedor..."
+          class="w-full pl-10 pr-8 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium"
+        />
+        @if (searchTerm()) {
+          <button
+            type="button"
+            (click)="searchTerm.set('')"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        }
+      </div>
+
+      <!-- Action Button -->
+      <button
+        type="button"
+        (click)="openUploadModal()"
+        class="px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md shadow-amber-600/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        + Subir Cotización / Archivo
+      </button>
+    </div>
+
+    <!-- Filter Pills -->
+    <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="setTypeFilter('all')"
+        [ngClass]="selectedTypeFilter() === 'all' ? 'bg-slate-900 text-white font-bold shadow-2xs' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium'"
+        class="px-3 py-1 rounded-xl text-xs transition-all cursor-pointer"
+      >
+        Todos ({{ documentService.documents().length }})
+      </button>
+      <button
+        type="button"
+        (click)="setTypeFilter('quotation')"
+        [ngClass]="selectedTypeFilter() === 'quotation' ? 'bg-amber-600 text-white font-bold shadow-2xs' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium'"
+        class="px-3 py-1 rounded-xl text-xs transition-all cursor-pointer"
+      >
+        📋 Cotizaciones / Proformas
+      </button>
+      <button
+        type="button"
+        (click)="setTypeFilter('technical_sheet')"
+        [ngClass]="selectedTypeFilter() === 'technical_sheet' ? 'bg-amber-600 text-white font-bold shadow-2xs' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium'"
+        class="px-3 py-1 rounded-xl text-xs transition-all cursor-pointer"
+      >
+        📐 Fichas Técnicas
+      </button>
+      <button
+        type="button"
+        (click)="setTypeFilter('blueprint')"
+        [ngClass]="selectedTypeFilter() === 'blueprint' ? 'bg-amber-600 text-white font-bold shadow-2xs' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium'"
+        class="px-3 py-1 rounded-xl text-xs transition-all cursor-pointer"
+      >
+        📑 Planos
+      </button>
+      <button
+        type="button"
+        (click)="setTypeFilter('other')"
+        [ngClass]="selectedTypeFilter() === 'other' ? 'bg-slate-900 text-white font-bold shadow-2xs' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium'"
+        class="px-3 py-1 rounded-xl text-xs transition-all cursor-pointer"
+      >
+        📁 Otros
+      </button>
+    </div>
+  </div>
+
+  <!-- Documents Table (Stripe Style) -->
+  <div class="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs">
+    @if (filteredDocuments().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/75 border-b border-slate-200/80">
+              <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Archivo & Concepto
+              </th>
+              <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Tipo
+              </th>
+              <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Proveedor
+              </th>
+              <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">
+                Monto Cotizado
+              </th>
+              <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Etapa / Subcategoría
+              </th>
+              <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Fecha
+              </th>
+              <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            @for (doc of filteredDocuments(); track doc.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors group">
+                <!-- Archivo & Concepto -->
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      [ngClass]="getFileBadgeClass(doc.file_extension)"
+                      class="w-9 h-9 rounded-xl border flex items-center justify-center font-bold text-[10px] uppercase shrink-0 shadow-2xs font-mono"
+                    >
+                      {{ doc.file_extension || 'FILE' }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-bold text-slate-900 group-hover:text-amber-700 transition-colors truncate max-w-xs sm:max-w-md">
+                        {{ doc.title }}
+                      </p>
+                      <p class="text-[11px] text-slate-400 font-mono truncate max-w-xs flex items-center gap-1.5">
+                        <span>{{ doc.file_name }}</span>
+                        <span>•</span>
+                        <span>{{ doc.file_size_formatted }}</span>
+                      </p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Tipo -->
+                <td class="py-3 px-4">
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
+                    {{ doc.document_type_display }}
+                  </span>
+                </td>
+
+                <!-- Proveedor -->
+                <td class="py-3 px-4">
+                  @if (doc.supplier_name) {
+                    <span class="font-medium text-slate-700 flex items-center gap-1.5 truncate max-w-[160px]">
+                      🏢 {{ doc.supplier_name }}
+                    </span>
+                  } @else {
+                    <span class="text-slate-300 font-mono">—</span>
+                  }
+                </td>
+
+                <!-- Monto Cotizado -->
+                <td class="py-3 px-4 text-right">
+                  @if (doc.quoted_amount) {
+                    <span class="font-mono font-bold text-slate-900 tabular-nums">
+                      {{ doc.currency === 'USD' ? '$' : 'Bs' }} {{ doc.quoted_amount }}
+                    </span>
+                  } @else {
+                    <span class="text-slate-300 font-mono">—</span>
+                  }
+                </td>
+
+                <!-- Subcategoría -->
+                <td class="py-3 px-4">
+                  @if (doc.subcategory_name) {
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 truncate max-w-[140px] block">
+                      {{ doc.subcategory_name }}
+                    </span>
+                  } @else {
+                    <span class="text-slate-400 text-[11px]">General</span>
+                  }
+                </td>
+
+                <!-- Fecha -->
+                <td class="py-3 px-4 text-slate-500 text-[11px] font-mono whitespace-nowrap">
+                  {{ doc.created_at | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+
+                <!-- Acciones -->
+                <td class="py-3 px-4 text-right">
+                  <div class="inline-flex items-center gap-1">
+                    <!-- Previsualizar -->
+                    <button
+                      type="button"
+                      (click)="openPreview(doc)"
+                      class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+                      title="Previsualizar archivo"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+
+                    <!-- Descargar -->
+                    <button
+                      type="button"
+                      (click)="downloadDocument(doc)"
+                      class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                      title="Descargar archivo original"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </button>
+
+                    <!-- Eliminar -->
+                    <button
+                      type="button"
+                      (click)="openDelete(doc)"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Eliminar documento"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="p-12 text-center space-y-4">
+        <div class="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200/80 shadow-2xs">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+
+        <div class="space-y-1">
+          <h4 class="text-sm font-black text-slate-900">
+            @if (searchTerm() || selectedTypeFilter() !== 'all') {
+              No se encontraron documentos con los filtros aplicados
+            } @else {
+              Aún no hay cotizaciones ni archivos en esta obra
+            }
+          </h4>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto">
+            @if (searchTerm() || selectedTypeFilter() !== 'all') {
+              Prueba modificando el término de búsqueda o seleccionando "Todos".
+            } @else {
+              Adjunta proformas de materiales, facturas de compras o fichas técnicas para tener un respaldo de tus costos.
+            }
+          </p>
+        </div>
+
+        @if (searchTerm() || selectedTypeFilter() !== 'all') {
+          <button
+            type="button"
+            (click)="searchTerm.set(''); selectedTypeFilter.set('all')"
+            class="px-4 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+          >
+            Limpiar Filtros
+          </button>
+        } @else {
+          <button
+            type="button"
+            (click)="openUploadModal()"
+            class="px-5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-md shadow-amber-600/20 active:scale-95 inline-flex items-center gap-2 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Subir Primera Cotización
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODALS                                                                    -->
+<!-- ========================================================================= -->
+<app-upload-document-modal
+  [isOpen]="isUploadModalOpen()"
+  [projectId]="projectId()"
+  (close)="isUploadModalOpen.set(false)"
+  (uploaded)="loadData(projectId())"
+/>
+
+<app-document-preview-modal
+  [isOpen]="isPreviewModalOpen()"
+  [document]="selectedDocForPreview()"
+  (close)="closePreview()"
+  (download)="downloadDocument($event)"
+/>
+
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Eliminar Documento"
+  [message]="'¿Estás seguro de que deseas eliminar el documento &quot;' + (selectedDocForDelete()?.title || 'este documento') + '&quot; de la obra? El archivo se eliminará de forma permanente.'"
+  confirmText="Eliminar Archivo"
+  [isDanger]="true"
+  [loading]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDelete()"
+/>

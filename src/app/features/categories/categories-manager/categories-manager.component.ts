@@ -7,6 +7,7 @@ import { Category } from '../../../core/models/category.model';
 import { Subcategory } from '../../../core/models/subcategory.model';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { CustomSelectComponent, CustomSelectOption } from '../../../shared/components/custom-select/custom-select.component';
 
 @Component({
   selector: 'app-categories-manager',
@@ -16,6 +17,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     FormsModule,
     ModalComponent,
     ConfirmDialogComponent,
+    CustomSelectComponent,
   ],
   templateUrl: './categories-manager.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +35,22 @@ export class CategoriesManagerComponent implements OnInit {
   // Search & Filter
   searchTerm = signal('');
   filterCategory = signal<number | null>(null);
+
+  // Computed Select Options
+  readonly categoryFilterOptions = computed<CustomSelectOption<number | null>[]>(() => [
+    { label: 'Todas las categorías', value: null },
+    ...this.categoryService.categories().map((c) => ({
+      label: c.name,
+      value: c.id,
+    })),
+  ]);
+
+  readonly categoryFormOptions = computed<CustomSelectOption<number>[]>(() =>
+    this.categoryService.categories().map((c) => ({
+      label: c.name,
+      value: c.id,
+    }))
+  );
 
   // Quick inline add for subcategory
   quickSubcategoryName = signal('');

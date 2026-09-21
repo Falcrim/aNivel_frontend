@@ -14,16 +14,13 @@
       </div>
 
       <!-- Filter Subcategory -->
-      <select
-        [ngModel]="selectedSubcategoryFilter()"
-        (ngModelChange)="selectedSubcategoryFilter.set($event ? +$event : null)"
-        class="w-full sm:w-auto px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
-      >
-        <option [value]="null">Todas las subcategorías</option>
-        @for (s of subcategoryService.subcategories(); track s.id) {
-          <option [value]="s.id">{{ s.name }}</option>
-        }
-      </select>
+      <div class="w-full sm:w-60">
+        <app-custom-select
+          [options]="subcategoryFilterOptions()"
+          [(value)]="selectedSubcategoryFilter"
+          placeholder="Subcategoría"
+        />
+      </div>
 
       <!-- Active switch -->
       <label class="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none py-1 sm:py-0">
@@ -130,7 +127,7 @@
                     <th scope="col" class="px-4 py-3 text-center">Unidad Compra</th>
                     <th scope="col" class="px-4 py-3 text-center">Factor Conversión</th>
                     <th scope="col" class="px-4 py-3 text-center">Merma</th>
-                    <th scope="col" class="px-4 py-3 text-right">Precio Ref. ($)</th>
+                    <th scope="col" class="px-4 py-3 text-right">Precio Ref. (Bs)</th>
                     <th scope="col" class="px-4 py-3 text-center">Estado</th>
                     <th scope="col" class="px-4 py-3 text-right">Acciones</th>
                   </tr>
@@ -219,7 +216,7 @@
                 <th scope="col" class="px-4 py-4 text-center">Unidad Obra</th>
                 <th scope="col" class="px-4 py-4 text-center">Unidad Compra</th>
                 <th scope="col" class="px-4 py-4 text-center">Factor Conversión</th>
-                <th scope="col" class="px-4 py-4 text-right">Precio Ref. ($)</th>
+                <th scope="col" class="px-4 py-4 text-right">Precio Ref. (Bs)</th>
                 <th scope="col" class="px-4 py-4 text-center">Estado</th>
                 <th scope="col" class="px-4 py-4 text-right">Acciones</th>
               </tr>
@@ -305,25 +302,18 @@
   <form (submit)="$event.preventDefault(); isCreateModalOpen() ? submitCreate() : submitEdit()" class="space-y-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label for="matSubcatSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Subcategoría *
-        </label>
-        <select
-          id="matSubcatSelect"
-          [(ngModel)]="formSubcategoryId"
-          name="formSubcat"
-          required
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
-        >
-          @for (s of subcategoryService.subcategories(); track s.id) {
-            <option [value]="s.id">{{ s.name }}</option>
-          }
-        </select>
+        <app-custom-select
+          [options]="subcategoryFormOptions()"
+          [(value)]="formSubcategoryId"
+          label="Subcategoría"
+          [required]="true"
+          placeholder="Seleccionar subcategoría..."
+        />
       </div>
 
       <div>
-        <label for="matNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Nombre del Material *
+        <label for="matNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Nombre del Material <span class="text-rose-500">*</span>
         </label>
         <input
           id="matNameInput"
@@ -332,13 +322,13 @@
           name="formName"
           required
           placeholder="Ej. Fierro corrugado 12mm..."
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+          class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-hidden focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 shadow-2xs font-medium"
         />
       </div>
     </div>
 
     <div>
-      <label for="matDescInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+      <label for="matDescInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
         Descripción / Especificación General
       </label>
       <input
@@ -347,44 +337,30 @@
         [(ngModel)]="formDescription"
         name="formDescription"
         placeholder="Ej. Barras de 12 metros según norma técnica..."
-        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+        class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-hidden focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
       />
     </div>
 
     <!-- Units and Conversion -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div>
-        <label for="matUomSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Unidad Obra *
-        </label>
-        <select
-          id="matUomSelect"
-          [(ngModel)]="formUnitMeasureId"
-          name="formUom"
-          required
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
-        >
-          @for (u of uomService.units(); track u.id) {
-            <option [value]="u.id">{{ u.name }} ({{ u.abbreviation }})</option>
-          }
-        </select>
+        <app-custom-select
+          [options]="uomFormOptions()"
+          [(value)]="formUnitMeasureId"
+          label="Unidad Obra"
+          [required]="true"
+          placeholder="Unidad de obra..."
+        />
       </div>
 
       <div>
-        <label for="matPuSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Unidad Compra *
-        </label>
-        <select
-          id="matPuSelect"
-          [(ngModel)]="formUnitPurchaseId"
-          name="formPu"
-          required
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
-        >
-          @for (p of puService.units(); track p.id) {
-            <option [value]="p.id">{{ p.name }} ({{ p.abbreviation }})</option>
-          }
-        </select>
+        <app-custom-select
+          [options]="puFormOptions()"
+          [(value)]="formUnitPurchaseId"
+          label="Unidad Compra"
+          [required]="true"
+          placeholder="Unidad de compra..."
+        />
       </div>
 
       <div>
@@ -448,10 +424,10 @@
 
       <div>
         <label for="matPriceInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Precio Unit. Ref. ($)
+          Precio Unit. Ref. (Bs)
         </label>
         <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
-          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">$</span>
+          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none font-mono">Bs</span>
           <input
             id="matPriceInput"
             type="number"
@@ -460,7 +436,7 @@
             [(ngModel)]="formPrice"
             name="formPrice"
             placeholder="0.00"
-            class="w-full pl-8 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+            class="w-full pl-9 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
           />
         </div>
       </div>

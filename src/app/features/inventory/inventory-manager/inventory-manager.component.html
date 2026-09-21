@@ -1,0 +1,1149 @@
+<div class="space-y-6 pb-12">
+  <!-- Page Header & Metrics Bento -->
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        Control de Activos & Equipos
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+        Inventario de Herramientas y Locaciones
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        Administra el catálogo de maquinaria, herramientas, almacenes y frentes de obra.
+      </p>
+    </div>
+
+    <!-- Actions Header -->
+    <div class="flex flex-wrap items-center gap-2.5">
+      @if (activeTab() === 'tools') {
+        <button
+          type="button"
+          (click)="openCreateToolModal()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold shadow-sm hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva Herramienta / Equipo
+        </button>
+      } @else if (activeTab() === 'locations') {
+        <button
+          type="button"
+          (click)="openCreateLocationModal()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold shadow-sm hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Nuevo Almacén / Locación
+        </button>
+      } @else if (activeTab() === 'categories') {
+        <button
+          type="button"
+          (click)="openCreateCategoryModal()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold shadow-sm hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva Categoría
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- KPI Bento Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-3.5">
+      <div class="w-11 h-11 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Equipos</p>
+        <p class="text-xl font-black text-slate-900 tabular-nums">{{ totalToolsCount() }}</p>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-white border border-emerald-200/60 shadow-xs flex items-center gap-3.5">
+      <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Disponibles</p>
+        <p class="text-xl font-black text-emerald-800 tabular-nums">{{ availableToolsCount() }}</p>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-white border border-amber-200/60 shadow-xs flex items-center gap-3.5">
+      <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-amber-700 uppercase tracking-wider">En Obras</p>
+        <p class="text-xl font-black text-amber-800 tabular-nums">{{ inUseToolsCount() }}</p>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-2xl bg-white border border-orange-200/60 shadow-xs flex items-center gap-3.5">
+      <div class="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-orange-700 uppercase tracking-wider">Mantenimiento</p>
+        <p class="text-xl font-black text-orange-800 tabular-nums">{{ maintenanceToolsCount() }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="flex border-b border-slate-200">
+    <button
+      type="button"
+      (click)="activeTab.set('tools')"
+      [ngClass]="
+        activeTab() === 'tools'
+          ? 'border-amber-600 text-amber-800 font-bold bg-amber-50/50'
+          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'
+      "
+      class="px-5 py-3 border-b-2 text-sm transition-all flex items-center gap-2 rounded-t-xl cursor-pointer"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      Herramientas & Maquinaria
+      <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-bold">
+        {{ toolService.tools().length }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set('locations')"
+      [ngClass]="
+        activeTab() === 'locations'
+          ? 'border-amber-600 text-amber-800 font-bold bg-amber-50/50'
+          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'
+      "
+      class="px-5 py-3 border-b-2 text-sm transition-all flex items-center gap-2 rounded-t-xl cursor-pointer"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+      Almacenes & Frentes de Obra
+      <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-bold">
+        {{ locationService.locations().length }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set('categories')"
+      [ngClass]="
+        activeTab() === 'categories'
+          ? 'border-amber-600 text-amber-800 font-bold bg-amber-50/50'
+          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'
+      "
+      class="px-5 py-3 border-b-2 text-sm transition-all flex items-center gap-2 rounded-t-xl cursor-pointer"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+      </svg>
+      Categorías
+      <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-bold">
+        {{ categoryService.categories().length }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      (click)="activeTab.set('transfers')"
+      [ngClass]="
+        activeTab() === 'transfers'
+          ? 'border-amber-600 text-amber-800 font-bold bg-amber-50/50'
+          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'
+      "
+      class="px-5 py-3 border-b-2 text-sm transition-all flex items-center gap-2 rounded-t-xl cursor-pointer"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      Historial de Traslados
+      <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-bold">
+        {{ transferService.transfers().length }}
+      </span>
+    </button>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- TAB 1: HERRAMIENTAS & MAQUINARIA                                 -->
+  <!-- ================================================================= -->
+  @if (activeTab() === 'tools') {
+    <div class="space-y-4">
+      <!-- Search and Filter Bar -->
+      <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <!-- Search Input -->
+        <div class="relative flex-1 max-w-md">
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            placeholder="Buscar por código, nombre, marca o modelo..."
+            class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+          />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        <!-- Filter Selectors with Modern Dropdowns -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="w-48">
+            <app-custom-select
+              [options]="filterStatusOptions"
+              [(value)]="selectedStatusFilter"
+              placeholder="Estado"
+            />
+          </div>
+
+          <div class="w-52">
+            <app-custom-select
+              [options]="filterLocationOptions()"
+              [(value)]="selectedLocationFilter"
+              placeholder="Locación"
+            />
+          </div>
+
+          <div class="w-48">
+            <app-custom-select
+              [options]="filterCategoryOptions()"
+              [(value)]="selectedCategoryFilter"
+              placeholder="Categoría"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Tools Table -->
+      @if (filteredTools().length === 0) {
+        <app-empty-state
+          title="No se encontraron herramientas"
+          description="Ajusta los filtros de búsqueda o registra una nueva herramienta en el inventario."
+          buttonText="Registrar Herramienta"
+          (action)="openCreateToolModal()"
+        />
+      } @else {
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Código / Activo</th>
+                  <th class="py-3 px-4">Herramienta & Marca</th>
+                  <th class="py-3 px-4">Categoría</th>
+                  <th class="py-3 px-4">Ubicación Actual</th>
+                  <th class="py-3 px-4 text-center">Estado Operativo</th>
+                  <th class="py-3 px-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm">
+                @for (tool of filteredTools(); track tool.id) {
+                  <tr class="hover:bg-slate-50/80 transition-colors group">
+                    <!-- Código & Serial -->
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                      <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 font-mono font-bold text-xs border border-slate-200">
+                        {{ tool.code }}
+                      </span>
+                      @if (tool.serial_number) {
+                        <p class="text-[11px] text-slate-400 font-mono mt-0.5">S/N: {{ tool.serial_number }}</p>
+                      }
+                    </td>
+
+                    <!-- Nombre & Marca/Modelo -->
+                    <td class="py-3.5 px-4">
+                      <div class="font-bold text-slate-900">{{ tool.name }}</div>
+                      <div class="text-xs text-slate-500 flex items-center gap-1.5">
+                        @if (tool.brand) {
+                          <span class="font-medium text-slate-700">{{ tool.brand }}</span>
+                        }
+                        @if (tool.model_name) {
+                          <span class="text-slate-400">• {{ tool.model_name }}</span>
+                        }
+                      </div>
+                      @if (tool.detail) {
+                        <p class="text-[11px] text-slate-400 truncate max-w-xs mt-0.5">{{ tool.detail }}</p>
+                      }
+                    </td>
+
+                    <!-- Categoría -->
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                      <span class="text-xs font-semibold text-slate-700">
+                        {{ tool.category_name || 'Sin Categoría' }}
+                      </span>
+                    </td>
+
+                    <!-- Ubicación Actual -->
+                    <td class="py-3.5 px-4">
+                      <div class="flex items-center gap-1.5">
+                        @if (tool.current_location_type === 'PROJECT') {
+                          <span class="w-6 h-6 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 text-xs">
+                            🏗️
+                          </span>
+                          <div>
+                            <span class="font-bold text-slate-900 text-xs block truncate max-w-xs">
+                              {{ tool.current_location_name }}
+                            </span>
+                            <span class="text-[10px] text-amber-700 font-semibold uppercase tracking-wider">Frente de Obra</span>
+                          </div>
+                        } @else if (tool.current_location_type === 'WORKSHOP') {
+                          <span class="w-6 h-6 rounded-lg bg-orange-50 border border-orange-200 text-orange-700 flex items-center justify-center shrink-0 text-xs">
+                            🔧
+                          </span>
+                          <div>
+                            <span class="font-bold text-slate-900 text-xs block truncate max-w-xs">
+                              {{ tool.current_location_name }}
+                            </span>
+                            <span class="text-[10px] text-orange-700 font-semibold uppercase tracking-wider">Taller Mecánico</span>
+                          </div>
+                        } @else {
+                          <span class="w-6 h-6 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0 text-xs">
+                            🏬
+                          </span>
+                          <div>
+                            <span class="font-bold text-slate-900 text-xs block truncate max-w-xs">
+                              {{ tool.current_location_name }}
+                            </span>
+                            <span class="text-[10px] text-blue-700 font-semibold uppercase tracking-wider">Almacén Central</span>
+                          </div>
+                        }
+                      </div>
+                    </td>
+
+                    <!-- Estado Operativo Unificado -->
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                      @if (!tool.is_active) {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                          Inactiva / Archivada
+                        </span>
+                      } @else if (tool.status === 'AVAILABLE') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          Disponible
+                        </span>
+                      } @else if (tool.status === 'IN_USE') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                          En Uso en Obra
+                        </span>
+                      } @else if (tool.status === 'MAINTENANCE') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                          En Mantenimiento
+                        </span>
+                      } @else if (tool.status === 'DAMAGED') {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                          Dañada / Fuera de Servicio
+                        </span>
+                      } @else {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                          Extraviada / Baja
+                        </span>
+                      }
+                    </td>
+
+                    <!-- Acciones -->
+                    <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                      <div class="flex items-center justify-end gap-1">
+                        <!-- Mover / Trasladar -->
+                        <button
+                          type="button"
+                          (click)="openTransferModal(tool)"
+                          title="Mover o Trasladar a otra locación / obra"
+                          class="p-1.5 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors cursor-pointer"
+                        >
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                          </svg>
+                        </button>
+
+                        <!-- Ver Historial -->
+                        <button
+                          type="button"
+                          (click)="openHistoryModal(tool)"
+                          title="Ver Historial de Movimientos"
+                          class="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                        >
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </button>
+
+                        <!-- Marcar en Reparación / Mantenimiento Rápido -->
+                        @if (tool.status !== 'MAINTENANCE') {
+                          <button
+                            type="button"
+                            (click)="quickChangeStatus(tool, 'MAINTENANCE')"
+                            title="Enviar a Mantenimiento"
+                            class="p-1.5 rounded-lg text-orange-600 hover:text-orange-800 hover:bg-orange-50 transition-colors cursor-pointer"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            (click)="quickChangeStatus(tool, 'AVAILABLE')"
+                            title="Marcar como Disponible"
+                            class="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 transition-colors cursor-pointer"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </button>
+                        }
+
+                        <!-- Editar -->
+                        <button
+                          type="button"
+                          (click)="openEditToolModal(tool)"
+                          title="Editar Herramienta"
+                          class="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                        >
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+
+                        <!-- Activar / Desactivar -->
+                        <button
+                          type="button"
+                          (click)="toggleToolActive(tool)"
+                          [title]="tool.is_active ? 'Desactivar / Archivar activo' : 'Reactivar activo'"
+                          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                        >
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                        </button>
+
+                        <!-- Eliminar -->
+                        <button
+                          type="button"
+                          (click)="openDeleteModal('tool', tool.id, tool.name)"
+                          title="Eliminar registro"
+                          class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                        >
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ================================================================= -->
+  <!-- TAB 2: LOCACIONES & FRENTES DE OBRA                               -->
+  <!-- ================================================================= -->
+  @if (activeTab() === 'locations') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (loc of locationService.locations(); track loc.id) {
+        <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div class="flex items-center gap-2">
+                @if (loc.location_type === 'PROJECT') {
+                  <span class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-bold text-sm">
+                    🏗️
+                  </span>
+                } @else if (loc.location_type === 'WORKSHOP') {
+                  <span class="w-8 h-8 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 flex items-center justify-center font-bold text-sm">
+                    🔧
+                  </span>
+                } @else {
+                  <span class="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center font-bold text-sm">
+                    🏬
+                  </span>
+                }
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm leading-tight">{{ loc.name }}</h3>
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    {{ loc.location_type_display }}
+                  </span>
+                </div>
+              </div>
+
+              @if (loc.code) {
+                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono text-[10px] font-bold border border-slate-200">
+                  {{ loc.code }}
+                </span>
+              }
+            </div>
+
+            @if (loc.address) {
+              <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="truncate">{{ loc.address }}</span>
+              </p>
+            }
+
+            @if (loc.project_name) {
+              <div class="mt-2.5 p-2 rounded-xl bg-amber-50/70 border border-amber-200/60 text-xs text-amber-900 flex items-center gap-1.5 font-medium">
+                <span>Vinculada a la Obra:</span>
+                <span class="font-bold">{{ loc.project_name }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div class="text-xs font-semibold text-slate-600">
+              <span class="text-base font-black text-slate-900 tabular-nums">{{ loc.tools_count }}</span>
+              herramientas asignadas
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                (click)="openEditLocationModal(loc)"
+                class="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Editar Locación"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                (click)="openDeleteModal('location', loc.id, loc.name)"
+                class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                title="Eliminar Locación"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ================================================================= -->
+  <!-- TAB 3: CATEGORÍAS                                                -->
+  <!-- ================================================================= -->
+  @if (activeTab() === 'categories') {
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <th class="py-3 px-4">Nombre de Categoría</th>
+            <th class="py-3 px-4">Descripción</th>
+            <th class="py-3 px-4 text-center">Total Herramientas</th>
+            <th class="py-3 px-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          @for (cat of categoryService.categories(); track cat.id) {
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-3.5 px-4 font-bold text-slate-900">{{ cat.name }}</td>
+              <td class="py-3.5 px-4 text-slate-500">{{ cat.description || 'Sin descripción' }}</td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                  {{ cat.tools_count }} ítems
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right">
+                <div class="flex items-center justify-end gap-1">
+                  <button
+                    type="button"
+                    (click)="openEditCategoryModal(cat)"
+                    class="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="openDeleteModal('category', cat.id, cat.name)"
+                    class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- ================================================================= -->
+  <!-- TAB 4: HISTORIAL GLOBAL DE TRASLADOS                              -->
+  <!-- ================================================================= -->
+  @if (activeTab() === 'transfers') {
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      @if (transferService.transfers().length === 0) {
+        <app-empty-state
+          title="No hay traslados registrados"
+          description="Los movimientos entre almacenes y frentes de obra aparecerán aquí."
+        />
+      } @else {
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <th class="py-3 px-4">Fecha</th>
+              <th class="py-3 px-4">Herramienta / Código</th>
+              <th class="py-3 px-4">Origen ➔ Destino</th>
+              <th class="py-3 px-4">Responsable / Receptor</th>
+              <th class="py-3 px-4">Observaciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm">
+            @for (tr of transferService.transfers(); track tr.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="py-3.5 px-4 whitespace-nowrap text-xs text-slate-500 font-medium">
+                  {{ tr.transfer_date | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+                <td class="py-3.5 px-4 whitespace-nowrap">
+                  <div class="font-bold text-slate-900">{{ tr.tool_name }}</div>
+                  <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
+                    {{ tr.tool_code }}
+                  </span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-2 text-xs">
+                    <span class="font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                      {{ tr.origin_location_name }}
+                    </span>
+                    <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span class="font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                      {{ tr.destination_location_name }}
+                    </span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-xs font-medium text-slate-700">
+                  {{ tr.responsible_person || '—' }}
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-500 truncate max-w-xs">
+                  {{ tr.notes || '—' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+</div>
+
+<!-- ================================================================= -->
+<!-- MODAL: CREAR / EDITAR HERRAMIENTA                                 -->
+<!-- ================================================================= -->
+<app-modal
+  [isOpen]="isToolModalOpen()"
+  [title]="modalMode() === 'create' ? 'Registrar Herramienta o Maquinaria' : 'Editar Herramienta'"
+  (close)="closeToolModal()"
+>
+  <form (ngSubmit)="submitToolForm()" class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Código Único -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Código de Activo / Inventario <span class="text-rose-500">*</span>
+        </label>
+        <input
+          type="text"
+          [ngModel]="toolCode()"
+          (ngModelChange)="toolCode.set($event)"
+          name="toolCode"
+          required
+          placeholder="Ej: TAL-001, MAQ-012"
+          class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-sm font-bold uppercase focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+        />
+      </div>
+
+      <!-- Nombre -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Nombre de la Herramienta / Equipo <span class="text-rose-500">*</span>
+        </label>
+        <input
+          type="text"
+          [ngModel]="toolName()"
+          (ngModelChange)="toolName.set($event)"
+          name="toolName"
+          required
+          placeholder="Ej: Taladro Percutor 20V, Pala de Punta"
+          class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Categoría -->
+      <div>
+        <app-custom-select
+          [options]="categoryOptions()"
+          [(value)]="toolCategory"
+          label="Categoría"
+          placeholder="-- Sin categoría --"
+        />
+      </div>
+
+      <!-- Ubicación Actual / Inicial -->
+      <div>
+        <app-custom-select
+          [options]="locationOptions()"
+          [(value)]="toolLocation"
+          label="Ubicación / Almacén Inicial"
+          [required]="true"
+          placeholder="Seleccionar almacén u obra..."
+        />
+      </div>
+    </div>
+
+    <!-- Marca, Modelo y Serial -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">Marca</label>
+        <input
+          type="text"
+          [ngModel]="toolBrand()"
+          (ngModelChange)="toolBrand.set($event)"
+          name="toolBrand"
+          placeholder="Ej: DeWalt, Bosch, Truper"
+          class="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-hidden"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">Modelo</label>
+        <input
+          type="text"
+          [ngModel]="toolModel()"
+          (ngModelChange)="toolModel.set($event)"
+          name="toolModel"
+          placeholder="Ej: DCD996"
+          class="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-hidden"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">Número de Serie</label>
+        <input
+          type="text"
+          [ngModel]="toolSerial()"
+          (ngModelChange)="toolSerial.set($event)"
+          name="toolSerial"
+          placeholder="Ej: SN-2024-X89"
+          class="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-sm focus:bg-white focus:outline-hidden"
+        />
+      </div>
+    </div>
+
+    <!-- Detalle / Especificaciones -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Detalle / Accesorios incluidos
+      </label>
+      <textarea
+        [ngModel]="toolDetail()"
+        (ngModelChange)="toolDetail.set($event)"
+        name="toolDetail"
+        rows="2"
+        placeholder="Ej: Incluye 2 baterías de litio, cargador rápido y maletín plástico de transporte..."
+        class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+      ></textarea>
+    </div>
+
+    <!-- Estado y Precio -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <app-custom-select
+          [options]="statusOptions"
+          [(value)]="toolStatus"
+          label="Estado Operativo Inicial"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Precio de Adquisición (Bs)
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          [ngModel]="toolPurchasePrice()"
+          (ngModelChange)="toolPurchasePrice.set($event)"
+          name="toolPurchasePrice"
+          placeholder="0.00"
+          class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-mono focus:bg-white focus:outline-hidden"
+        />
+      </div>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+      <button
+        type="button"
+        (click)="closeToolModal()"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isProcessing() || !toolCode() || !toolName() || !toolLocation()"
+        class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition-all cursor-pointer"
+      >
+        {{ isProcessing() ? 'Guardando...' : (modalMode() === 'create' ? 'Registrar Herramienta' : 'Actualizar Herramienta') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- ================================================================= -->
+<!-- MODAL: TRASLADAR HERRAMIENTA                                      -->
+<!-- ================================================================= -->
+<app-modal
+  [isOpen]="isTransferModalOpen()"
+  title="Trasladar Herramienta / Equipo"
+  (close)="closeTransferModal()"
+>
+  @if (transferTool()) {
+    <div class="space-y-4">
+      <!-- Tool Info Banner -->
+      <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between">
+        <div>
+          <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-mono text-xs font-bold border border-amber-300">
+            {{ transferTool()?.code }}
+          </span>
+          <h4 class="font-bold text-slate-900 text-sm mt-1">{{ transferTool()?.name }}</h4>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Ubicación Actual:</span>
+          <span class="font-bold text-slate-800 text-xs">{{ transferTool()?.current_location_name }}</span>
+        </div>
+      </div>
+
+      <!-- Destination Location -->
+      <div>
+        <app-custom-select
+          [options]="destinationLocationOptions()"
+          [(value)]="transferDestinationLocation"
+          label="Locación de Destino (Obra, Almacén o Taller)"
+          [required]="true"
+          placeholder="Seleccionar destino..."
+        />
+        <p class="text-[11px] text-slate-400 mt-1">
+          Si la herramienta está activa, al enviarla a una Obra pasará a "En Uso", y a un Almacén pasará a "Disponible".
+        </p>
+      </div>
+
+      <!-- Responsable en Terreno -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Responsable / Receptor en Terreno
+        </label>
+        <input
+          type="text"
+          [ngModel]="transferResponsible()"
+          (ngModelChange)="transferResponsible.set($event)"
+          placeholder="Ej: Ing. Marcelo Rios - Residente de Obra"
+          class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+        />
+      </div>
+
+      <!-- Observaciones / Motivo -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Observaciones / Motivo del Movimiento
+        </label>
+        <textarea
+          [ngModel]="transferNotes()"
+          (ngModelChange)="transferNotes.set($event)"
+          rows="2"
+          placeholder="Ej: Asignado para vaciado de losa y compactación..."
+          class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+        ></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="closeTransferModal()"
+          class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="submitTransfer()"
+          [disabled]="isProcessing() || !transferDestinationLocation()"
+          class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition-all cursor-pointer"
+        >
+          {{ isProcessing() ? 'Procesando traslado...' : 'Confirmar Traslado' }}
+        </button>
+      </div>
+    </div>
+  }
+</app-modal>
+
+<!-- ================================================================= -->
+<!-- MODAL: HISTORIAL DE TRASLADOS DE LA HERRAMIENTA                   -->
+<!-- ================================================================= -->
+<app-modal
+  [isOpen]="isHistoryModalOpen()"
+  [title]="'Historial de Movimientos: ' + (historyTool()?.name || '')"
+  (close)="closeHistoryModal()"
+>
+  <div class="space-y-4">
+    @if (loadingHistory()) {
+      <div class="p-8 text-center text-slate-400 text-sm">
+        Cargando historial de movimientos...
+      </div>
+    } @else if (toolHistoryList().length === 0) {
+      <div class="p-8 text-center text-slate-400 text-sm">
+        Esta herramienta aún no registra traslados. Permanece en su ubicación inicial.
+      </div>
+    } @else {
+      <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+        @for (item of toolHistoryList(); track item.id) {
+          <div class="relative">
+            <span class="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-white shadow-xs"></span>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                <span class="font-semibold">{{ item.transfer_date | date:'dd/MM/yyyy HH:mm' }}</span>
+                @if (item.created_by_username) {
+                  <span class="text-[10px] bg-slate-200/80 px-1.5 py-0.5 rounded text-slate-700 font-mono">
+                    Registrado por: {{ item.created_by_username }}
+                  </span>
+                }
+              </div>
+
+              <div class="flex items-center gap-2 text-sm font-bold text-slate-900 mt-1">
+                <span class="text-slate-600">{{ item.origin_location_name }}</span>
+                <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <span class="text-amber-800">{{ item.destination_location_name }}</span>
+              </div>
+
+              @if (item.responsible_person) {
+                <p class="text-xs text-slate-700 mt-1.5 font-medium">
+                  Receptor: <span class="font-bold">{{ item.responsible_person }}</span>
+                </p>
+              }
+
+              @if (item.notes) {
+                <p class="text-xs text-slate-500 mt-1 italic">"{{ item.notes }}"</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="pt-4 border-t border-slate-100 flex justify-end">
+      <button
+        type="button"
+        (click)="closeHistoryModal()"
+        class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold cursor-pointer"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</app-modal>
+
+<!-- ================================================================= -->
+<!-- MODAL: CREAR / EDITAR LOCACIÓN                                    -->
+<!-- ================================================================= -->
+<app-modal
+  [isOpen]="isLocationModalOpen()"
+  [title]="modalMode() === 'create' ? 'Crear Almacén o Locación' : 'Editar Locación'"
+  (close)="closeLocationModal()"
+>
+  <form (ngSubmit)="submitLocationForm()" class="space-y-4">
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Nombre de la Locación / Almacén <span class="text-rose-500">*</span>
+      </label>
+      <input
+        type="text"
+        [ngModel]="locationName()"
+        (ngModelChange)="locationName.set($event)"
+        name="locationName"
+        required
+        placeholder="Ej: Almacén Central Norte, Taller de Reparaciones..."
+        class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Código de Locación
+        </label>
+        <input
+          type="text"
+          [ngModel]="locationCode()"
+          (ngModelChange)="locationCode.set($event)"
+          name="locationCode"
+          placeholder="Ej: ALM-01, TAL-01"
+          class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-sm uppercase focus:bg-white focus:outline-hidden"
+        />
+      </div>
+
+      <div>
+        <app-custom-select
+          [options]="locationTypeOptions"
+          [(value)]="locationType"
+          label="Tipo de Locación"
+          [required]="true"
+        />
+      </div>
+    </div>
+
+    @if (locationType() === 'PROJECT') {
+      <div>
+        <app-custom-select
+          [options]="projectOptions()"
+          [(value)]="locationProject"
+          label="Vincular a Obra / Proyecto"
+          placeholder="-- Seleccionar obra --"
+        />
+      </div>
+    }
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Dirección / Ubicación Física
+      </label>
+      <input
+        type="text"
+        [ngModel]="locationAddress()"
+        (ngModelChange)="locationAddress.set($event)"
+        name="locationAddress"
+        placeholder="Ej: Av. Principal Km 5, Parque Industrial..."
+        class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-hidden"
+      />
+    </div>
+
+    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+      <button
+        type="button"
+        (click)="closeLocationModal()"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isProcessing() || !locationName()"
+        class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition-all cursor-pointer"
+      >
+        {{ isProcessing() ? 'Guardando...' : (modalMode() === 'create' ? 'Crear Locación' : 'Actualizar Locación') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- ================================================================= -->
+<!-- MODAL: CREAR / EDITAR CATEGORÍA                                   -->
+<!-- ================================================================= -->
+<app-modal
+  [isOpen]="isCategoryModalOpen()"
+  [title]="modalMode() === 'create' ? 'Crear Categoría de Herramienta' : 'Editar Categoría'"
+  (close)="closeCategoryModal()"
+>
+  <form (ngSubmit)="submitCategoryForm()" class="space-y-4">
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Nombre de la Categoría <span class="text-rose-500">*</span>
+      </label>
+      <input
+        type="text"
+        [ngModel]="categoryName()"
+        (ngModelChange)="categoryName.set($event)"
+        name="categoryName"
+        required
+        placeholder="Ej: Herramientas Manuales, Maquinaria Pesada, Topografía..."
+        class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Descripción
+      </label>
+      <textarea
+        [ngModel]="categoryDescription()"
+        (ngModelChange)="categoryDescription.set($event)"
+        name="categoryDescription"
+        rows="2"
+        placeholder="Descripción opcional de los equipos comprendidos..."
+        class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-hidden"
+      ></textarea>
+    </div>
+
+    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+      <button
+        type="button"
+        (click)="closeCategoryModal()"
+        class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isProcessing() || !categoryName()"
+        class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition-all cursor-pointer"
+      >
+        {{ isProcessing() ? 'Guardando...' : (modalMode() === 'create' ? 'Crear Categoría' : 'Actualizar Categoría') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- ================================================================= -->
+<!-- MODAL: CONFIRMACIÓN DE ELIMINACIÓN                                -->
+<!-- ================================================================= -->
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  [title]="'Eliminar ' + (deleteTargetType() === 'tool' ? 'Herramienta' : (deleteTargetType() === 'location' ? 'Locación' : 'Categoría'))"
+  [message]="'¿Estás seguro de que deseas eliminar permanentemente &quot;' + deleteTargetName() + '&quot;? Esta acción no se puede deshacer.'"
+  confirmText="Sí, Eliminar"
+  (confirm)="submitDelete()"
+  (cancel)="closeDeleteModal()"
+/>

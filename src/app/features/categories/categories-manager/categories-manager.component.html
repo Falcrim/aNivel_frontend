@@ -253,16 +253,13 @@
           />
         </div>
 
-        <select
-          [ngModel]="filterCategory()"
-          (ngModelChange)="filterCategory.set($event ? +$event : null)"
-          class="w-full sm:w-auto px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
-        >
-          <option [value]="null">Todas las categorías</option>
-          @for (c of categoryService.categories(); track c.id) {
-            <option [value]="c.id">{{ c.name }}</option>
-          }
-        </select>
+        <div class="w-full sm:w-60">
+          <app-custom-select
+            [options]="categoryFilterOptions()"
+            [(value)]="filterCategory"
+            placeholder="Categoría"
+          />
+        </div>
       </div>
 
       <div class="overflow-x-auto rounded-2xl border border-slate-200">
@@ -371,20 +368,13 @@
 >
   <form (submit)="$event.preventDefault(); submitSubcategory()" class="space-y-4">
     <div>
-      <label for="subcatCategorySelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-        Categoría Padre *
-      </label>
-      <select
-        id="subcatCategorySelect"
-        [(ngModel)]="subcategoryCategoryIdForm"
-        name="subcatCatSelect"
-        required
-        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
-      >
-        @for (cat of categoryService.categories(); track cat.id) {
-          <option [value]="cat.id">{{ cat.name }}</option>
-        }
-      </select>
+      <app-custom-select
+        [options]="categoryFormOptions()"
+        [(value)]="subcategoryCategoryIdForm"
+        label="Categoría Padre"
+        [required]="true"
+        placeholder="Seleccionar categoría padre..."
+      />
     </div>
 
     <div>

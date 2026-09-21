@@ -35,6 +35,13 @@ export const routes: Routes = [
       ).then((m) => m.MaterialCatalogListComponent),
   },
   {
+    path: 'catalogo-mano-obra',
+    loadComponent: () =>
+      import(
+        './features/catalog/labor-catalog-list/labor-catalog-list.component'
+      ).then((m) => m.LaborCatalogListComponent),
+  },
+  {
     path: 'categorias',
     loadComponent: () =>
       import(
@@ -47,6 +54,13 @@ export const routes: Routes = [
       import('./features/units/units-manager/units-manager.component').then(
         (m) => m.UnitsManagerComponent
       ),
+  },
+  {
+    path: 'inventario',
+    loadComponent: () =>
+      import(
+        './features/inventory/inventory-manager/inventory-manager.component'
+      ).then((m) => m.InventoryManagerComponent),
   },
   {
     path: '**',

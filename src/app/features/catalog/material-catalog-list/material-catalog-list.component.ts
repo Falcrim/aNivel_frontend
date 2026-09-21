@@ -15,6 +15,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { CurrencyClpPipe } from '../../../shared/pipes/currency-clp.pipe';
 import { PercentPipe } from '../../../shared/pipes/percent.pipe';
+import { CustomSelectComponent, CustomSelectOption } from '../../../shared/components/custom-select/custom-select.component';
 
 @Component({
   selector: 'app-material-catalog-list',
@@ -27,6 +28,7 @@ import { PercentPipe } from '../../../shared/pipes/percent.pipe';
     EmptyStateComponent,
     CurrencyClpPipe,
     PercentPipe,
+    CustomSelectComponent,
   ],
   templateUrl: './material-catalog-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +43,36 @@ export class MaterialCatalogListComponent implements OnInit {
   searchTerm = signal<string>('');
   selectedSubcategoryFilter = signal<number | null>(null);
   onlyActiveFilter = signal<boolean>(false);
+
+  // Computed Select Options
+  readonly subcategoryFilterOptions = computed<CustomSelectOption<number | null>[]>(() => [
+    { label: 'Todas las subcategorías', value: null },
+    ...this.subcategoryService.subcategories().map((s) => ({
+      label: s.name,
+      value: s.id,
+    })),
+  ]);
+
+  readonly subcategoryFormOptions = computed<CustomSelectOption<number>[]>(() =>
+    this.subcategoryService.subcategories().map((s) => ({
+      label: s.name,
+      value: s.id,
+    }))
+  );
+
+  readonly uomFormOptions = computed<CustomSelectOption<number>[]>(() =>
+    this.uomService.units().map((u) => ({
+      label: `${u.name} (${u.abbreviation})`,
+      value: u.id,
+    }))
+  );
+
+  readonly puFormOptions = computed<CustomSelectOption<number>[]>(() =>
+    this.puService.units().map((p) => ({
+      label: `${p.name} (${p.abbreviation})`,
+      value: p.id,
+    }))
+  );
 
   // Modals state
   isCreateModalOpen = signal(false);

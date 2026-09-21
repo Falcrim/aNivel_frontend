@@ -6,6 +6,7 @@ import { ProjectService } from '../../core/services/project.service';
 import { CategoryService } from '../../core/services/category.service';
 import { SubcategoryService } from '../../core/services/subcategory.service';
 import { MaterialCatalogService } from '../../core/services/material-catalog.service';
+import { InventoryToolService } from '../../core/services/inventory-tool.service';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 
 @Component({
@@ -20,6 +21,7 @@ export class DashboardComponent implements OnInit {
   protected readonly categoryService = inject(CategoryService);
   protected readonly subcategoryService = inject(SubcategoryService);
   protected readonly catalogService = inject(MaterialCatalogService);
+  protected readonly toolService = inject(InventoryToolService);
 
   // Quick create modals
   isCreateProjectOpen = signal(false);
@@ -31,6 +33,7 @@ export class DashboardComponent implements OnInit {
   totalCategories = computed(() => this.categoryService.categories().length);
   totalSubcategories = computed(() => this.subcategoryService.subcategories().length);
   totalCatalogItems = computed(() => this.catalogService.items().length);
+  totalTools = computed(() => this.toolService.tools().length);
 
   recentProjects = computed(() => {
     return [...this.projectService.projects()].reverse().slice(0, 4);
@@ -41,6 +44,7 @@ export class DashboardComponent implements OnInit {
     this.categoryService.loadCategories().subscribe();
     this.subcategoryService.loadSubcategories().subscribe();
     this.catalogService.loadCatalog().subscribe();
+    this.toolService.loadTools().subscribe();
   }
 
   openCreateProjectModal(): void {

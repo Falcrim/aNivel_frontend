@@ -35,6 +35,13 @@ export class SidebarComponent {
       exact: false,
     },
     {
+      label: 'Catálogo de Mano de Obra',
+      subtitle: 'Tarifario Maestro Global',
+      route: '/catalogo-mano-obra',
+      icon: 'users',
+      exact: false,
+    },
+    {
       label: 'Estructura Maestra',
       subtitle: 'Categorías y Subcategorías',
       route: '/categorias',
@@ -48,14 +55,16 @@ export class SidebarComponent {
       icon: 'ruler',
       exact: false,
     },
+    {
+      label: 'Inventario de Herramientas',
+      subtitle: 'Maquinaria y Locaciones',
+      route: '/inventario',
+      icon: 'tools',
+      exact: false,
+    },
   ];
 
   readonly futureItems = [
-    {
-      label: 'Mano de Obra',
-      subtitle: 'Cuadrillas y rendimientos',
-      icon: 'users',
-    },
     {
       label: 'Gastos Generales',
       subtitle: 'Costos indirectos y fijos',

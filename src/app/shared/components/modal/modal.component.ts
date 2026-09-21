@@ -13,6 +13,7 @@ export class ModalComponent {
   readonly maxWidthClass = input<string>('max-w-lg');
 
   readonly close = output<void>();
+  readonly closeModalOutput = output<void>({ alias: 'closeModal' });
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
@@ -23,5 +24,6 @@ export class ModalComponent {
 
   closeModal(): void {
     this.close.emit();
+    this.closeModalOutput.emit();
   }
 }

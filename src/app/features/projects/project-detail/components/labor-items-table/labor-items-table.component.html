@@ -1,0 +1,118 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-left text-xs text-slate-600">
+    <thead class="bg-slate-50/80 text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200/80">
+      <tr>
+        @if (showSubcategoryColumn()) {
+          <th scope="col" class="px-5 py-3.5">Etapa / Subcategoría</th>
+        }
+        <th scope="col" class="px-5 py-3.5">Tarea / Actividad</th>
+        <th scope="col" class="px-3 py-3.5">Contratista</th>
+        <th scope="col" class="px-3 py-3.5 text-center">Unidad</th>
+        <th scope="col" class="px-4 py-3.5 text-right">Cantidad</th>
+        <th scope="col" class="px-4 py-3.5 text-right">Costo Unit. (Bs)</th>
+        <th scope="col" class="px-5 py-3.5 text-right font-black text-slate-900">Total (Bs)</th>
+        <th scope="col" class="px-4 py-3.5 text-right">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 bg-white">
+      @for (item of items(); track item.id) {
+        <tr class="hover:bg-amber-50/20 transition-colors group">
+          <!-- Subcategoría si es vista plana -->
+          @if (showSubcategoryColumn()) {
+            <td class="px-5 py-3.5 font-bold text-slate-800 text-xs">
+              {{ item.subcategory_detail?.name || 'Etapa #' + item.subcategory }}
+            </td>
+          }
+
+          <!-- Nombre y Detalle -->
+          <td class="px-5 py-3.5">
+            <div class="font-bold text-slate-900 text-[13px] tracking-tight group-hover:text-amber-700 transition-colors">
+              {{ item.name }}
+            </div>
+            @if (item.detail) {
+              <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">{{ item.detail }}</div>
+            }
+            <div class="flex items-center gap-2 mt-1">
+              @if (item.catalog_item) {
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                  <span class="w-1 h-1 rounded-full bg-indigo-500"></span>
+                  Catálogo
+                </span>
+              } @else {
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/60">
+                  <span class="w-1 h-1 rounded-full bg-amber-500"></span>
+                  Ad-hoc
+                </span>
+              }
+            </div>
+          </td>
+
+          <!-- Contratista -->
+          <td class="px-3 py-3.5">
+            @if (item.contractor_name) {
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                {{ item.contractor_name }}
+              </span>
+            } @else {
+              <span class="text-[10px] text-slate-400 italic">No asignado</span>
+            }
+          </td>
+
+          <!-- Unidad -->
+          <td class="px-3 py-3.5 text-center">
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200/80 font-mono">
+              {{ item.unit_detail?.abbreviation || 'u' }}
+            </span>
+          </td>
+
+          <!-- Cantidad -->
+          <td class="px-4 py-3.5 text-right font-mono tabular-nums text-slate-700 font-bold">
+            {{ item.quantity }}
+          </td>
+
+          <!-- Costo Unitario -->
+          <td class="px-4 py-3.5 text-right font-mono tabular-nums text-slate-600">
+            {{ item.unit_cost | appCurrency }}
+          </td>
+
+          <!-- Precio Total -->
+          <td class="px-5 py-3.5 text-right font-black font-mono tabular-nums text-amber-700 text-sm">
+            {{ item.estimated_cost | appCurrency }}
+          </td>
+
+          <!-- Acciones -->
+          <td class="px-4 py-3.5 text-right whitespace-nowrap">
+            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                (click)="edit.emit(item)"
+                title="Editar tarea"
+                class="p-1.5 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-amber-600 transition-colors cursor-pointer"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                (click)="delete.emit(item)"
+                title="Eliminar tarea"
+                class="p-1.5 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="showSubcategoryColumn() ? 8 : 7" class="px-5 py-8 text-center text-slate-400 italic">
+            No hay tareas de mano de obra registradas en este grupo.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,563 @@
+<div class="space-y-6 animate-in fade-in duration-300">
+  <!-- Controls & Action Bar -->
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+    <!-- Left: Search & Subcategory Filter -->
+    <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1 min-w-0">
+      <!-- Search Input -->
+      <div class="relative w-full sm:max-w-xs min-w-0">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar tarea o contratista..."
+          class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+        />
+      </div>
+
+      <!-- Filter Subcategory -->
+      <div class="w-full sm:w-64">
+        <app-custom-select
+          [options]="subcategoryFilterOptions()"
+          [(value)]="selectedSubcategoryFilter"
+          placeholder="Etapa / Subcategoría"
+        />
+      </div>
+
+      <!-- Active switch -->
+      <label class="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none py-1 sm:py-0">
+        <input
+          type="checkbox"
+          [ngModel]="onlyActiveFilter()"
+          (ngModelChange)="onlyActiveFilter.set($event)"
+          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+        />
+        Solo activas
+      </label>
+    </div>
+
+    <!-- Right: View Mode Toggle & New Button -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+      <!-- Toggle Grouped vs Table -->
+      <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 w-full sm:w-auto justify-center shadow-2xs">
+        <button
+          type="button"
+          (click)="viewMode.set('grouped')"
+          [ngClass]="viewMode() === 'grouped' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+        >
+          Por Etapa
+        </button>
+        <button
+          type="button"
+          (click)="viewMode.set('table')"
+          [ngClass]="viewMode() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+        >
+          Tabla Plana
+        </button>
+      </div>
+
+      <!-- New Labor Item Action -->
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+        Nueva Tarea
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (catalogService.loading()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="p-6 rounded-3xl bg-white border border-slate-200 animate-pulse h-48 shadow-xs"></div>
+      }
+    </div>
+  } @else if (filteredItems().length === 0) {
+    <!-- Empty State -->
+    <app-empty-state
+      iconType="category"
+      title="No hay tareas en el catálogo de mano de obra"
+      description="Registra actividades maestras con sus rendimientos y costos sugeridos para agilizar los presupuestos de tus obras."
+      actionText="Crear Primera Tarea"
+      (action)="openCreateModal()"
+    />
+  } @else {
+    <!-- VIEW 1: GROUPED BY SUBCATEGORY -->
+    @if (viewMode() === 'grouped') {
+      <div class="space-y-6">
+        @for (group of filteredGrouped(); track group.subcategory_id) {
+          <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
+            <!-- Header of Subcategory Group -->
+            <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+                  {{ group.subcategory_name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="min-w-0">
+                  <h4 class="text-sm font-black text-slate-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span class="truncate">{{ group.subcategory_name }}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shadow-2xs whitespace-nowrap">
+                      {{ group.items_count }} tareas
+                    </span>
+                  </h4>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                (click)="openCreateModal(group.subcategory_id)"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-800 hover:text-white hover:bg-amber-500 bg-amber-50/80 border border-amber-200 hover:border-amber-500 transition-all cursor-pointer shadow-2xs active:scale-95 ml-auto sm:ml-0"
+              >
+                + Añadir aquí
+              </button>
+            </div>
+
+            <!-- Table for Group Items -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-white text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
+                  <tr>
+                    <th scope="col" class="px-5 py-3">Tarea / Actividad</th>
+                    <th scope="col" class="px-4 py-3">Contratista Sugerido</th>
+                    <th scope="col" class="px-4 py-3 text-center">Unidad</th>
+                    <th scope="col" class="px-5 py-3 text-right">Costo Sugerido (Bs)</th>
+                    <th scope="col" class="px-4 py-3 text-center">Estado</th>
+                    <th scope="col" class="px-4 py-3 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  @for (item of group.items; track item.id) {
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                      <td class="px-5 py-3.5">
+                        <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                        @if (item.detail) {
+                          <div class="text-[11px] text-slate-400 mt-0.5">{{ item.detail }}</div>
+                        }
+                      </td>
+                      <td class="px-4 py-3.5">
+                        @if (item.contractor_type) {
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            {{ item.contractor_type }}
+                          </span>
+                        } @else {
+                          <span class="text-[11px] text-slate-400 italic">No especificado</span>
+                        }
+                      </td>
+                      <td class="px-4 py-3.5 text-center font-medium">
+                        <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-mono">
+                          {{ item.unit_detail?.abbreviation || 'u' }}
+                        </span>
+                      </td>
+                      <td class="px-5 py-3.5 text-right font-mono tabular-nums font-bold text-amber-700 text-xs sm:text-[13px]">
+                        {{ item.suggested_cost | appCurrency }}
+                      </td>
+                      <td class="px-4 py-3.5 text-center">
+                        @if (item.is_active) {
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                            Activo
+                          </span>
+                        } @else {
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 shadow-2xs">
+                            Inactivo
+                          </span>
+                        }
+                      </td>
+                      <td class="px-4 py-3.5 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            (click)="openEditModal(item)"
+                            class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                            title="Editar tarea"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            (click)="openDeleteModal(item)"
+                            class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Eliminar tarea"
+                          >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- VIEW 2: FLAT TABLE -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-200">
+              <tr>
+                <th scope="col" class="px-5 py-4">ID</th>
+                <th scope="col" class="px-5 py-4">Tarea / Actividad</th>
+                <th scope="col" class="px-4 py-4">Etapa / Subcategoría</th>
+                <th scope="col" class="px-4 py-4">Contratista Sugerido</th>
+                <th scope="col" class="px-4 py-4 text-center">Unidad</th>
+                <th scope="col" class="px-5 py-4 text-right">Costo Sugerido (Bs)</th>
+                <th scope="col" class="px-4 py-4 text-center">Estado</th>
+                <th scope="col" class="px-4 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @for (item of filteredItems(); track item.id) {
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-amber-700">#{{ item.id }}</td>
+                  <td class="px-5 py-3.5">
+                    <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                    @if (item.detail) {
+                      <div class="text-[11px] text-slate-400">{{ item.detail }}</div>
+                    }
+                  </td>
+                  <td class="px-4 py-3.5 font-semibold text-slate-700">
+                    {{ item.subcategory_detail?.name || 'Etapa #' + item.subcategory }}
+                  </td>
+                  <td class="px-4 py-3.5">
+                    @if (item.contractor_type) {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                        {{ item.contractor_type }}
+                      </span>
+                    } @else {
+                      <span class="text-[11px] text-slate-400 italic">No especificado</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3.5 text-center">
+                    <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-mono">
+                      {{ item.unit_detail?.abbreviation || 'u' }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-3.5 text-right font-mono tabular-nums font-bold text-amber-700 text-xs sm:text-[13px]">
+                    {{ item.suggested_cost | appCurrency }}
+                  </td>
+                  <td class="px-4 py-3.5 text-center">
+                    @if (item.is_active) {
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                        Activo
+                      </span>
+                    } @else {
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 shadow-2xs">
+                        Inactivo
+                      </span>
+                    }
+                  </td>
+                  <td class="px-4 py-3.5 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        (click)="openEditModal(item)"
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Editar"
+                      >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="openDeleteModal(item)"
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Eliminar"
+                      >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: CREAR TAREA EN CATÁLOGO                                            -->
+<!-- ========================================================================= -->
+<app-modal
+  [isOpen]="isCreateModalOpen()"
+  title="Nueva Tarea en Catálogo Maestro"
+  maxWidthClass="max-w-lg"
+  (close)="closeCreateModal()"
+>
+  <form (ngSubmit)="submitCreate()" class="space-y-4">
+    <!-- Subcategoría -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Etapa / Subcategoría <span class="text-rose-500">*</span>
+      </label>
+      <app-custom-select
+        [options]="subcategoryFormOptions()"
+        [(value)]="formSubcategoryId"
+        placeholder="Selecciona una etapa"
+      />
+    </div>
+
+    <!-- Nombre de la tarea -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Tarea / Actividad <span class="text-rose-500">*</span>
+      </label>
+      <input
+        type="text"
+        [(ngModel)]="formName"
+        name="name"
+        placeholder="Ej: Muro de Ladrillo Gambote 18H"
+        required
+        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+      />
+    </div>
+
+    <!-- Detalle / Especificación -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Detalle Técnico / Alcance (Opcional)
+      </label>
+      <textarea
+        [(ngModel)]="formDetail"
+        name="detail"
+        rows="2"
+        placeholder="Ej: Incluye andamiaje, mortero 1:4 y limpieza de área..."
+        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+      ></textarea>
+    </div>
+
+    <!-- Unidad & Costo Sugerido -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Unidad de Medida <span class="text-rose-500">*</span>
+        </label>
+        <app-custom-select
+          [options]="uomFormOptions()"
+          [(value)]="formUnitId"
+          placeholder="Selecciona unidad"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Costo Sugerido (Bs) <span class="text-rose-500">*</span>
+        </label>
+        <div class="relative">
+          <span class="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400 font-mono">Bs</span>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="formSuggestedCost"
+            name="suggestedCost"
+            placeholder="0.00"
+            required
+            class="w-full pl-10 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold font-mono text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipo de Contratista -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Contratista / Especialidad Sugerida
+      </label>
+      <input
+        type="text"
+        [(ngModel)]="formContractorType"
+        name="contractorType"
+        placeholder="Ej: Albañil de Primera, Contratista Obra Fina..."
+        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+      />
+    </div>
+
+    <!-- Activo switch -->
+    <div class="pt-2">
+      <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          [(ngModel)]="formIsActive"
+          name="isActive"
+          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+        />
+        Ítem Activo para Presupuestación
+      </label>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="closeCreateModal()"
+        class="px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isProcessing() || !formName().trim() || !formSubcategoryId() || !formUnitId()"
+        class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-extrabold transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+      >
+        {{ isProcessing() ? 'Guardando...' : 'Crear Tarea' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- ========================================================================= -->
+<!-- MODAL: EDITAR TAREA EN CATÁLOGO                                           -->
+<!-- ========================================================================= -->
+<app-modal
+  [isOpen]="isEditModalOpen()"
+  title="Editar Tarea de Mano de Obra"
+  maxWidthClass="max-w-lg"
+  (close)="closeEditModal()"
+>
+  <form (ngSubmit)="submitEdit()" class="space-y-4">
+    <!-- Subcategoría -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Etapa / Subcategoría <span class="text-rose-500">*</span>
+      </label>
+      <app-custom-select
+        [options]="subcategoryFormOptions()"
+        [(value)]="formSubcategoryId"
+        placeholder="Selecciona una etapa"
+      />
+    </div>
+
+    <!-- Nombre de la tarea -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Tarea / Actividad <span class="text-rose-500">*</span>
+      </label>
+      <input
+        type="text"
+        [(ngModel)]="formName"
+        name="nameEdit"
+        required
+        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+      />
+    </div>
+
+    <!-- Detalle / Especificación -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Detalle Técnico / Alcance (Opcional)
+      </label>
+      <textarea
+        [(ngModel)]="formDetail"
+        name="detailEdit"
+        rows="2"
+        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+      ></textarea>
+    </div>
+
+    <!-- Unidad & Costo Sugerido -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Unidad de Medida <span class="text-rose-500">*</span>
+        </label>
+        <app-custom-select
+          [options]="uomFormOptions()"
+          [(value)]="formUnitId"
+          placeholder="Selecciona unidad"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          Costo Sugerido (Bs) <span class="text-rose-500">*</span>
+        </label>
+        <div class="relative">
+          <span class="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400 font-mono">Bs</span>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="formSuggestedCost"
+            name="suggestedCostEdit"
+            required
+            class="w-full pl-10 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold font-mono text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipo de Contratista -->
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+        Contratista / Especialidad Sugerida
+      </label>
+      <input
+        type="text"
+        [(ngModel)]="formContractorType"
+        name="contractorTypeEdit"
+        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+      />
+    </div>
+
+    <!-- Activo switch -->
+    <div class="pt-2">
+      <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          [(ngModel)]="formIsActive"
+          name="isActiveEdit"
+          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+        />
+        Ítem Activo para Presupuestación
+      </label>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="closeEditModal()"
+        class="px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isProcessing() || !formName().trim() || !formSubcategoryId() || !formUnitId()"
+        class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-extrabold transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+      >
+        {{ isProcessing() ? 'Guardando...' : 'Actualizar Tarea' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- ========================================================================= -->
+<!-- DIÁLOGO CONFIRMACIÓN: ELIMINAR TAREA                                      -->
+<!-- ========================================================================= -->
+<app-confirm-dialog
+  [isOpen]="isDeleteModalOpen()"
+  title="Eliminar Tarea del Catálogo"
+  [message]="'¿Estás seguro de retirar &quot;' + (itemToDelete()?.name || '') + '&quot; del catálogo maestro? No afectará a las obras que ya la hayan presupuestado.'"
+  confirmText="Sí, Eliminar"
+  type="danger"
+  (confirm)="submitDelete()"
+  (cancel)="closeDeleteModal()"
+/>

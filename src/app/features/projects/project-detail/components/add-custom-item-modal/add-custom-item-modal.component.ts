@@ -7,6 +7,7 @@ import { PurchaseUnitService } from '../../../../../core/services/purchase-unit.
 import { MaterialBudgetService } from '../../../../../core/services/material-budget.service';
 import { CustomBudgetItemPayload } from '../../../../../core/models/material-budget.model';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
+import { CustomSelectComponent, CustomSelectOption } from '../../../../../shared/components/custom-select/custom-select.component';
 
 export interface CustomItemFormModel {
   subcategory: number;
@@ -43,7 +44,7 @@ function createDefaultCustomItemForm(subcatId = 0, uomId = 0, puId = 0): CustomI
 @Component({
   selector: 'app-add-custom-item-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, CustomSelectComponent],
   templateUrl: './add-custom-item-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -62,6 +63,43 @@ export class AddCustomItemModalComponent {
 
   readonly form = signal<CustomItemFormModel>(createDefaultCustomItemForm());
   readonly isProcessing = signal<boolean>(false);
+
+  // Computed Options
+  readonly subcategoryOptions = () =>
+    this.subcategoryService.subcategories().map((s) => ({
+      label: s.name,
+      value: s.id,
+    }));
+
+  readonly uomOptions = () =>
+    this.uomService.units().map((u) => ({
+      label: `${u.name} (${u.abbreviation})`,
+      value: u.id,
+    }));
+
+  readonly puOptions = () =>
+    this.puService.units().map((p) => ({
+      label: `${p.name} (${p.abbreviation})`,
+      value: p.id,
+    }));
+
+  updateFormSubcat(subcatId: number | null): void {
+    if (subcatId !== null) {
+      this.form.update((f) => ({ ...f, subcategory: subcatId }));
+    }
+  }
+
+  updateFormUom(uomId: number | null): void {
+    if (uomId !== null) {
+      this.form.update((f) => ({ ...f, unit_measure: uomId }));
+    }
+  }
+
+  updateFormPu(puId: number | null): void {
+    if (puId !== null) {
+      this.form.update((f) => ({ ...f, unit_purchase: puId }));
+    }
+  }
 
   constructor() {
     effect(() => {
