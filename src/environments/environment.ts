@@ -1,4 +1,5 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8000/api',
+  production: true,
+  apiUrl: 'https://anivel-backend.onrender.com/api',
 };
+
