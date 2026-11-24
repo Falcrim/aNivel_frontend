@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ProjectService } from '../../core/services/project.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,9 +10,33 @@ import { RouterModule } from '@angular/router';
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
+  readonly projectService = inject(ProjectService);
   readonly isMobileOpen = input<boolean>(false);
   readonly closeMobile = output<void>();
+
+  ngOnInit(): void {
+    if (this.projectService.projects().length === 0) {
+      this.projectService.loadProjects({ page_size: 5 }).subscribe();
+    }
+  }
+
+  getStatusLabel(status?: string): string {
+    switch (status) {
+      case 'active':
+        return 'Activa';
+      case 'budget':
+        return 'En Presupuesto';
+      case 'paused':
+        return 'Pausada';
+      case 'completed':
+        return 'Finalizada';
+      case 'cancelled':
+        return 'Cancelada';
+      default:
+        return status || 'Activa';
+    }
+  }
 
   readonly navItems = [
     {
@@ -25,6 +50,13 @@ export class SidebarComponent {
       subtitle: 'Presupuestos por Obra',
       route: '/obras',
       icon: 'building',
+      exact: false,
+    },
+    {
+      label: 'Directorio de Proveedores',
+      subtitle: 'Materiales & Contratistas',
+      route: '/proveedores',
+      icon: 'supplier',
       exact: false,
     },
     {
@@ -43,7 +75,7 @@ export class SidebarComponent {
     },
     {
       label: 'Estructura Maestra',
-      subtitle: 'Categorías y Subcategorías',
+      subtitle: 'Categorías, Subcategorías y Etapas',
       route: '/categorias',
       icon: 'layers',
       exact: false,
@@ -55,24 +87,22 @@ export class SidebarComponent {
       icon: 'ruler',
       exact: false,
     },
-    {
-      label: 'Inventario de Herramientas',
-      subtitle: 'Maquinaria y Locaciones',
-      route: '/inventario',
-      icon: 'tools',
-      exact: false,
-    },
   ];
 
   readonly futureItems = [
     {
-      label: 'Gastos Generales',
-      subtitle: 'Costos indirectos y fijos',
+      label: 'Seguridad & Roles (IAM)',
+      subtitle: 'Permisos dinámicos por cargo',
+      icon: 'users',
+    },
+    {
+      label: 'Gastos Reales & Caja Chica',
+      subtitle: 'Ejecución, cuotas y rendiciones',
       icon: 'calculator',
     },
     {
-      label: 'Reportes y Exportación',
-      subtitle: 'Exportación a Excel / PDF',
+      label: 'Varianza & Herramientas',
+      subtitle: 'Análisis de desvíos y activos',
       icon: 'chart',
     },
   ];

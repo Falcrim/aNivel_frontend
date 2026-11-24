@@ -2,36 +2,36 @@
   <div class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <!-- Backdrop blur -->
     <div
-      class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in"
+      class="fixed inset-0 bg-[#0a284b]/60 backdrop-blur-xs transition-opacity animate-in fade-in"
       (click)="closeModal()"
     ></div>
 
     <!-- Modal Panel -->
     <div
-      class="relative bg-white border border-slate-200 rounded-2xl sm:rounded-3xl shadow-2xl w-full {{ maxWidthClass() }} z-10 overflow-hidden transform transition-all animate-in zoom-in-95 duration-200"
+      class="relative bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-2xl w-full {{ maxWidthClass() }} z-10 overflow-hidden an-floating-enter"
     >
-      <!-- Header -->
-      <div class="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 bg-slate-50/70">
+      <!-- Header (Corporate Blue Pantone 541C #11406e) -->
+      <div class="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 bg-[#11406e] text-white">
         <div class="min-w-0 pr-2">
-          <h3 id="modal-title" class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight truncate">{{ title() }}</h3>
+          <h3 id="modal-title" class="text-base sm:text-lg font-bold tracking-tight truncate font-['Montserrat',sans-serif]">{{ title() }}</h3>
           @if (subtitle()) {
-            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 line-clamp-1">{{ subtitle() }}</p>
+            <p class="text-[11px] sm:text-xs text-[#cbd8e6] mt-0.5 line-clamp-1">{{ subtitle() }}</p>
           }
         </div>
         <button
           type="button"
           (click)="closeModal()"
-          class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors focus:outline-hidden shrink-0 cursor-pointer"
+          class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none shrink-0 cursor-pointer"
           aria-label="Cerrar ventana"
         >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
       <!-- Body / Projection -->
-      <div class="p-4 sm:p-6 max-h-[calc(88vh-7rem)] overflow-y-auto">
+      <div class="p-4 sm:p-6 max-h-[calc(88dvh-7rem)] overflow-y-auto overscroll-contain text-[#0a284b]">
         <ng-content></ng-content>
       </div>
     </div>

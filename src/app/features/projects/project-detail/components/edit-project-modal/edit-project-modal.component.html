@@ -7,9 +7,9 @@
 >
   <form (ngSubmit)="onSubmit()" class="space-y-4">
     <!-- Nombre de la Obra -->
-    <div class="space-y-1.5">
-      <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
-        Nombre de la Obra <span class="text-rose-500">*</span>
+    <div>
+      <label class="an-label">
+        Nombre de la Obra <span class="text-[#e52521]">*</span>
       </label>
       <input
         type="text"
@@ -18,30 +18,30 @@
         name="name"
         required
         placeholder="Ej: Proyecto Zabalaga"
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-medium focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+        class="an-input"
       />
     </div>
 
     <!-- Estado de la Obra -->
-    <div class="space-y-1.5">
-      <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
-        Estado de la Obra <span class="text-rose-500">*</span>
-      </label>
+    <div>
       <app-custom-select
         [options]="statusOptions"
         [value]="status()"
         (valueChange)="status.set($any($event))"
+        label="Estado de la Obra"
+        [required]="true"
         placeholder="Seleccionar estado"
       />
     </div>
 
     <!-- 2 Columnas: Superficie Construida (m2) y Tipo de Cambio (Bs/USD) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-      <div class="space-y-1.5">
-        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
-          Superficie Construida (m²)
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
+      <div>
+        <label class="an-label !flex items-center gap-1.5">
+          <span>Superficie Construida (m²)</span>
+          <app-info-tooltip text="Área total construida de la obra usada para calcular el indicador de incidencia en $/m²." />
         </label>
-        <div class="relative">
+        <div class="an-input-group">
           <input
             type="number"
             step="0.01"
@@ -50,20 +50,20 @@
             (ngModelChange)="builtArea.set($event)"
             name="builtArea"
             placeholder="Ej: 229.50"
-            class="w-full px-3.5 py-2.5 pr-12 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+            class="w-full h-full px-3.5 pr-12 bg-transparent text-[#0a284b] text-[13px] font-mono focus:outline-hidden"
           />
-          <span class="absolute right-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">
+          <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">
             m²
           </span>
         </div>
-        <p class="text-[10px] text-slate-400">Usado para calcular el costo por m².</p>
       </div>
 
-      <div class="space-y-1.5">
-        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
-          Tipo de Cambio (Bs/$)
+      <div>
+        <label class="an-label !flex items-center gap-1.5">
+          <span>Tipo de Cambio (Bs/$)</span>
+          <app-info-tooltip text="Cotización referencial usada en esta obra para convertir automáticamente todos los subtotales de Bolivianos a Dólares." />
         </label>
-        <div class="relative">
+        <div class="an-input-group">
           <input
             type="number"
             step="0.01"
@@ -72,29 +72,28 @@
             (ngModelChange)="exchangeRate.set($event)"
             name="exchangeRate"
             placeholder="6.97"
-            class="w-full px-3.5 py-2.5 pr-14 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+            class="w-full h-full px-3.5 pr-14 bg-transparent text-[#0a284b] text-[13px] font-mono focus:outline-hidden"
           />
-          <span class="absolute right-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">
+          <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">
             Bs/$
           </span>
         </div>
-        <p class="text-[10px] text-slate-400">Para conversión a Dólares.</p>
       </div>
     </div>
 
-    <!-- Botones de Acción -->
+    <!-- Botones de Acción (Esquema 1) -->
     <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
       <button
         type="button"
         (click)="close.emit()"
-        class="px-4 py-2 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-xs font-bold text-[#385370] transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="isSaving() || !name().trim()"
-        class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-amber-600/20 cursor-pointer flex items-center gap-2"
+        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#11406e] hover:bg-[#0a284b] active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-[#11406e]/20 cursor-pointer flex items-center gap-2"
       >
         @if (isSaving()) {
           <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">

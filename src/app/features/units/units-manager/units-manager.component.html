@@ -1,13 +1,13 @@
 <div class="space-y-6 animate-in fade-in duration-300">
-  <!-- Controls Bar -->
-  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+  <!-- Controls Bar (Aligned h-[42px]) -->
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-[#d1dce7] p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
     <!-- Tab Selector -->
-    <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 w-full lg:w-auto justify-center shadow-2xs">
+    <div class="flex items-center p-1 rounded-xl bg-[#f1f5f9] border border-[#d1dce7] h-[42px] w-full lg:w-auto justify-center shadow-2xs">
       <button
         type="button"
         (click)="activeTab.set('uom')"
-        [ngClass]="activeTab() === 'uom' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-        class="flex-1 lg:flex-initial px-3 sm:px-4 py-2 rounded-xl text-xs transition-all cursor-pointer text-center"
+        [ngClass]="activeTab() === 'uom' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+        class="flex-1 lg:flex-initial px-3 sm:px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer text-center whitespace-nowrap"
       >
         <span class="sm:hidden">Medida ({{ uomService.units().length }})</span>
         <span class="hidden sm:inline">Unidades de Medida en Obra ({{ uomService.units().length }})</span>
@@ -15,8 +15,8 @@
       <button
         type="button"
         (click)="activeTab.set('pu')"
-        [ngClass]="activeTab() === 'pu' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-        class="flex-1 lg:flex-initial px-3 sm:px-4 py-2 rounded-xl text-xs transition-all cursor-pointer text-center"
+        [ngClass]="activeTab() === 'pu' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+        class="flex-1 lg:flex-initial px-3 sm:px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer text-center whitespace-nowrap"
       >
         <span class="sm:hidden">Compra ({{ puService.units().length }})</span>
         <span class="hidden sm:inline">Unidades de Compra Comercial ({{ puService.units().length }})</span>
@@ -25,19 +25,24 @@
 
     <!-- Search & New Button -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-      <div class="relative w-full sm:max-w-xs min-w-0">
+      <div class="relative w-full sm:w-64 min-w-0">
         <input
           type="text"
           [(ngModel)]="searchTerm"
           placeholder="Buscar unidad..."
-          class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          class="an-input pl-9"
         />
+        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#7e91a4] pointer-events-none">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
       </div>
 
       <button
         type="button"
         (click)="openCreateModal()"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer shrink-0"
+        class="h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -49,16 +54,17 @@
 
   <!-- TABLE: Units of Measure -->
   @if (activeTab() === 'uom') {
-    <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
-      <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50 border-b border-slate-200">
-        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">
-          Unidades en las que se cuantifica la necesidad métrica en obra (ej. ml, m2, m3, kg, pza)
+    <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs">
+      <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#f4f7fb] border-b border-[#d1dce7] rounded-t-2xl sm:rounded-t-3xl">
+        <h4 class="text-xs font-bold text-[#0a284b] uppercase tracking-wider flex items-center gap-1.5">
+          <span>Unidades en las que se cuantifica la necesidad métrica en obra (ej. ml, m², m³, kg, pza)</span>
+          <app-info-tooltip text="Se usan al medir o computar partidas en planos de obra antes de convertir a unidades comerciales de compra." position="bottom" />
         </h4>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-600">
-          <thead class="bg-white text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
+      <div class="overflow-x-auto scrollbar-thin">
+        <table class="w-full text-left text-xs text-[#385370] min-w-[540px]">
+          <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#e2e9f2]">
             <tr>
               <th scope="col" class="px-6 py-3.5">ID</th>
               <th scope="col" class="px-6 py-3.5">Nombre de la Unidad</th>
@@ -68,20 +74,20 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (uom of filteredUom(); track uom.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="px-6 py-4 font-mono tabular-nums font-bold text-amber-700">#{{ uom.id }}</td>
-                <td class="px-6 py-4 font-bold text-slate-900 text-sm">{{ uom.name }}</td>
+              <tr class="hover:bg-[#edf1f5]/50 transition-colors">
+                <td class="px-6 py-4 font-mono tabular-nums font-bold text-[#11406e]">#{{ uom.id }}</td>
+                <td class="px-6 py-4 font-bold text-[#0a284b] text-sm">{{ uom.name }}</td>
                 <td class="px-6 py-4">
-                  <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 font-mono font-bold text-xs">
+                  <span class="px-2.5 py-1 rounded-lg bg-[#edf1f5] text-[#11406e] border border-[#c3d3e5] font-mono font-bold text-xs">
                     {{ uom.abbreviation }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end gap-1">
+                  <div class="flex items-center justify-end gap-1.5">
                     <button
                       type="button"
                       (click)="openEditUomModal(uom)"
-                      class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                      class="an-btn-edit"
                       title="Editar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,7 +97,7 @@
                     <button
                       type="button"
                       (click)="openDeleteUomModal(uom)"
-                      class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      class="an-btn-delete"
                       title="Eliminar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,16 +116,17 @@
 
   <!-- TABLE: Purchase Units -->
   @if (activeTab() === 'pu') {
-    <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
-      <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50 border-b border-slate-200">
-        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">
-          Unidades comerciales de empaque y distribución (ej. barra, bolsa, tubo, rollo, tira, balde)
+    <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs">
+      <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#f4f7fb] border-b border-[#d1dce7] rounded-t-2xl sm:rounded-t-3xl">
+        <h4 class="text-xs font-bold text-[#0a284b] uppercase tracking-wider flex items-center gap-1.5">
+          <span>Unidades comerciales de empaque y distribución (ej. barra, bolsa, tubo, rollo, tira, balde)</span>
+          <app-info-tooltip text="Presentación comercial con la que el proveedor factura y despacha los materiales." position="bottom" />
         </h4>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-600">
-          <thead class="bg-white text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
+      <div class="overflow-x-auto scrollbar-thin">
+        <table class="w-full text-left text-xs text-[#385370] min-w-[540px]">
+          <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#e2e9f2]">
             <tr>
               <th scope="col" class="px-6 py-3.5">ID</th>
               <th scope="col" class="px-6 py-3.5">Nombre de la Unidad</th>
@@ -129,20 +136,20 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (pu of filteredPu(); track pu.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="px-6 py-4 font-mono tabular-nums font-bold text-amber-700">#{{ pu.id }}</td>
-                <td class="px-6 py-4 font-bold text-slate-900 text-sm">{{ pu.name }}</td>
+              <tr class="hover:bg-[#edf1f5]/50 transition-colors">
+                <td class="px-6 py-4 font-mono tabular-nums font-bold text-[#11406e]">#{{ pu.id }}</td>
+                <td class="px-6 py-4 font-bold text-[#0a284b] text-sm">{{ pu.name }}</td>
                 <td class="px-6 py-4">
-                  <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-mono font-bold text-xs">
+                  <span class="px-2.5 py-1 rounded-lg bg-[#edf1f5] text-[#11406e] border border-[#c3d3e5] font-mono font-bold text-xs">
                     {{ pu.abbreviation }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end gap-1">
+                  <div class="flex items-center justify-end gap-1.5">
                     <button
                       type="button"
                       (click)="openEditPuModal(pu)"
-                      class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                      class="an-btn-edit"
                       title="Editar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,7 +159,7 @@
                     <button
                       type="button"
                       (click)="openDeletePuModal(pu)"
-                      class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      class="an-btn-delete"
                       title="Eliminar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -170,7 +177,7 @@
   }
 </div>
 
-<!-- Modal: Create / Edit Unit -->
+<!-- Modal: Create / Edit Unit (Normalized h-[42px]) -->
 <app-modal
   [isOpen]="isModalOpen()"
   [title]="modalMode() === 'create' ? (activeTab() === 'uom' ? 'Nueva Unidad de Medida' : 'Nueva Unidad de Compra') : (activeTab() === 'uom' ? 'Editar Unidad de Medida' : 'Editar Unidad de Compra')"
@@ -178,34 +185,36 @@
   (close)="closeModal()"
 >
   <form (submit)="$event.preventDefault(); submitForm()" class="space-y-4">
-    <div>
-      <label for="unitNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-        Nombre de la Unidad *
-      </label>
-      <input
-        id="unitNameInput"
-        type="text"
-        [(ngModel)]="unitName"
-        name="unitName"
-        required
-        placeholder="Ej. Metro Cúbico, Bolsa 25kg, Barra 12m..."
-        class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
-      />
-    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+      <div class="sm:col-span-2">
+        <label for="unitNameInput" class="an-label">
+          Nombre de la Unidad <span class="text-[#e52521]">*</span>
+        </label>
+        <input
+          id="unitNameInput"
+          type="text"
+          [(ngModel)]="unitName"
+          name="unitName"
+          required
+          placeholder="Ej. Metro Cúbico, Bolsa 50kg, Barra 12m..."
+          class="an-input"
+        />
+      </div>
 
-    <div>
-      <label for="unitAbbrInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-        Abreviación / Símbolo *
-      </label>
-      <input
-        id="unitAbbrInput"
-        type="text"
-        [(ngModel)]="unitAbbreviation"
-        name="unitAbbreviation"
-        required
-        placeholder="Ej. m3, bls, bar, ml, kg..."
-        class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs font-mono font-bold uppercase focus:outline-hidden focus:border-amber-500 shadow-2xs"
-      />
+      <div>
+        <label for="unitAbbrInput" class="an-label">
+          Abreviación <span class="text-[#e52521]">*</span>
+        </label>
+        <input
+          id="unitAbbrInput"
+          type="text"
+          [(ngModel)]="unitAbbreviation"
+          name="unitAbbreviation"
+          required
+          placeholder="Ej. m3, bls"
+          class="an-input font-mono font-bold uppercase"
+        />
+      </div>
     </div>
 
     <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
@@ -213,14 +222,14 @@
         type="button"
         (click)="closeModal()"
         [disabled]="isProcessing()"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="!unitName().trim() || !unitAbbreviation().trim() || isProcessing()"
-        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer disabled:opacity-50"
       >
         {{ modalMode() === 'create' ? 'Crear Unidad' : 'Guardar Cambios' }}
       </button>
@@ -234,6 +243,7 @@
   title="Eliminar Unidad"
   [message]="'¿Estás seguro de que deseas eliminar la unidad \'' + (activeTab() === 'uom' ? selectedUom()?.name : selectedPu()?.name) + '\'?'"
   confirmText="Sí, eliminar"
+  [isDanger]="true"
   [loading]="isProcessing()"
   (confirm)="submitDelete()"
   (cancel)="closeDeleteModal()"

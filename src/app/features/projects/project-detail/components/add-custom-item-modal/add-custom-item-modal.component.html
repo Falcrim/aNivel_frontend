@@ -1,17 +1,18 @@
 <app-modal
   [isOpen]="isOpen()"
-  title="Crear Ítem Personalizado (Ad-hoc)"
-  subtitle="Material exclusivo para esta obra no existente en el catálogo maestro"
+  [title]="modalTitle()"
+  subtitle="Ítem presupuestario registrado directamente para esta obra"
   maxWidthClass="max-w-2xl"
   (close)="handleClose()"
 >
   <form (submit)="$event.preventDefault(); submit()" class="space-y-4">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Row 1: Subcategoría y Etapa (Strict h-[42px] alignment) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
       <div>
         <app-custom-select
           [options]="subcategoryOptions()"
           [value]="form().subcategory"
-          (valueChange)="updateFormSubcat($event)"
+          (valueChange)="updateField('subcategory', $event)"
           label="Subcategoría"
           [required]="true"
           placeholder="Seleccionar subcategoría..."
@@ -19,185 +20,458 @@
       </div>
 
       <div>
-        <label for="custName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-          Nombre del Material <span class="text-rose-500">*</span>
+        <app-custom-select
+          [options]="stageOptions()"
+          [value]="form().stage"
+          (valueChange)="updateField('stage', $event)"
+          label="Etapa Constructiva"
+          tooltip="Fase operativa de la obra en la que se ejecutará este ítem."
+          placeholder="Sin etapa específica..."
+        />
+      </div>
+    </div>
+
+    <!-- Row 2: Nombre del Ítem + Proveedor (Exact same .an-label & 42px height) -->
+    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
+      <div class="sm:col-span-7">
+        <label for="custName" class="an-label">
+          Nombre del Ítem <span class="text-[#e52521]">*</span>
         </label>
         <input
           id="custName"
           type="text"
-          [(ngModel)]="form().name"
+          [ngModel]="form().name"
+          (ngModelChange)="updateField('name', $event)"
           name="custName"
           required
-          placeholder="Ej. Aditivo acelerante especial..."
-          class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-hidden focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 shadow-2xs font-medium"
+          placeholder="Ej. Aditivo especial, Alquiler grúa, Seguro de obra..."
+          class="an-input"
         />
       </div>
-    </div>
 
-    <!-- Units -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div>
+      <div class="sm:col-span-5">
         <app-custom-select
-          [options]="uomOptions()"
-          [value]="form().unit_measure"
-          (valueChange)="updateFormUom($event)"
-          label="Unidad Obra"
-          [required]="true"
-          placeholder="Unidad de obra..."
+          [options]="supplierOptions()"
+          [value]="form().supplier"
+          (valueChange)="updateField('supplier', $event)"
+          label="Proveedor (Opcional)"
+          placeholder="Sin proveedor asignado"
         />
-      </div>
-
-      <div>
-        <app-custom-select
-          [options]="puOptions()"
-          [value]="form().unit_purchase"
-          (valueChange)="updateFormPu($event)"
-          label="Unidad Compra"
-          [required]="true"
-          placeholder="Unidad de compra..."
-        />
-      </div>
-
-      <div>
-        <label for="custPrice" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Precio Unit. Compra (Bs) *
-        </label>
-        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all shadow-2xs">
-          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none font-mono">Bs</span>
-          <input
-            id="custPrice"
-            type="number"
-            step="0.01"
-            min="0"
-            [(ngModel)]="form().price_per_purchase_unit"
-            name="custPrice"
-            required
-            placeholder="0.00"
-            class="w-full pl-9 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
-          />
-        </div>
       </div>
     </div>
 
-    <!-- Toggle Is Global -->
-    <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-between">
-      <div>
-        <span class="text-xs font-bold text-slate-900 block">¿Es Ítem Global (Paquete cerrado)?</span>
-        <span class="text-[11px] text-slate-500">Si se activa, no requiere cómputo métrico ni factor de conversión.</span>
-      </div>
-      <input
-        type="checkbox"
-        [(ngModel)]="form().is_global"
-        name="custIsGlobal"
-        class="w-5 h-5 accent-amber-500 rounded-lg cursor-pointer"
-      />
-    </div>
-
-    <!-- Inputs if normal item -->
-    @if (!form().is_global) {
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- =================================================================== -->
+    <!-- FAMILIA 1: MATERIALES                                               -->
+    <!-- =================================================================== -->
+    @if (categoryType() === 'materials') {
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
         <div>
-          <label for="custQtyObra" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-            Cómputo en Obra *
-          </label>
-          <input
-            id="custQtyObra"
-            type="number"
-            step="0.01"
-            [(ngModel)]="form().quantity_obra"
-            name="custQtyObra"
-            required
-            placeholder="0.00"
-            class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          <app-custom-select
+            [options]="uomOptions()"
+            [value]="form().unit_measure"
+            (valueChange)="updateField('unit_measure', $event)"
+            label="Unidad Obra"
+            tooltip="Unidad con la que mides o computas en planos (ej. m², m³, ml, pza)."
+            [required]="true"
+            placeholder="Unidad de obra..."
           />
         </div>
 
         <div>
-          <label for="custFactor" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-            Factor Conversión *
-          </label>
-          <input
-            id="custFactor"
-            type="number"
-            step="0.0001"
-            [(ngModel)]="form().conversion_factor"
-            name="custFactor"
-            required
-            placeholder="1.0"
-            class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          <app-custom-select
+            [options]="puOptions()"
+            [value]="form().unit_purchase"
+            (valueChange)="updateField('unit_purchase', $event)"
+            label="Unidad Compra"
+            tooltip="Formato comercial en el que el proveedor vende este material (ej. bolsa, barra, balde)."
+            [required]="true"
+            placeholder="Unidad comercial..."
           />
         </div>
 
         <div>
-          <label for="custWaste" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-            % Merma
+          <label for="custPrice" class="an-label">
+            Precio Unit. Compra (Bs) <span class="text-[#e52521]">*</span>
           </label>
-          <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
+          <div class="an-input-group">
+            <span class="absolute left-3.5 text-xs text-[#4b637c] font-bold pointer-events-none font-mono">Bs</span>
             <input
-              id="custWaste"
+              id="custPrice"
               type="number"
-              step="1"
+              step="0.01"
               min="0"
-              max="100"
-              [(ngModel)]="form().waste_pct"
-              name="custWaste"
-              placeholder="0"
-              class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden pr-8"
+              [ngModel]="form().unit_price"
+              (ngModelChange)="updateField('unit_price', $event)"
+              name="custPrice"
+              required
+              placeholder="0.00"
+              class="w-full h-full pl-9 pr-3.5 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
             />
-            <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">%</span>
           </div>
         </div>
       </div>
-    } @else {
+
+      <!-- Toggles Global & Ceil -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+        <label
+          [ngClass]="form().is_global ? 'sm:col-span-2 bg-indigo-50/70 border-indigo-200' : 'bg-[#f8fafc] border-[#cfd9e4]'"
+          class="p-3.5 border rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-colors"
+        >
+          <div class="min-w-0">
+            <span class="text-xs font-bold text-[#0a284b] flex items-center gap-1.5">
+              ¿Compra Directa (Paquete Global)?
+              <app-info-tooltip text="Actívalo para ingresar una cantidad comercial fija sin calcular desde metros cuadrados ni factor de equivalencia." />
+            </span>
+            <span class="text-[11px] text-[#4b637c] block mt-0.5">Cantidad fija directa sin cómputo métrico.</span>
+          </div>
+          <input
+            type="checkbox"
+            [ngModel]="form().is_global"
+            (ngModelChange)="updateField('is_global', $event)"
+            name="custIsGlobal"
+            class="w-4 h-4 shrink-0 accent-[#11406e] rounded cursor-pointer"
+          />
+        </label>
+
+        @if (!form().is_global) {
+          <label class="p-3.5 bg-[#edf1f5] border border-[#c3d3e5] rounded-2xl flex items-center justify-between gap-3 cursor-pointer">
+            <div class="min-w-0">
+              <span class="text-xs font-bold text-[#0a284b] flex items-center gap-1.5">
+                Redondear a unidades enteras
+                <app-info-tooltip text="Ajusta hacia arriba al número entero superior para comprar envases o piezas completas (sin fracciones)." />
+              </span>
+              <span class="text-[11px] text-[#4b637c] block mt-0.5">Evita fracciones en bolsas, barras o baldes.</span>
+            </div>
+            <input
+              type="checkbox"
+              [ngModel]="form().apply_ceil"
+              (ngModelChange)="updateField('apply_ceil', $event)"
+              name="custApplyCeil"
+              class="w-4 h-4 shrink-0 accent-[#11406e] rounded cursor-pointer"
+            />
+          </label>
+        }
+      </div>
+
+      @if (!form().is_global) {
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+          <div>
+            <label for="custQtyObra" class="an-label">
+              Cómputo en Obra <span class="text-[#e52521]">*</span>
+            </label>
+            <input
+              id="custQtyObra"
+              type="number"
+              step="0.01"
+              min="0.01"
+              [ngModel]="form().quantity_obra"
+              (ngModelChange)="updateField('quantity_obra', $event)"
+              name="custQtyObra"
+              required
+              placeholder="0.00"
+              class="an-input font-mono tabular-nums"
+            />
+          </div>
+
+          <div>
+            <label for="custFactor" class="an-label !flex items-center gap-1.5">
+              <span>
+                Factor Conversión <span class="text-[#e52521]">*</span>
+              </span>
+              <app-info-tooltip text="Cuántas unidades de obra rinde 1 unidad de compra (ej. 1 barra = 12 m; 1 bolsa = 10 m²)." />
+            </label>
+            <input
+              id="custFactor"
+              type="number"
+              step="0.0001"
+              min="0.0001"
+              [ngModel]="form().conversion_factor"
+              (ngModelChange)="updateField('conversion_factor', $event)"
+              name="custFactor"
+              required
+              placeholder="1.0"
+              class="an-input font-mono tabular-nums"
+            />
+          </div>
+
+          <div>
+            <label for="custWaste" class="an-label !flex items-center gap-1.5">
+              <span>% Merma</span>
+              <app-info-tooltip text="Porcentaje adicional estimado de desperdicio en obra (cortes, rebabas, pérdida)." />
+            </label>
+            <div class="an-input-group">
+              <input
+                id="custWaste"
+                type="number"
+                step="1"
+                min="0"
+                max="100"
+                [ngModel]="form().waste_pct"
+                (ngModelChange)="updateField('waste_pct', $event)"
+                name="custWaste"
+                placeholder="0"
+                class="w-full h-full px-3.5 pr-9 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+              />
+              <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">%</span>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div>
+          <label for="custQtyPu" class="an-label">
+            Cantidad a Comprar (Paquete) <span class="text-[#e52521]">*</span>
+          </label>
+          <input
+            id="custQtyPu"
+            type="number"
+            step="0.01"
+            min="0.01"
+            [ngModel]="form().quantity_purchase"
+            (ngModelChange)="updateField('quantity_purchase', $event)"
+            name="custQtyPu"
+            required
+            class="an-input font-mono tabular-nums"
+          />
+        </div>
+      }
+    }
+
+    <!-- =================================================================== -->
+    <!-- FAMILIA 2: MANO DE OBRA                                             -->
+    <!-- =================================================================== -->
+    @else if (categoryType() === 'labor') {
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+        <div>
+          <app-custom-select
+            [options]="uomOptions()"
+            [value]="form().unit_measure"
+            (valueChange)="updateField('unit_measure', $event)"
+            label="Unidad de Medida"
+            [required]="true"
+            placeholder="m², ml, pto, glb..."
+          />
+        </div>
+
+        <div>
+          <label for="laborQtyObra" class="an-label">
+            Metrado / Cantidad <span class="text-[#e52521]">*</span>
+          </label>
+          <input
+            id="laborQtyObra"
+            type="number"
+            step="0.01"
+            min="0.01"
+            [ngModel]="form().quantity_obra"
+            (ngModelChange)="updateField('quantity_obra', $event)"
+            name="laborQtyObra"
+            required
+            placeholder="0.00"
+            class="an-input font-mono tabular-nums"
+          />
+        </div>
+
+        <div>
+          <label for="laborUnitPrice" class="an-label">
+            Tarifa Unitaria (Bs) <span class="text-[#e52521]">*</span>
+          </label>
+          <div class="an-input-group">
+            <span class="absolute left-3.5 text-xs text-[#4b637c] font-bold pointer-events-none font-mono">Bs</span>
+            <input
+              id="laborUnitPrice"
+              type="number"
+              step="0.01"
+              min="0"
+              [ngModel]="form().unit_price"
+              (ngModelChange)="updateField('unit_price', $event)"
+              name="laborUnitPrice"
+              required
+              placeholder="0.00"
+              class="w-full h-full pl-9 pr-3.5 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+            />
+          </div>
+        </div>
+      </div>
+
       <div>
-        <label for="custQtyPu" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Cantidad a Comprar (Paquete) *
+        <label for="laborContractor" class="an-label">
+          Contratista / Maestro / Especialidad
         </label>
         <input
-          id="custQtyPu"
-          type="number"
-          step="0.01"
-          min="0.01"
-          [(ngModel)]="form().quantity_purchase"
-          name="custQtyPu"
-          required
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          id="laborContractor"
+          type="text"
+          [ngModel]="form().contractor_name"
+          (ngModelChange)="updateField('contractor_name', $event)"
+          name="laborContractor"
+          placeholder="Ej. Cuadrilla Obra Gruesa, Ing. Eléctrico..."
+          class="an-input"
         />
       </div>
     }
 
-    <!-- Weight & Detail -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div>
-        <label for="custWeight" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Peso Referencial (kg / unidad compra)
-        </label>
-        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
-          <input
-            id="custWeight"
-            type="number"
-            step="0.01"
-            min="0"
-            [(ngModel)]="form().weight_per_purchase_unit"
-            name="custWeight"
-            placeholder="Opcional..."
-            class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden pr-8"
-          />
-          <span class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 pointer-events-none">kg</span>
+    <!-- =================================================================== -->
+    <!-- FAMILIA 3 Y 4: GASTOS OPERATIVOS / ADMINISTRATIVOS                  -->
+    <!-- =================================================================== -->
+    @else {
+      <label class="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-2xl flex items-center justify-between gap-3 cursor-pointer">
+        <div class="min-w-0">
+          <span class="text-xs font-bold text-indigo-950 block">¿Cálculo Porcentual Paramétrico (%)?</span>
+          <span class="text-[11px] text-indigo-800/80 block mt-0.5">
+            Calcula automáticamente el costo aplicando un porcentaje sobre una base de costo (ej. Costo Directo).
+          </span>
         </div>
-      </div>
+        <input
+          type="checkbox"
+          [ngModel]="form().is_parametric"
+          (ngModelChange)="updateField('is_parametric', $event)"
+          name="custIsParametric"
+          class="w-4 h-4 shrink-0 accent-indigo-600 rounded cursor-pointer"
+        />
+      </label>
 
-      <div>
-        <label for="custDetail" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+      @if (form().is_parametric) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div>
+            <label for="paramPct" class="an-label">
+              Porcentaje a Aplicar (%) <span class="text-[#e52521]">*</span>
+            </label>
+            <div class="an-input-group">
+              <input
+                id="paramPct"
+                type="number"
+                step="0.01"
+                min="0.01"
+                max="100"
+                [ngModel]="form().percentage_applied_pct"
+                (ngModelChange)="updateField('percentage_applied_pct', $event)"
+                name="paramPct"
+                required
+                placeholder="Ej. 5.00"
+                class="w-full h-full px-3.5 pr-9 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+              />
+              <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">%</span>
+            </div>
+          </div>
+
+          <div>
+            <label for="paramBase" class="an-label">
+              Base Imponible de Costo (Bs) <span class="text-[#e52521]">*</span>
+            </label>
+            <div class="an-input-group">
+              <span class="absolute left-3.5 text-xs text-[#4b637c] font-bold pointer-events-none font-mono">Bs</span>
+              <input
+                id="paramBase"
+                type="number"
+                step="0.01"
+                min="0.01"
+                [ngModel]="form().target_base_cost"
+                (ngModelChange)="updateField('target_base_cost', $event)"
+                name="paramBase"
+                required
+                placeholder="0.00"
+                class="w-full h-full pl-9 pr-3.5 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+              />
+            </div>
+            @if (directCostBaseBs() > 0) {
+              <button
+                type="button"
+                (click)="applySuggestedBase(directCostBaseBs())"
+                class="mt-1.5 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+              >
+                Usar Costo Directo actual ({{ directCostBaseBs() | appCurrency }})
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+          <div>
+            <app-custom-select
+              [options]="uomOptions()"
+              [value]="form().unit_measure"
+              (valueChange)="updateField('unit_measure', $event)"
+              label="Unidad"
+              placeholder="Global, mes, día..."
+            />
+          </div>
+
+          <div>
+            <label for="goQty" class="an-label">
+              Cantidad <span class="text-[#e52521]">*</span>
+            </label>
+            <input
+              id="goQty"
+              type="number"
+              step="0.01"
+              min="0.01"
+              [ngModel]="form().quantity_purchase"
+              (ngModelChange)="updateField('quantity_purchase', $event)"
+              name="goQty"
+              required
+              class="an-input font-mono tabular-nums"
+            />
+          </div>
+
+          <div>
+            <label for="goPrice" class="an-label">
+              Costo Unitario / Monto (Bs) <span class="text-[#e52521]">*</span>
+            </label>
+            <div class="an-input-group">
+              <span class="absolute left-3.5 text-xs text-[#4b637c] font-bold pointer-events-none font-mono">Bs</span>
+              <input
+                id="goPrice"
+                type="number"
+                step="0.01"
+                min="0"
+                [ngModel]="form().unit_price"
+                (ngModelChange)="updateField('unit_price', $event)"
+                name="goPrice"
+                required
+                placeholder="0.00"
+                class="w-full h-full pl-9 pr-3.5 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+              />
+            </div>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Weight & Detail (Aligned Row) -->
+    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
+      @if (categoryType() === 'materials') {
+        <div class="sm:col-span-5">
+          <label for="custWeight" class="an-label !flex items-center gap-1.5">
+            <span>Peso Ref. (kg / compra)</span>
+            <app-info-tooltip text="Peso unitario por envase/barra para calcular el peso total logístico de transporte." />
+          </label>
+          <div class="an-input-group">
+            <input
+              id="custWeight"
+              type="number"
+              step="0.01"
+              min="0"
+              [ngModel]="form().weight_per_purchase_unit"
+              (ngModelChange)="updateField('weight_per_purchase_unit', $event)"
+              name="custWeight"
+              placeholder="Opcional..."
+              class="w-full h-full px-3.5 pr-10 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+            />
+            <span class="absolute right-3.5 text-[11px] font-bold text-[#4b637c] pointer-events-none">kg</span>
+          </div>
+        </div>
+      }
+
+      <div [ngClass]="categoryType() === 'materials' ? 'sm:col-span-7' : 'sm:col-span-12'">
+        <label for="custDetail" class="an-label">
           Detalle / Especificación
         </label>
         <input
           id="custDetail"
           type="text"
-          [(ngModel)]="form().detail"
+          [ngModel]="form().detail"
+          (ngModelChange)="updateField('detail', $event)"
           name="custDetail"
-          placeholder="Ej. Uso exclusivo en zapatas..."
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          placeholder="Ej. Observaciones técnicas o alcance..."
+          class="an-input"
         />
       </div>
     </div>
@@ -208,14 +482,14 @@
         type="button"
         (click)="handleClose()"
         [disabled]="isProcessing()"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
-        [disabled]="isProcessing() || !form().name"
-        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 active:scale-95 cursor-pointer"
+        [disabled]="isProcessing() || !canSubmit()"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold transition-all shadow-md shadow-[#11406e]/20 disabled:opacity-50 active:scale-95 cursor-pointer"
       >
         @if (isProcessing()) {
           <svg class="animate-spin w-4 h-4 text-white inline-block mr-1" fill="none" viewBox="0 0 24 24">
@@ -223,7 +497,7 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
           </svg>
         }
-        Crear Ítem Ad-hoc
+        Guardar Ítem
       </button>
     </div>
   </form>

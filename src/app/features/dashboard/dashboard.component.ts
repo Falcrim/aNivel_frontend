@@ -6,13 +6,14 @@ import { ProjectService } from '../../core/services/project.service';
 import { CategoryService } from '../../core/services/category.service';
 import { SubcategoryService } from '../../core/services/subcategory.service';
 import { MaterialCatalogService } from '../../core/services/material-catalog.service';
-import { InventoryToolService } from '../../core/services/inventory-tool.service';
+import { SupplierService } from '../../core/services/supplier.service';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { InfoTooltipComponent } from '../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ModalComponent, InfoTooltipComponent],
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -21,7 +22,7 @@ export class DashboardComponent implements OnInit {
   protected readonly categoryService = inject(CategoryService);
   protected readonly subcategoryService = inject(SubcategoryService);
   protected readonly catalogService = inject(MaterialCatalogService);
-  protected readonly toolService = inject(InventoryToolService);
+  protected readonly supplierService = inject(SupplierService);
 
   // Quick create modals
   isCreateProjectOpen = signal(false);
@@ -33,18 +34,35 @@ export class DashboardComponent implements OnInit {
   totalCategories = computed(() => this.categoryService.categories().length);
   totalSubcategories = computed(() => this.subcategoryService.subcategories().length);
   totalCatalogItems = computed(() => this.catalogService.items().length);
-  totalTools = computed(() => this.toolService.tools().length);
+  totalSuppliers = computed(() => this.supplierService.suppliers().length);
 
   recentProjects = computed(() => {
     return [...this.projectService.projects()].reverse().slice(0, 4);
   });
+
+  getStatusLabel(status?: string): string {
+    switch (status) {
+      case 'active':
+        return 'Activa';
+      case 'budget':
+        return 'En Presupuesto';
+      case 'paused':
+        return 'Pausada';
+      case 'completed':
+        return 'Finalizada';
+      case 'cancelled':
+        return 'Cancelada';
+      default:
+        return status || 'Activa';
+    }
+  }
 
   ngOnInit(): void {
     this.projectService.loadProjects().subscribe();
     this.categoryService.loadCategories().subscribe();
     this.subcategoryService.loadSubcategories().subscribe();
     this.catalogService.loadCatalog().subscribe();
-    this.toolService.loadTools().subscribe();
+    this.supplierService.loadSuppliers().subscribe();
   }
 
   openCreateProjectModal(): void {

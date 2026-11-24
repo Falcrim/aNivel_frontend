@@ -1,30 +1,30 @@
 <div class="space-y-6 animate-in fade-in duration-300">
-  <!-- Controls Bar: Title, Search, View Mode, New Button -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+  <!-- Controls Bar: Search, View Mode, New Button (Aligned h-[42px]) -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-[#d1dce7] p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
     <!-- Search Box -->
     <div class="relative w-full sm:max-w-md min-w-0">
-      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7e91a4]">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
       <input
         type="text"
         [(ngModel)]="searchTerm"
         placeholder="Buscar obra por nombre o ID..."
-        class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-2xs"
+        class="an-input pl-10"
       />
     </div>
 
     <!-- View Mode Selector & New Button -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto shrink-0">
       <!-- Grid / Table toggle -->
-      <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200/80 justify-center w-full sm:w-auto shadow-2xs">
+      <div class="flex items-center p-1 rounded-xl bg-[#f1f5f9] border border-[#d1dce7] h-[42px] justify-center w-full sm:w-auto shadow-2xs">
         <button
           type="button"
           (click)="viewMode.set('grid')"
-          [ngClass]="viewMode() === 'grid' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+          [ngClass]="viewMode() === 'grid' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center whitespace-nowrap"
           title="Vista Cuadrícula"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,8 +36,8 @@
         <button
           type="button"
           (click)="viewMode.set('table')"
-          [ngClass]="viewMode() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+          [ngClass]="viewMode() === 'table' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center whitespace-nowrap"
           title="Vista Tabla"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,11 +47,11 @@
         </button>
       </div>
 
-      <!-- New Project Action -->
+      <!-- New Project Action (Esquema 1: Star CTA #e52521) -->
       <button
         type="button"
         (click)="openCreateModal()"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer"
+        class="h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#e52521] hover:bg-[#aa1414] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#e52521]/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer whitespace-nowrap"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -65,7 +65,7 @@
   @if (projectService.loading()) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-        <div class="p-6 rounded-3xl bg-white border border-slate-200/80 animate-pulse h-44 space-y-4 shadow-xs">
+        <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] animate-pulse h-44 space-y-4 shadow-xs">
           <div class="flex justify-between">
             <div class="w-10 h-10 rounded-2xl bg-slate-100"></div>
             <div class="w-16 h-6 rounded-full bg-slate-100"></div>
@@ -88,7 +88,7 @@
       <app-empty-state
         iconType="project"
         title="No hay obras registradas"
-        description="Comienza registrando tu primera obra o proyecto de construcción para organizar sus categorías y presupuestos."
+        description="Comienza registrando tu primera obra o proyecto de construcción para organizar sus presupuestos."
         actionText="Registrar Primera Obra"
         (action)="openCreateModal()"
       />
@@ -99,13 +99,13 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @for (project of filteredProjects(); track project.id) {
           <div
-            class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 hover:border-amber-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+            class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-[#d1dce7] hover:border-[#11406e]/50 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
           >
             <div>
               <!-- Card Header -->
               <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-2">
-                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-black text-xs sm:text-sm font-mono tabular-nums shadow-2xs">
+                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#edf1f5] border border-[#c3d3e5] text-[#11406e] flex items-center justify-center font-black text-xs sm:text-sm font-mono tabular-nums shadow-2xs">
                     #{{ project.id }}
                   </div>
 
@@ -144,7 +144,7 @@
                   <button
                     type="button"
                     (click)="openEditModal(project)"
-                    class="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                    class="an-btn-edit"
                     title="Editar información de la obra"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -155,7 +155,7 @@
                   <button
                     type="button"
                     (click)="openDeleteModal(project)"
-                    class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                    class="an-btn-delete"
                     title="Eliminar obra"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,14 +166,14 @@
               </div>
 
               <!-- Project Name -->
-              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-3 sm:mt-4 group-hover:text-amber-600 transition-colors line-clamp-1">
+              <h3 class="text-base sm:text-lg font-extrabold text-[#0a284b] mt-3 sm:mt-4 group-hover:text-[#11406e] transition-colors line-clamp-1 font-['Montserrat',sans-serif]">
                 {{ project.name }}
               </h3>
 
               <!-- Project Dimensions -->
-              <div class="flex items-center gap-3 mt-2 text-xs text-slate-500 font-mono">
+              <div class="flex items-center gap-3 mt-2 text-xs text-[#4b637c] font-mono">
                 <span class="inline-flex items-center gap-1">
-                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-3.5 h-3.5 text-[#7e91a4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   {{ project.built_area || 0 }} m²
@@ -185,15 +185,15 @@
 
             <!-- Card Footer -->
             <div class="mt-5 sm:mt-6 pt-3.5 sm:pt-4 border-t border-slate-100 flex items-center justify-between">
-              <span class="text-[11px] text-slate-400 font-mono tabular-nums font-medium">ID: {{ project.id }}</span>
+              <span class="text-[11px] text-[#7e91a4] font-mono tabular-nums font-medium">ID: {{ project.id }}</span>
 
               <a
                 [routerLink]="['/obras', project.id]"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-500 text-amber-800 hover:text-white border border-amber-200 text-xs font-extrabold transition-all shadow-2xs active:scale-95 cursor-pointer"
+                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
               >
                 Abrir Presupuesto
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                 </svg>
               </a>
             </div>
@@ -202,28 +202,28 @@
       </div>
     } @else {
       <!-- Table View -->
-      <div class="overflow-x-auto rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-xs">
-        <table class="w-full text-left text-sm text-slate-600">
-          <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+      <div class="overflow-x-auto rounded-2xl sm:rounded-3xl border border-[#d1dce7] bg-white shadow-xs scrollbar-thin">
+        <table class="w-full text-left text-sm text-[#385370] min-w-[680px]">
+          <thead class="bg-[#f8fafc] text-[11px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#d1dce7]">
             <tr>
-              <th scope="col" class="px-6 py-4">ID</th>
-              <th scope="col" class="px-6 py-4">Nombre de la Obra</th>
-              <th scope="col" class="px-6 py-4 text-center">Estado</th>
-              <th scope="col" class="px-4 py-4 text-right">Superficie</th>
-              <th scope="col" class="px-4 py-4 text-right">Tipo Cambio</th>
-              <th scope="col" class="px-6 py-4 text-right">Acciones</th>
+              <th scope="col" class="px-6 py-4 whitespace-nowrap">ID</th>
+              <th scope="col" class="px-6 py-4 whitespace-nowrap">Nombre de la Obra</th>
+              <th scope="col" class="px-6 py-4 text-center whitespace-nowrap">Estado</th>
+              <th scope="col" class="px-4 py-4 text-right whitespace-nowrap">Superficie</th>
+              <th scope="col" class="px-4 py-4 text-right whitespace-nowrap">Tipo Cambio</th>
+              <th scope="col" class="px-6 py-4 text-right whitespace-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (project of filteredProjects(); track project.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="px-6 py-4 font-mono tabular-nums text-xs text-amber-700 font-bold">#{{ project.id }}</td>
-                <td class="px-6 py-4 font-bold text-slate-900">
-                  <a [routerLink]="['/obras', project.id]" class="hover:text-amber-600 transition-colors">
+              <tr class="hover:bg-[#edf1f5]/50 transition-colors">
+                <td class="px-6 py-4 font-mono tabular-nums text-xs text-[#11406e] font-bold whitespace-nowrap">#{{ project.id }}</td>
+                <td class="px-6 py-4 font-bold text-[#0a284b]">
+                  <a [routerLink]="['/obras', project.id]" class="hover:text-[#11406e] transition-colors">
                     {{ project.name }}
                   </a>
                 </td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4 text-center whitespace-nowrap">
                   @switch (project.status) {
                     @case ('active') {
                       <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
@@ -253,24 +253,24 @@
                     }
                   }
                 </td>
-                <td class="px-4 py-4 text-right font-mono text-xs text-slate-700">
+                <td class="px-4 py-4 text-right font-mono text-xs text-[#0a284b] whitespace-nowrap">
                   {{ project.built_area || 0 }} m²
                 </td>
-                <td class="px-4 py-4 text-right font-mono text-xs text-slate-700">
+                <td class="px-4 py-4 text-right font-mono text-xs text-[#0a284b] whitespace-nowrap">
                   {{ project.exchange_rate || 6.97 }} Bs/$
                 </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end gap-2">
+                <td class="px-6 py-4 text-right whitespace-nowrap">
+                  <div class="flex items-center justify-end gap-1.5">
                     <a
                       [routerLink]="['/obras', project.id]"
-                      class="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 hover:bg-amber-50 border border-amber-200 transition-colors cursor-pointer"
+                      class="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-[#11406e] hover:bg-[#0a284b] transition-colors cursor-pointer"
                     >
                       Abrir
                     </a>
                     <button
                       type="button"
                       (click)="openEditModal(project)"
-                      class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                      class="an-btn-edit"
                       title="Editar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -280,7 +280,7 @@
                     <button
                       type="button"
                       (click)="openDeleteModal(project)"
-                      class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      class="an-btn-delete"
                       title="Eliminar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -298,18 +298,18 @@
   }
 </div>
 
-<!-- Modal: Crear Obra -->
+<!-- Modal: Crear / Editar Obra (Normalized h-[42px]) -->
 <app-modal
-  [isOpen]="isCreateModalOpen()"
-  title="Registrar Nueva Obra"
-  subtitle="Ingresa los datos principales del proyecto de construcción"
+  [isOpen]="isCreateModalOpen() || isEditModalOpen()"
+  [title]="isCreateModalOpen() ? 'Registrar Nueva Obra' : 'Editar Obra'"
+  [subtitle]="isCreateModalOpen() ? 'Ingresa los datos principales del proyecto de construcción' : 'Modifica los datos generales y parámetros financieros de la obra'"
   maxWidthClass="max-w-lg"
-  (close)="closeCreateModal()"
+  (close)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
 >
-  <form (submit)="$event.preventDefault(); submitCreate()" class="space-y-4">
+  <form (submit)="$event.preventDefault(); isCreateModalOpen() ? submitCreate() : submitEdit()" class="space-y-4">
     <div>
-      <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-        Nombre de la Obra <span class="text-rose-500">*</span>
+      <label class="an-label">
+        Nombre de la Obra <span class="text-[#e52521]">*</span>
       </label>
       <input
         type="text"
@@ -318,29 +318,28 @@
         name="projectName"
         required
         placeholder="Ej: Proyecto Zabalaga, Edificio Mirador..."
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-medium focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
-        autofocus
+        class="an-input"
       />
     </div>
 
     <div>
-      <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-        Estado de la Obra <span class="text-rose-500">*</span>
-      </label>
       <app-custom-select
         [options]="statusOptions"
         [value]="projectStatusForm()"
         (valueChange)="projectStatusForm.set($any($event))"
+        label="Estado de la Obra"
+        [required]="true"
         placeholder="Seleccionar estado..."
       />
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
       <div>
-        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-          Superficie a Construir (m²)
+        <label class="an-label !flex items-center gap-1.5">
+          <span>Superficie a Construir (m²)</span>
+          <app-info-tooltip text="Área total construida usada para calcular la incidencia por metro cuadrado en dólares ($/m²)." />
         </label>
-        <div class="relative">
+        <div class="an-input-group">
           <input
             type="number"
             step="0.01"
@@ -349,17 +348,18 @@
             (ngModelChange)="projectBuiltAreaForm.set($event)"
             name="projectBuiltArea"
             placeholder="Ej: 229.50"
-            class="w-full px-3.5 py-2.5 pr-12 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+            class="w-full h-full px-3.5 pr-12 bg-transparent text-[13px] text-[#0a284b] font-mono focus:outline-hidden"
           />
-          <span class="absolute right-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">m²</span>
+          <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">m²</span>
         </div>
       </div>
 
       <div>
-        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-          Tipo de Cambio (Bs/$)
+        <label class="an-label !flex items-center gap-1.5">
+          <span>Tipo de Cambio (Bs/$)</span>
+          <app-info-tooltip text="Cotización utilizada para expresar los montos equivalentes en dólares." />
         </label>
-        <div class="relative">
+        <div class="an-input-group">
           <input
             type="number"
             step="0.01"
@@ -368,9 +368,9 @@
             (ngModelChange)="projectExchangeRateForm.set($event)"
             name="projectExchangeRate"
             placeholder="6.97"
-            class="w-full px-3.5 py-2.5 pr-14 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+            class="w-full h-full px-3.5 pr-14 bg-transparent text-[13px] text-[#0a284b] font-mono focus:outline-hidden"
           />
-          <span class="absolute right-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">Bs/$</span>
+          <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">Bs/$</span>
         </div>
       </div>
     </div>
@@ -378,115 +378,15 @@
     <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
       <button
         type="button"
-        (click)="closeCreateModal()"
-        class="px-4 py-2 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+        (click)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-xs font-bold text-[#385370] transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="isProcessing() || !projectNameForm().trim()"
-        class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-amber-500/20 cursor-pointer flex items-center gap-2"
-      >
-        @if (isProcessing()) {
-          <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-          </svg>
-          Creando...
-        } @else {
-          Crear Obra
-        }
-      </button>
-    </div>
-  </form>
-</app-modal>
-
-<!-- Modal: Editar Obra -->
-<app-modal
-  [isOpen]="isEditModalOpen()"
-  title="Editar Obra"
-  subtitle="Modifica los datos generales y parámetros financieros de la obra"
-  maxWidthClass="max-w-lg"
-  (close)="closeEditModal()"
->
-  <form (submit)="$event.preventDefault(); submitEdit()" class="space-y-4">
-    <div>
-      <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-        Nombre de la Obra <span class="text-rose-500">*</span>
-      </label>
-      <input
-        type="text"
-        [ngModel]="projectNameForm()"
-        (ngModelChange)="projectNameForm.set($event)"
-        name="editProjectName"
-        required
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-medium focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
-      />
-    </div>
-
-    <div>
-      <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-        Estado de la Obra <span class="text-rose-500">*</span>
-      </label>
-      <app-custom-select
-        [options]="statusOptions"
-        [value]="projectStatusForm()"
-        (valueChange)="projectStatusForm.set($any($event))"
-        placeholder="Seleccionar estado..."
-      />
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-      <div>
-        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-          Superficie a Construir (m²)
-        </label>
-        <div class="relative">
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            [ngModel]="projectBuiltAreaForm()"
-            (ngModelChange)="projectBuiltAreaForm.set($event)"
-            name="editProjectBuiltArea"
-            class="w-full px-3.5 py-2.5 pr-12 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
-          />
-          <span class="absolute right-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">m²</span>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-          Tipo de Cambio (Bs/$)
-        </label>
-        <div class="relative">
-          <input
-            type="number"
-            step="0.01"
-            min="0.01"
-            [ngModel]="projectExchangeRateForm()"
-            (ngModelChange)="projectExchangeRateForm.set($event)"
-            name="editProjectExchangeRate"
-            class="w-full px-3.5 py-2.5 pr-14 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
-          />
-          <span class="absolute right-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">Bs/$</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-      <button
-        type="button"
-        (click)="closeEditModal()"
-        class="px-4 py-2 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-      >
-        Cancelar
-      </button>
-      <button
-        type="submit"
-        [disabled]="isProcessing() || !projectNameForm().trim()"
-        class="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-amber-500/20 cursor-pointer flex items-center gap-2"
+        class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#11406e] hover:bg-[#0a284b] active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-[#11406e]/20 cursor-pointer flex items-center gap-2"
       >
         @if (isProcessing()) {
           <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -495,7 +395,7 @@
           </svg>
           Guardando...
         } @else {
-          Guardar Cambios
+          {{ isCreateModalOpen() ? 'Crear Obra' : 'Guardar Cambios' }}
         }
       </button>
     </div>

@@ -5,6 +5,7 @@ import { MaterialCatalogService } from '../../../core/services/material-catalog.
 import { SubcategoryService } from '../../../core/services/subcategory.service';
 import { UnitOfMeasureService } from '../../../core/services/unit-of-measure.service';
 import { PurchaseUnitService } from '../../../core/services/purchase-unit.service';
+import { SupplierService } from '../../../core/services/supplier.service';
 import {
   CreateMaterialCatalogItemDto,
   MaterialCatalogItem,
@@ -13,9 +14,12 @@ import {
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ClusterPaginationComponent } from '../../../shared/components/cluster-pagination/cluster-pagination.component';
 import { CurrencyClpPipe } from '../../../shared/pipes/currency-clp.pipe';
 import { PercentPipe } from '../../../shared/pipes/percent.pipe';
+import { CompactNumberPipe } from '../../../shared/pipes/compact-number.pipe';
 import { CustomSelectComponent, CustomSelectOption } from '../../../shared/components/custom-select/custom-select.component';
+import { InfoTooltipComponent } from '../../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-material-catalog-list',
@@ -26,9 +30,12 @@ import { CustomSelectComponent, CustomSelectOption } from '../../../shared/compo
     ModalComponent,
     ConfirmDialogComponent,
     EmptyStateComponent,
+    ClusterPaginationComponent,
     CurrencyClpPipe,
     PercentPipe,
+    CompactNumberPipe,
     CustomSelectComponent,
+    InfoTooltipComponent,
   ],
   templateUrl: './material-catalog-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,10 +45,12 @@ export class MaterialCatalogListComponent implements OnInit {
   protected readonly subcategoryService = inject(SubcategoryService);
   protected readonly uomService = inject(UnitOfMeasureService);
   protected readonly puService = inject(PurchaseUnitService);
+  protected readonly supplierService = inject(SupplierService);
 
   viewMode = signal<'grouped' | 'table'>('grouped');
   searchTerm = signal<string>('');
   selectedSubcategoryFilter = signal<number | null>(null);
+  selectedSupplierFilter = signal<number | null>(null);
   onlyActiveFilter = signal<boolean>(false);
 
   // Computed Select Options
@@ -53,8 +62,28 @@ export class MaterialCatalogListComponent implements OnInit {
     })),
   ]);
 
+  readonly supplierFilterOptions = computed<CustomSelectOption<number | null>[]>(() => [
+    { label: 'Todos los proveedores', value: null },
+    ...this.supplierService.suppliers().map((s) => ({
+      label: s.name,
+      value: s.id,
+    })),
+  ]);
+
+  readonly supplierFormOptions = computed<CustomSelectOption<number | null>[]>(() => [
+    { label: 'Sin proveedor específico (Genérico)', value: null },
+    ...this.supplierService.suppliers().map((s) => ({
+      label: s.name,
+      value: s.id,
+    })),
+  ]);
+
+  readonly materialSubcategories = computed(() =>
+    this.subcategoryService.getSubcategoriesForCategoryType('materials')
+  );
+
   readonly subcategoryFormOptions = computed<CustomSelectOption<number>[]>(() =>
-    this.subcategoryService.subcategories().map((s) => ({
+    this.materialSubcategories().map((s) => ({
       label: s.name,
       value: s.id,
     }))
@@ -82,6 +111,7 @@ export class MaterialCatalogListComponent implements OnInit {
 
   // Form states
   formSubcategoryId = signal<number>(0);
+  formSupplierId = signal<number | null>(null);
   formName = signal<string>('');
   formDescription = signal<string>('');
   formUnitMeasureId = signal<number>(0);
@@ -95,10 +125,67 @@ export class MaterialCatalogListComponent implements OnInit {
   itemToEdit = signal<MaterialCatalogItem | null>(null);
   itemToDelete = signal<MaterialCatalogItem | null>(null);
 
+  // --- Estado de Acordeón por Subcategoría (Todos expandidos por defecto) ---
+  readonly collapsedSubcategories = signal<Set<number>>(new Set());
+
+  readonly isAllSubcategoriesCollapsed = computed(() => {
+    const groups = this.filteredGrouped();
+    if (groups.length === 0) return false;
+    return groups.every((g) => this.collapsedSubcategories().has(g.subcategory_id));
+  });
+
+  toggleSubcategoryCollapse(subcategoryId: number): void {
+    this.collapsedSubcategories.update((set) => {
+      const next = new Set(set);
+      if (next.has(subcategoryId)) {
+        next.delete(subcategoryId);
+      } else {
+        next.add(subcategoryId);
+      }
+      return next;
+    });
+  }
+
+  isSubcategoryCollapsed(subcategoryId: number): boolean {
+    return this.collapsedSubcategories().has(subcategoryId);
+  }
+
+  toggleAllSubcategoriesCollapse(): void {
+    const groups = this.filteredGrouped();
+    const isAnyOpen = groups.some((g) => !this.isSubcategoryCollapsed(g.subcategory_id));
+    if (isAnyOpen) {
+      const allIds = new Set(groups.map((g) => g.subcategory_id));
+      this.collapsedSubcategories.set(allIds);
+    } else {
+      this.collapsedSubcategories.set(new Set());
+    }
+  }
+
+  // --- Paginación Aislada por Cluster (10 ítems por página) ---
+  readonly clusterPages = signal<Map<number, number>>(new Map());
+
+  getClusterPage(subcategoryId: number): number {
+    return this.clusterPages().get(subcategoryId) || 1;
+  }
+
+  setClusterPage(subcategoryId: number, page: number): void {
+    this.clusterPages.update((map) => {
+      const next = new Map(map);
+      next.set(subcategoryId, page);
+      return next;
+    });
+  }
+
+  getPagedItems(items: MaterialCatalogItem[], page: number, pageSize = 10): MaterialCatalogItem[] {
+    const start = (page - 1) * pageSize;
+    return items.slice(start, start + pageSize);
+  }
+
   // Filtered Flat Catalog Items
   filteredItems = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     const subcatId = this.selectedSubcategoryFilter();
+    const supplierId = this.selectedSupplierFilter();
     const onlyActive = this.onlyActiveFilter();
     let list = this.catalogService.items();
 
@@ -108,12 +195,16 @@ export class MaterialCatalogListComponent implements OnInit {
     if (subcatId) {
       list = list.filter((i) => i.subcategory === subcatId);
     }
+    if (supplierId) {
+      list = list.filter((i) => i.supplier === supplierId);
+    }
     if (term) {
       list = list.filter(
         (i) =>
           i.name.toLowerCase().includes(term) ||
           i.description?.toLowerCase().includes(term) ||
           i.subcategory_detail?.name.toLowerCase().includes(term) ||
+          (i.supplier_name && i.supplier_name.toLowerCase().includes(term)) ||
           i.id.toString().includes(term)
       );
     }
@@ -125,6 +216,7 @@ export class MaterialCatalogListComponent implements OnInit {
   filteredGrouped = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     const subcatId = this.selectedSubcategoryFilter();
+    const supplierId = this.selectedSupplierFilter();
     const onlyActive = this.onlyActiveFilter();
     let grouped = this.catalogService.groupedItems();
 
@@ -138,11 +230,15 @@ export class MaterialCatalogListComponent implements OnInit {
         if (onlyActive) {
           items = items.filter((i) => i.is_active);
         }
+        if (supplierId) {
+          items = items.filter((i) => i.supplier === supplierId);
+        }
         if (term) {
           items = items.filter(
             (i) =>
               i.name.toLowerCase().includes(term) ||
-              i.description?.toLowerCase().includes(term)
+              i.description?.toLowerCase().includes(term) ||
+              (i.supplier_name && i.supplier_name.toLowerCase().includes(term))
           );
         }
         return {
@@ -151,7 +247,7 @@ export class MaterialCatalogListComponent implements OnInit {
           items_count: items.length,
         };
       })
-      .filter((g) => g.items.length > 0 || (term === '' && !onlyActive));
+      .filter((g) => g.items.length > 0 || (term === '' && !onlyActive && !supplierId));
   });
 
   ngOnInit(): void {
@@ -159,6 +255,7 @@ export class MaterialCatalogListComponent implements OnInit {
     this.subcategoryService.loadSubcategories().subscribe();
     this.uomService.loadUnits().subscribe();
     this.puService.loadUnits().subscribe();
+    this.supplierService.loadSuppliers('material').subscribe();
   }
 
   refreshCatalog(): void {
@@ -173,6 +270,7 @@ export class MaterialCatalogListComponent implements OnInit {
     const pus = this.puService.units();
 
     this.formSubcategoryId.set(presetSubcategoryId || (subcats[0]?.id ?? 0));
+    this.formSupplierId.set(null);
     this.formName.set('');
     this.formDescription.set('');
     this.formUnitMeasureId.set(uoms[0]?.id ?? 0);
@@ -200,6 +298,7 @@ export class MaterialCatalogListComponent implements OnInit {
 
     const dto: CreateMaterialCatalogItemDto = {
       subcategory,
+      supplier: this.formSupplierId() ? Number(this.formSupplierId()) : null,
       name,
       description: this.formDescription().trim(),
       unit_measure,
@@ -228,6 +327,7 @@ export class MaterialCatalogListComponent implements OnInit {
   openEditModal(item: MaterialCatalogItem): void {
     this.itemToEdit.set(item);
     this.formSubcategoryId.set(item.subcategory);
+    this.formSupplierId.set(item.supplier ?? null);
     this.formName.set(item.name);
     this.formDescription.set(item.description || '');
     this.formUnitMeasureId.set(item.unit_measure);
@@ -258,6 +358,7 @@ export class MaterialCatalogListComponent implements OnInit {
 
     const dto: UpdateMaterialCatalogItemDto = {
       subcategory: Number(this.formSubcategoryId()),
+      supplier: this.formSupplierId() ? Number(this.formSupplierId()) : null,
       name: this.formName().trim(),
       description: this.formDescription().trim(),
       unit_measure: Number(this.formUnitMeasureId()),

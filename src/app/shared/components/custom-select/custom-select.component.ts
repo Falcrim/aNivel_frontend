@@ -12,6 +12,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { InfoTooltipComponent } from '../info-tooltip/info-tooltip.component';
+import { FloatingPanelDirective } from '../../floating/floating-panel.directive';
 
 export interface CustomSelectOption<T = unknown> {
   label: string;
@@ -23,7 +25,7 @@ export interface CustomSelectOption<T = unknown> {
 @Component({
   selector: 'app-custom-select',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, InfoTooltipComponent, FloatingPanelDirective],
   templateUrl: './custom-select.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,6 +38,7 @@ export class CustomSelectComponent<T = unknown> {
   readonly disabled = input<boolean>(false);
   readonly required = input<boolean>(false);
   readonly label = input<string>('');
+  readonly tooltip = input<string>('');
   readonly searchable = input<boolean>(false);
   readonly searchPlaceholder = input<string>('Buscar...');
 
@@ -75,11 +78,16 @@ export class CustomSelectComponent<T = unknown> {
 
   toggle(): void {
     if (this.disabled()) return;
-    const nextState = !this.isOpen();
-    this.isOpen.set(nextState);
-    if (!nextState) {
-      this.searchTerm.set('');
+    if (this.isOpen()) {
+      this.close();
+    } else {
+      this.isOpen.set(true);
     }
+  }
+
+  close(): void {
+    this.isOpen.set(false);
+    this.searchTerm.set('');
   }
 
   onSearchInput(event: Event): void {
@@ -95,21 +103,13 @@ export class CustomSelectComponent<T = unknown> {
 
   select(option: CustomSelectOption<T>): void {
     this.value.set(option.value);
-    this.isOpen.set(false);
-    this.searchTerm.set('');
+    this.close();
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.isOpen.set(false);
-      this.searchTerm.set('');
+      this.close();
     }
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    this.isOpen.set(false);
-    this.searchTerm.set('');
   }
 }

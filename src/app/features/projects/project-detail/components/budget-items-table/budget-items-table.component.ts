@@ -1,20 +1,27 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialBudgetItem } from '../../../../../core/models/material-budget.model';
-import { CurrencyClpPipe } from '../../../../../shared/pipes/currency-clp.pipe';
+import { BudgetCategoryType, BudgetItem } from '../../../../../core/models/budget-item.model';
+import { CurrencyClpPipe, UsdPipe } from '../../../../../shared/pipes/currency-clp.pipe';
 import { PercentPipe } from '../../../../../shared/pipes/percent.pipe';
+import { CompactNumberPipe } from '../../../../../shared/pipes/compact-number.pipe';
+import { InfoTooltipComponent } from '../../../../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-budget-items-table',
   standalone: true,
-  imports: [CommonModule, CurrencyClpPipe, PercentPipe],
+  imports: [CommonModule, CurrencyClpPipe, UsdPipe, PercentPipe, CompactNumberPipe, InfoTooltipComponent],
   templateUrl: './budget-items-table.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BudgetItemsTableComponent {
-  items = input.required<MaterialBudgetItem[]>();
-  showSubcategoryColumn = input<boolean>(false);
+  readonly items = input.required<BudgetItem[]>();
+  readonly categoryType = input<BudgetCategoryType>('materials');
+  readonly showSubcategoryColumn = input<boolean>(false);
 
-  edit = output<MaterialBudgetItem>();
-  delete = output<MaterialBudgetItem>();
+  readonly edit = output<BudgetItem>();
+  readonly delete = output<BudgetItem>();
+
+  isParametric(item: BudgetItem): boolean {
+    return Number(item.percentage_applied) > 0 && Number(item.target_base_cost) > 0;
+  }
 }

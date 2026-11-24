@@ -19,6 +19,48 @@ export class SubcategoryService {
   readonly subcategories = this._subcategories.asReadonly();
   readonly loading = this._loading.asReadonly();
 
+  /**
+   * Retorna las subcategorías filtradas según el tipo de categoría de presupuesto.
+   * 'materials' -> 'Materiales'
+   * 'labor' -> 'Mano de Obra'
+   * 'operating' -> 'Gastos Operativos'
+   * 'administrative' -> 'Gastos Administrativos'
+   */
+  getSubcategoriesForCategoryType(
+    type: 'materials' | 'labor' | 'operating' | 'administrative' | string
+  ): Subcategory[] {
+    const all = this._subcategories();
+    const key = (type || '').toLowerCase();
+    const normalizedKey =
+      key === 'material' ? 'materials'
+        : key === 'mano' ? 'labor'
+        : key === 'operativo' ? 'operating'
+        : key === 'administrativo' ? 'administrative'
+        : key;
+
+    return all.filter((s) => {
+      const catCode = (s.category_detail?.code || '').toLowerCase();
+      if (catCode) {
+        return catCode === normalizedKey;
+      }
+
+      const catName = (s.category_name || s.category_detail?.name || '').toLowerCase();
+      if (normalizedKey === 'materials') {
+        return catName.includes('material');
+      }
+      if (normalizedKey === 'labor') {
+        return catName.includes('mano') || catName.includes('obra');
+      }
+      if (normalizedKey === 'operating') {
+        return catName.includes('operativ');
+      }
+      if (normalizedKey === 'administrative') {
+        return catName.includes('admin');
+      }
+      return true;
+    });
+  }
+
   loadSubcategories(): Observable<Subcategory[]> {
     this._loading.set(true);
     return this.http.get<Subcategory[]>(this.apiUrl).pipe(

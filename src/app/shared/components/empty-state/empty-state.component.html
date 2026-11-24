@@ -1,5 +1,5 @@
 <div class="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-white/60 shadow-xs">
-  <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-4">
+  <div class="w-16 h-16 rounded-2xl bg-[#edf1f5] border border-[#d1dce7] text-[#11406e] flex items-center justify-center mb-4">
     @switch (iconType()) {
       @case ('project') {
         <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -31,7 +31,7 @@
     <button
       type="button"
       (click)="action.emit()"
-      class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+      class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer"
     >
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />

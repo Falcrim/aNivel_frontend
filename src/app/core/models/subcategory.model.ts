@@ -2,7 +2,8 @@ export interface Subcategory {
   id: number;
   category: number;
   name: string;
-  category_name?: string; // enriquecido en cliente para facilitar visualizaciones
+  category_name?: string;
+  category_detail?: { id: number; code?: string; name: string; is_active?: boolean };
 }
 
 export interface CreateSubcategoryDto {

@@ -56,11 +56,11 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'inventario',
+    path: 'proveedores',
     loadComponent: () =>
       import(
-        './features/inventory/inventory-manager/inventory-manager.component'
-      ).then((m) => m.InventoryManagerComponent),
+        './features/suppliers/supplier-manager/supplier-manager.component'
+      ).then((m) => m.SupplierManagerComponent),
   },
   {
     path: '**',

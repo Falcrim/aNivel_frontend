@@ -5,11 +5,12 @@ import { Project, ProjectStatus, UpdateProjectDto } from '../../../../../core/mo
 import { ProjectService } from '../../../../../core/services/project.service';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { CustomSelectComponent, CustomSelectOption } from '../../../../../shared/components/custom-select/custom-select.component';
+import { InfoTooltipComponent } from '../../../../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-edit-project-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, CustomSelectComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, CustomSelectComponent, InfoTooltipComponent],
   templateUrl: './edit-project-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

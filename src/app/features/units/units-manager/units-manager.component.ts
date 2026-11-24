@@ -7,11 +7,12 @@ import { UnitOfMeasure } from '../../../core/models/unit-of-measure.model';
 import { PurchaseUnit } from '../../../core/models/purchase-unit.model';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { InfoTooltipComponent } from '../../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-units-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, ConfirmDialogComponent, InfoTooltipComponent],
   templateUrl: './units-manager.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,20 +1,25 @@
 <div class="space-y-6 animate-in fade-in duration-300">
-  <!-- Controls & Action Bar -->
-  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
-    <!-- Left: Search & Subcategory Filter -->
+  <!-- Controls & Action Bar (Normalized h-[42px] alignment) -->
+  <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white border border-[#d1dce7] p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+    <!-- Left: Search & Filters -->
     <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1 min-w-0">
       <!-- Search Input -->
-      <div class="relative w-full sm:max-w-xs min-w-0">
+      <div class="relative w-full sm:w-64 lg:w-72 shrink-0">
         <input
           type="text"
           [(ngModel)]="searchTerm"
           placeholder="Buscar tarea o contratista..."
-          class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+          class="an-input pl-9"
         />
+        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#7e91a4] pointer-events-none">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
       </div>
 
       <!-- Filter Subcategory -->
-      <div class="w-full sm:w-64">
+      <div class="w-full sm:w-56 shrink-0">
         <app-custom-select
           [options]="subcategoryFilterOptions()"
           [(value)]="selectedSubcategoryFilter"
@@ -22,45 +27,76 @@
         />
       </div>
 
+      <!-- Filter Contractor / Supplier -->
+      <div class="w-full sm:w-56 shrink-0">
+        <app-custom-select
+          [options]="supplierFilterOptions()"
+          [(value)]="selectedSupplierFilter"
+          placeholder="Contratista / Cuadrilla"
+        />
+      </div>
+
       <!-- Active switch -->
-      <label class="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none py-1 sm:py-0">
+      <label class="flex items-center gap-2 text-xs font-semibold text-[#385370] cursor-pointer select-none h-[42px] px-2">
         <input
           type="checkbox"
           [ngModel]="onlyActiveFilter()"
           (ngModelChange)="onlyActiveFilter.set($event)"
-          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+          class="w-4 h-4 accent-[#11406e] rounded cursor-pointer shrink-0"
         />
-        Solo activas
+        <span class="whitespace-nowrap">Solo activas</span>
       </label>
     </div>
 
     <!-- Right: View Mode Toggle & New Button -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full xl:w-auto shrink-0">
       <!-- Toggle Grouped vs Table -->
-      <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 w-full sm:w-auto justify-center shadow-2xs">
+      <div class="flex items-center p-1 rounded-xl bg-[#f1f5f9] border border-[#d1dce7] h-[42px] w-full sm:w-auto justify-center shadow-2xs">
         <button
           type="button"
           (click)="viewMode.set('grouped')"
-          [ngClass]="viewMode() === 'grouped' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+          [ngClass]="viewMode() === 'grouped' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer text-center whitespace-nowrap"
         >
-          Por Etapa
+          Por Subcategoría
         </button>
         <button
           type="button"
           (click)="viewMode.set('table')"
-          [ngClass]="viewMode() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+          [ngClass]="viewMode() === 'table' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer text-center whitespace-nowrap"
         >
           Tabla Plana
         </button>
       </div>
 
-      <!-- New Labor Item Action -->
+      <!-- Toggle Expand/Collapse All Subcategories -->
+      @if (viewMode() === 'grouped' && filteredGrouped().length > 0) {
+        <button
+          type="button"
+          (click)="toggleAllSubcategoriesCollapse()"
+          class="h-[42px] px-3.5 rounded-xl bg-white border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] hover:text-[#0a284b] text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+          [title]="isAllSubcategoriesCollapsed() ? 'Expandir todas las subcategorías' : 'Colapsar todas las subcategorías'"
+        >
+          @if (isAllSubcategoriesCollapsed()) {
+            <svg class="w-4 h-4 text-[#11406e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <span>Expandir todo</span>
+          } @else {
+            <svg class="w-4 h-4 text-[#4b637c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+            <span>Colapsar todo</span>
+          }
+        </button>
+      }
+
+      <!-- New Labor Item Action (Esquema 1) -->
       <button
         type="button"
         (click)="openCreateModal()"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer"
+        class="h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#11406e]/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer whitespace-nowrap"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -74,11 +110,10 @@
   @if (catalogService.loading()) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 animate-pulse h-48 shadow-xs"></div>
+        <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] animate-pulse h-48 shadow-xs"></div>
       }
     </div>
   } @else if (filteredItems().length === 0) {
-    <!-- Empty State -->
     <app-empty-state
       iconType="category"
       title="No hay tareas en el catálogo de mano de obra"
@@ -91,17 +126,31 @@
     @if (viewMode() === 'grouped') {
       <div class="space-y-6">
         @for (group of filteredGrouped(); track group.subcategory_id) {
-          <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
-            <!-- Header of Subcategory Group -->
-            <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+          <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs">
+            <!-- Header of Subcategory Group (Accordion) -->
+            <div
+              (click)="toggleSubcategoryCollapse(group.subcategory_id)"
+              [ngClass]="isSubcategoryCollapsed(group.subcategory_id) ? 'rounded-2xl sm:rounded-3xl' : 'rounded-t-2xl sm:rounded-t-3xl border-b border-[#d1dce7]'"
+              class="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#f4f7fb] hover:bg-[#eaf0f7] flex flex-wrap items-center justify-between gap-3 cursor-pointer select-none transition-colors"
+            >
               <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+                <button
+                  type="button"
+                  class="w-6 h-6 rounded-lg bg-white border border-[#cfd9e4] flex items-center justify-center text-[#11406e] transition-transform duration-200 shadow-2xs"
+                  [ngClass]="isSubcategoryCollapsed(group.subcategory_id) ? '-rotate-90' : 'rotate-0'"
+                  title="Minimizar / Expandir subcategoría"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div class="w-8 h-8 rounded-xl bg-white border border-[#c3d3e5] text-[#11406e] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
                   {{ group.subcategory_name.charAt(0).toUpperCase() }}
                 </div>
                 <div class="min-w-0">
-                  <h4 class="text-sm font-black text-slate-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <h4 class="text-sm font-black text-[#0a284b] flex flex-wrap items-center gap-1.5 sm:gap-2">
                     <span class="truncate">{{ group.subcategory_name }}</span>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shadow-2xs whitespace-nowrap">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#385370] border border-[#cfd9e4] shadow-2xs whitespace-nowrap">
                       {{ group.items_count }} tareas
                     </span>
                   </h4>
@@ -110,53 +159,69 @@
 
               <button
                 type="button"
-                (click)="openCreateModal(group.subcategory_id)"
-                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-800 hover:text-white hover:bg-amber-500 bg-amber-50/80 border border-amber-200 hover:border-amber-500 transition-all cursor-pointer shadow-2xs active:scale-95 ml-auto sm:ml-0"
+                (click)="$event.stopPropagation(); openCreateModal(group.subcategory_id)"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-[#11406e] hover:text-white hover:bg-[#11406e] bg-white border border-[#c3d3e5] hover:border-[#11406e] transition-all cursor-pointer shadow-2xs active:scale-95 ml-auto sm:ml-0 whitespace-nowrap"
               >
-                + Añadir aquí
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+                Añadir Tarea
               </button>
             </div>
 
-            <!-- Table for Group Items -->
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-600">
-                <thead class="bg-white text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
-                  <tr>
-                    <th scope="col" class="px-5 py-3">Tarea / Actividad</th>
-                    <th scope="col" class="px-4 py-3">Contratista Sugerido</th>
-                    <th scope="col" class="px-4 py-3 text-center">Unidad</th>
-                    <th scope="col" class="px-5 py-3 text-right">Costo Sugerido (Bs)</th>
-                    <th scope="col" class="px-4 py-3 text-center">Estado</th>
-                    <th scope="col" class="px-4 py-3 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  @for (item of group.items; track item.id) {
-                    <tr class="hover:bg-slate-50/80 transition-colors">
+            <!-- Body of Subcategory Group (Minimizable Accordion) -->
+            @if (!isSubcategoryCollapsed(group.subcategory_id)) {
+              <div class="overflow-x-auto scrollbar-thin">
+                <table class="w-full text-left text-xs text-[#385370] min-w-[760px]">
+                  <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#e2e9f2]">
+                    <tr>
+                      <th scope="col" class="px-5 py-3 whitespace-nowrap">Tarea / Actividad</th>
+                      <th scope="col" class="px-4 py-3 whitespace-nowrap">Contratista Sugerido</th>
+                      <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">Unidad</th>
+                      <th scope="col" class="px-5 py-3 text-right whitespace-nowrap">
+                        <span class="inline-flex items-center justify-end gap-1">
+                          Costo Sugerido (Bs)
+                          <app-info-tooltip text="Tarifa unitaria referencial sugerida al vincular esta tarea a un presupuesto." position="bottom" />
+                        </span>
+                      </th>
+                      <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">Estado</th>
+                      <th scope="col" class="px-4 py-3 text-right whitespace-nowrap">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    @for (item of getPagedItems(group.items, getClusterPage(group.subcategory_id)); track item.id) {
+                    <tr class="hover:bg-[#edf1f5]/50 transition-colors">
                       <td class="px-5 py-3.5">
-                        <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                        <div class="font-bold text-[#0a284b] text-xs sm:text-[13px] flex items-center gap-1.5 flex-wrap">
+                          <span>{{ item.name }}</span>
+                          @if (item.supplier_name) {
+                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold whitespace-nowrap">
+                              {{ item.supplier_name }}
+                            </span>
+                          }
+                        </div>
                         @if (item.detail) {
-                          <div class="text-[11px] text-slate-400 mt-0.5">{{ item.detail }}</div>
+                          <div class="text-[11px] text-[#4b637c] mt-0.5">{{ item.detail }}</div>
                         }
                       </td>
-                      <td class="px-4 py-3.5">
+                      <td class="px-4 py-3.5 whitespace-nowrap">
                         @if (item.contractor_type) {
                           <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
                             {{ item.contractor_type }}
                           </span>
                         } @else {
-                          <span class="text-[11px] text-slate-400 italic">No especificado</span>
+                          <span class="text-[11px] text-[#7e91a4] italic">No especificado</span>
                         }
                       </td>
-                      <td class="px-4 py-3.5 text-center font-medium">
+                      <td class="px-4 py-3.5 text-center font-medium whitespace-nowrap">
                         <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-mono">
                           {{ item.unit_detail?.abbreviation || 'u' }}
                         </span>
                       </td>
-                      <td class="px-5 py-3.5 text-right font-mono tabular-nums font-bold text-amber-700 text-xs sm:text-[13px]">
+                      <td class="px-5 py-3.5 text-right font-mono tabular-nums font-bold text-[#11406e] text-xs sm:text-[13px] whitespace-nowrap">
                         {{ item.suggested_cost | appCurrency }}
                       </td>
-                      <td class="px-4 py-3.5 text-center">
+                      <td class="px-4 py-3.5 text-center whitespace-nowrap">
                         @if (item.is_active) {
                           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                             Activo
@@ -167,12 +232,12 @@
                           </span>
                         }
                       </td>
-                      <td class="px-4 py-3.5 text-right">
-                        <div class="flex items-center justify-end gap-1">
+                      <td class="px-4 py-3.5 text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
                             (click)="openEditModal(item)"
-                            class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                            class="an-btn-edit"
                             title="Editar tarea"
                           >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -182,7 +247,7 @@
                           <button
                             type="button"
                             (click)="openDeleteModal(item)"
-                            class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            class="an-btn-delete"
                             title="Eliminar tarea"
                           >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,57 +261,73 @@
                 </tbody>
               </table>
             </div>
-          </div>
-        }
+
+            <app-cluster-pagination
+              [currentPage]="getClusterPage(group.subcategory_id)"
+              [pageSize]="10"
+              [totalItems]="group.items.length"
+              entityLabel="tareas"
+              (pageChange)="setClusterPage(group.subcategory_id, $event)"
+            />
+          }
+        </div>
+      }
       </div>
     } @else {
       <!-- VIEW 2: FLAT TABLE -->
-      <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs text-slate-600">
-            <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-200">
+      <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto scrollbar-thin">
+          <table class="w-full text-left text-xs text-[#385370] min-w-[800px]">
+            <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#d1dce7]">
               <tr>
-                <th scope="col" class="px-5 py-4">ID</th>
-                <th scope="col" class="px-5 py-4">Tarea / Actividad</th>
-                <th scope="col" class="px-4 py-4">Etapa / Subcategoría</th>
-                <th scope="col" class="px-4 py-4">Contratista Sugerido</th>
-                <th scope="col" class="px-4 py-4 text-center">Unidad</th>
-                <th scope="col" class="px-5 py-4 text-right">Costo Sugerido (Bs)</th>
-                <th scope="col" class="px-4 py-4 text-center">Estado</th>
-                <th scope="col" class="px-4 py-4 text-right">Acciones</th>
+                <th scope="col" class="px-5 py-4 whitespace-nowrap">ID</th>
+                <th scope="col" class="px-5 py-4 whitespace-nowrap">Tarea / Actividad</th>
+                <th scope="col" class="px-4 py-4 whitespace-nowrap">Etapa / Subcategoría</th>
+                <th scope="col" class="px-4 py-4 whitespace-nowrap">Contratista Sugerido</th>
+                <th scope="col" class="px-4 py-4 text-center whitespace-nowrap">Unidad</th>
+                <th scope="col" class="px-5 py-4 text-right whitespace-nowrap">Costo Sugerido (Bs)</th>
+                <th scope="col" class="px-4 py-4 text-center whitespace-nowrap">Estado</th>
+                <th scope="col" class="px-4 py-4 text-right whitespace-nowrap">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               @for (item of filteredItems(); track item.id) {
-                <tr class="hover:bg-slate-50/80 transition-colors">
-                  <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-amber-700">#{{ item.id }}</td>
+                <tr class="hover:bg-[#edf1f5]/50 transition-colors">
+                  <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-[#11406e] whitespace-nowrap">#{{ item.id }}</td>
                   <td class="px-5 py-3.5">
-                    <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                    <div class="font-bold text-[#0a284b] text-xs sm:text-[13px] flex items-center gap-1.5 flex-wrap">
+                      <span>{{ item.name }}</span>
+                      @if (item.supplier_name) {
+                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold whitespace-nowrap">
+                          {{ item.supplier_name }}
+                        </span>
+                      }
+                    </div>
                     @if (item.detail) {
-                      <div class="text-[11px] text-slate-400">{{ item.detail }}</div>
+                      <div class="text-[11px] text-[#4b637c]">{{ item.detail }}</div>
                     }
                   </td>
-                  <td class="px-4 py-3.5 font-semibold text-slate-700">
+                  <td class="px-4 py-3.5 font-semibold text-[#385370] whitespace-nowrap">
                     {{ item.subcategory_detail?.name || 'Etapa #' + item.subcategory }}
                   </td>
-                  <td class="px-4 py-3.5">
+                  <td class="px-4 py-3.5 whitespace-nowrap">
                     @if (item.contractor_type) {
                       <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
                         {{ item.contractor_type }}
                       </span>
                     } @else {
-                      <span class="text-[11px] text-slate-400 italic">No especificado</span>
+                      <span class="text-[11px] text-[#7e91a4] italic">No especificado</span>
                     }
                   </td>
-                  <td class="px-4 py-3.5 text-center">
+                  <td class="px-4 py-3.5 text-center whitespace-nowrap">
                     <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-mono">
                       {{ item.unit_detail?.abbreviation || 'u' }}
                     </span>
                   </td>
-                  <td class="px-5 py-3.5 text-right font-mono tabular-nums font-bold text-amber-700 text-xs sm:text-[13px]">
+                  <td class="px-5 py-3.5 text-right font-mono tabular-nums font-bold text-[#11406e] text-xs sm:text-[13px] whitespace-nowrap">
                     {{ item.suggested_cost | appCurrency }}
                   </td>
-                  <td class="px-4 py-3.5 text-center">
+                  <td class="px-4 py-3.5 text-center whitespace-nowrap">
                     @if (item.is_active) {
                       <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                         Activo
@@ -257,12 +338,12 @@
                       </span>
                     }
                   </td>
-                  <td class="px-4 py-3.5 text-right">
-                    <div class="flex items-center justify-end gap-1">
+                  <td class="px-4 py-3.5 text-right whitespace-nowrap">
+                    <div class="flex items-center justify-end gap-1.5">
                       <button
                         type="button"
                         (click)="openEditModal(item)"
-                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                        class="an-btn-edit"
                         title="Editar"
                       >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -272,7 +353,7 @@
                       <button
                         type="button"
                         (click)="openDeleteModal(item)"
-                        class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        class="an-btn-delete"
                         title="Eliminar"
                       >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -292,31 +373,31 @@
 </div>
 
 <!-- ========================================================================= -->
-<!-- MODAL: CREAR TAREA EN CATÁLOGO                                            -->
+<!-- MODAL: CREAR / EDITAR TAREA DE MANO DE OBRA (100% Pixel-Aligned)          -->
 <!-- ========================================================================= -->
 <app-modal
-  [isOpen]="isCreateModalOpen()"
-  title="Nueva Tarea en Catálogo Maestro"
+  [isOpen]="isCreateModalOpen() || isEditModalOpen()"
+  [title]="isCreateModalOpen() ? 'Nueva Tarea en Catálogo Maestro' : 'Editar Tarea de Mano de Obra'"
+  subtitle="Define la actividad, contratista habitual y tarifa unitaria sugerida"
   maxWidthClass="max-w-lg"
-  (close)="closeCreateModal()"
+  (close)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
 >
-  <form (ngSubmit)="submitCreate()" class="space-y-4">
+  <form (ngSubmit)="isCreateModalOpen() ? submitCreate() : submitEdit()" class="space-y-4">
     <!-- Subcategoría -->
     <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Etapa / Subcategoría <span class="text-rose-500">*</span>
-      </label>
       <app-custom-select
         [options]="subcategoryFormOptions()"
         [(value)]="formSubcategoryId"
-        placeholder="Selecciona una etapa"
+        label="Etapa / Subcategoría"
+        [required]="true"
+        placeholder="Selecciona una subcategoría..."
       />
     </div>
 
     <!-- Nombre de la tarea -->
     <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Tarea / Actividad <span class="text-rose-500">*</span>
+      <label class="an-label">
+        Tarea / Actividad <span class="text-[#e52521]">*</span>
       </label>
       <input
         type="text"
@@ -324,43 +405,43 @@
         name="name"
         placeholder="Ej: Muro de Ladrillo Gambote 18H"
         required
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+        class="an-input"
       />
     </div>
 
     <!-- Detalle / Especificación -->
     <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Detalle Técnico / Alcance (Opcional)
+      <label class="an-label !flex items-center gap-1.5">
+        <span>Detalle Técnico / Alcance (Opcional)</span>
+        <app-info-tooltip text="Especifica qué incluye la tarifa (ej. andamiaje, mortero, limpieza o forma de ejecución)." position="right" />
       </label>
       <textarea
         [(ngModel)]="formDetail"
         name="detail"
         rows="2"
         placeholder="Ej: Incluye andamiaje, mortero 1:4 y limpieza de área..."
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+        class="an-textarea"
       ></textarea>
     </div>
 
-    <!-- Unidad & Costo Sugerido -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Unidad & Costo Sugerido (Aligned h-[42px] + items-start) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
       <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-          Unidad de Medida <span class="text-rose-500">*</span>
-        </label>
         <app-custom-select
           [options]="uomFormOptions()"
           [(value)]="formUnitId"
+          label="Unidad de Medida"
+          [required]="true"
           placeholder="Selecciona unidad"
         />
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-          Costo Sugerido (Bs) <span class="text-rose-500">*</span>
+        <label class="an-label">
+          Costo Sugerido (Bs) <span class="text-[#e52521]">*</span>
         </label>
-        <div class="relative">
-          <span class="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400 font-mono">Bs</span>
+        <div class="an-input-group">
+          <span class="absolute left-3.5 text-xs font-bold text-[#4b637c] font-mono pointer-events-none">Bs</span>
           <input
             type="number"
             step="0.01"
@@ -369,34 +450,45 @@
             name="suggestedCost"
             placeholder="0.00"
             required
-            class="w-full pl-10 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold font-mono text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+            class="w-full h-full pl-9 pr-3.5 bg-transparent text-[13px] font-bold font-mono text-[#0a284b] focus:outline-hidden"
           />
         </div>
       </div>
     </div>
 
-    <!-- Tipo de Contratista -->
-    <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Contratista / Especialidad Sugerida
-      </label>
-      <input
-        type="text"
-        [(ngModel)]="formContractorType"
-        name="contractorType"
-        placeholder="Ej: Albañil de Primera, Contratista Obra Fina..."
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-      />
+    <!-- Contratista y Especialidad (Aligned h-[42px] + items-start) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+      <div>
+        <app-custom-select
+          [options]="supplierFormOptions()"
+          [(value)]="formSupplierId"
+          label="Contratista Habitual"
+          placeholder="Sin contratista"
+        />
+      </div>
+
+      <div>
+        <label class="an-label">
+          Especialidad Sugerida
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="formContractorType"
+          name="contractorType"
+          placeholder="Ej: Albañil de Primera..."
+          class="an-input"
+        />
+      </div>
     </div>
 
     <!-- Activo switch -->
-    <div class="pt-2">
-      <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer select-none">
+    <div class="pt-1">
+      <label class="inline-flex items-center gap-2 text-xs font-bold text-[#0a284b] cursor-pointer select-none">
         <input
           type="checkbox"
           [(ngModel)]="formIsActive"
           name="isActive"
-          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+          class="w-4 h-4 accent-[#11406e] rounded cursor-pointer shrink-0"
         />
         Ítem Activo para Presupuestación
       </label>
@@ -406,144 +498,17 @@
     <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
       <button
         type="button"
-        (click)="closeCreateModal()"
-        class="px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+        (click)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-all cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="isProcessing() || !formName().trim() || !formSubcategoryId() || !formUnitId()"
-        class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-extrabold transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-[#11406e]/20 cursor-pointer active:scale-95"
       >
-        {{ isProcessing() ? 'Guardando...' : 'Crear Tarea' }}
-      </button>
-    </div>
-  </form>
-</app-modal>
-
-<!-- ========================================================================= -->
-<!-- MODAL: EDITAR TAREA EN CATÁLOGO                                           -->
-<!-- ========================================================================= -->
-<app-modal
-  [isOpen]="isEditModalOpen()"
-  title="Editar Tarea de Mano de Obra"
-  maxWidthClass="max-w-lg"
-  (close)="closeEditModal()"
->
-  <form (ngSubmit)="submitEdit()" class="space-y-4">
-    <!-- Subcategoría -->
-    <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Etapa / Subcategoría <span class="text-rose-500">*</span>
-      </label>
-      <app-custom-select
-        [options]="subcategoryFormOptions()"
-        [(value)]="formSubcategoryId"
-        placeholder="Selecciona una etapa"
-      />
-    </div>
-
-    <!-- Nombre de la tarea -->
-    <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Tarea / Actividad <span class="text-rose-500">*</span>
-      </label>
-      <input
-        type="text"
-        [(ngModel)]="formName"
-        name="nameEdit"
-        required
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-      />
-    </div>
-
-    <!-- Detalle / Especificación -->
-    <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Detalle Técnico / Alcance (Opcional)
-      </label>
-      <textarea
-        [(ngModel)]="formDetail"
-        name="detailEdit"
-        rows="2"
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-      ></textarea>
-    </div>
-
-    <!-- Unidad & Costo Sugerido -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-          Unidad de Medida <span class="text-rose-500">*</span>
-        </label>
-        <app-custom-select
-          [options]="uomFormOptions()"
-          [(value)]="formUnitId"
-          placeholder="Selecciona unidad"
-        />
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-          Costo Sugerido (Bs) <span class="text-rose-500">*</span>
-        </label>
-        <div class="relative">
-          <span class="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400 font-mono">Bs</span>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            [(ngModel)]="formSuggestedCost"
-            name="suggestedCostEdit"
-            required
-            class="w-full pl-10 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold font-mono text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Tipo de Contratista -->
-    <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Contratista / Especialidad Sugerida
-      </label>
-      <input
-        type="text"
-        [(ngModel)]="formContractorType"
-        name="contractorTypeEdit"
-        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-      />
-    </div>
-
-    <!-- Activo switch -->
-    <div class="pt-2">
-      <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          [(ngModel)]="formIsActive"
-          name="isActiveEdit"
-          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
-        />
-        Ítem Activo para Presupuestación
-      </label>
-    </div>
-
-    <!-- Modal Footer Actions -->
-    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-      <button
-        type="button"
-        (click)="closeEditModal()"
-        class="px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer"
-      >
-        Cancelar
-      </button>
-      <button
-        type="submit"
-        [disabled]="isProcessing() || !formName().trim() || !formSubcategoryId() || !formUnitId()"
-        class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-extrabold transition-all shadow-md shadow-amber-500/20 cursor-pointer"
-      >
-        {{ isProcessing() ? 'Guardando...' : 'Actualizar Tarea' }}
+        {{ isProcessing() ? 'Guardando...' : (isCreateModalOpen() ? 'Crear Tarea' : 'Actualizar Tarea') }}
       </button>
     </div>
   </form>
@@ -557,7 +522,8 @@
   title="Eliminar Tarea del Catálogo"
   [message]="'¿Estás seguro de retirar &quot;' + (itemToDelete()?.name || '') + '&quot; del catálogo maestro? No afectará a las obras que ya la hayan presupuestado.'"
   confirmText="Sí, Eliminar"
-  type="danger"
+  [isDanger]="true"
+  [loading]="isProcessing()"
   (confirm)="submitDelete()"
   (cancel)="closeDeleteModal()"
 />

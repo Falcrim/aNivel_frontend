@@ -1,31 +1,31 @@
 <!-- Backdrop for mobile -->
 @if (isMobileOpen()) {
   <div
-    class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs lg:hidden"
+    class="fixed inset-0 z-40 bg-[#0a284b]/60 backdrop-blur-xs lg:hidden"
     (click)="closeMobile.emit()"
   ></div>
 }
 
-<!-- Sidebar Container -->
+<!-- Sidebar Container (Corporate Blue Pantone 541C #11406e -> Pantone 540C #0a284b) -->
 <aside
-  class="fixed top-0 left-0 bottom-0 z-40 w-72 bg-white border-r border-slate-200/80 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-xs"
+  class="fixed top-0 left-0 bottom-0 z-40 w-64 bg-[#11406e] border-r border-[#0a284b] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-lg"
   [ngClass]="isMobileOpen() ? 'translate-x-0' : '-translate-x-full'"
 >
-  <!-- Brand Logo & Header -->
-  <div class="h-20 flex items-center justify-between px-6 border-b border-slate-100 bg-white">
-    <a routerLink="/dashboard" class="flex items-center gap-3 group">
-      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-500 flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
-        <!-- Level / Ruler Icon -->
-        <svg class="w-6 h-6 text-white font-bold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M2 12h20M7 8v8m5-6v4m5-6v4" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </div>
-      <div>
+  <!-- Header: Official Geometric aNIVEL Imagotipo -->
+  <div class="h-20 flex items-center justify-between px-6 border-b border-white/15 bg-[#0a284b]/40">
+    <a routerLink="/dashboard" (click)="closeMobile.emit()" class="flex items-center gap-3 group">
+      <svg class="w-9 h-9 shrink-0 group-hover:scale-105 transition-transform" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path d="M5 32V17L17 7V32H13V15L8.5 19V32H5Z" fill="#ffffff" />
+        <rect x="20" y="9" width="3.5" height="23" fill="#e52521" />
+        <rect x="26" y="14" width="3.5" height="18" fill="#e52521" />
+        <rect x="32" y="19" width="3.5" height="13" fill="#e52521" />
+      </svg>
+      <div class="min-w-0">
         <div class="flex items-center gap-1.5">
-          <span class="text-xl font-black tracking-tight text-slate-900">a<span class="text-amber-600">Nivel</span></span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-bold uppercase tracking-wider">v2.0</span>
+          <span class="text-xl font-bold tracking-tight text-white leading-none font-['Montserrat',sans-serif]">aNIVEL</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-white/15 text-[#cbd8e6] border border-white/20 font-bold uppercase tracking-wider">v2.0</span>
         </div>
-        <p class="text-[11px] text-slate-500 font-medium">Control de Obras & Presupuestos</p>
+        <p class="text-[10px] tracking-[0.16em] text-[#cbd8e6] font-medium mt-1 uppercase">CONSTRUCTORA</p>
       </div>
     </a>
 
@@ -33,7 +33,8 @@
     <button
       type="button"
       (click)="closeMobile.emit()"
-      class="lg:hidden p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100"
+      class="lg:hidden p-2 text-white/70 hover:text-white rounded-xl hover:bg-white/10"
+      aria-label="Cerrar menú lateral"
     >
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -41,62 +42,80 @@
     </button>
   </div>
 
+  <!-- Primary CTA: Nueva Obra (Corporate Red Pantone 485C #e52521) -->
+  <div class="px-4 pt-4 pb-1">
+    <a
+      routerLink="/obras"
+      [queryParams]="{ action: 'new' }"
+      (click)="closeMobile.emit()"
+      class="w-full min-h-10 px-4 py-2.5 rounded-2xl bg-[#e52521] hover:bg-[#aa1414] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-[#e52521]/20 transition-all cursor-pointer active:scale-95"
+    >
+      <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+      </svg>
+      <span>Nueva Obra</span>
+    </a>
+  </div>
+
   <!-- Navigation Content -->
-  <div class="flex-1 overflow-y-auto px-4 py-6 space-y-7 scrollbar-thin">
+  <div class="flex-1 overflow-y-auto px-4 py-4 space-y-6 scrollbar-thin">
     <!-- Active Core Modules -->
     <div>
       <div class="px-3 mb-2 flex items-center justify-between">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Módulos Activos</span>
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#cbd8e6]">Módulos Activos</span>
+        <span class="w-2 h-2 rounded-full bg-[#00ce7c] animate-pulse"></span>
       </div>
 
-      <nav class="space-y-1.5">
+      <nav class="space-y-1">
         @for (item of navItems; track item.route) {
           <a
             [routerLink]="item.route"
             [routerLinkActiveOptions]="{ exact: item.exact }"
-            routerLinkActive="bg-amber-50 text-amber-900 border-amber-200/80 font-bold shadow-xs"
-            class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl border border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all group"
+            routerLinkActive="bg-white/15 text-white font-semibold border-white/25 shadow-xs"
+            class="flex items-center gap-3 px-3 py-2 rounded-xl border border-transparent text-[#dbe5f0] hover:text-white hover:bg-white/10 transition-colors group cursor-pointer"
             (click)="closeMobile.emit()"
           >
             <!-- SVG Icons -->
-            <div class="w-5 h-5 flex items-center justify-center shrink-0 text-slate-500 group-hover:text-amber-600">
+            <div class="w-5 h-5 flex items-center justify-center shrink-0 text-[#b4c7db] group-hover:text-white">
               @if (item.icon === 'dashboard') {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
               } @else if (item.icon === 'building') {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               } @else if (item.icon === 'catalog') {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               } @else if (item.icon === 'users') {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               } @else if (item.icon === 'layers') {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               } @else if (item.icon === 'ruler') {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 6l3 18h12l3-18H3zm3 0h12M9 10h6m-5 4h4m-3 4h2" />
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 6l3 18h12l3-18H3zm3 0h12M9 10h6m-5 4h4m-3 4h2" />
                 </svg>
               } @else if (item.icon === 'tools') {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                </svg>
+              } @else if (item.icon === 'supplier') {
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 17a2 2 0 100 4 2 2 0 000-4zm11 0a2 2 0 100 4 2 2 0 000-4zM3 4h11v13H3V4zm11 4h4l3 3v6h-7V8z" />
                 </svg>
               }
             </div>
 
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium leading-tight truncate">{{ item.label }}</div>
+              <div class="text-xs font-medium leading-snug truncate">{{ item.label }}</div>
               @if (item.subtitle) {
-                <div class="text-[11px] text-slate-400 group-hover:text-slate-500 truncate">{{ item.subtitle }}</div>
+                <div class="text-[10px] text-[#cbd8e6] group-hover:text-white truncate">{{ item.subtitle }}</div>
               }
             </div>
           </a>
@@ -104,53 +123,60 @@
       </nav>
     </div>
 
+    <!-- Pinned Obras (Mercury Style) -->
+    @if (projectService.projects().length > 0) {
+      <div class="pt-3 border-t border-white/15 space-y-1.5">
+        <div class="px-2 flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#cbd8e6]">Obras Activas</span>
+          <span class="text-[10px] text-[#00ce7c] font-mono tabular-nums">En vivo</span>
+        </div>
+
+        <div class="space-y-1">
+          @for (proj of projectService.projects().slice(0, 4); track proj.id) {
+            <a
+              [routerLink]="['/obras', proj.id]"
+              (click)="closeMobile.emit()"
+              class="w-full px-2.5 py-1.5 rounded-xl block hover:bg-white/10 transition-colors group"
+            >
+              <div class="flex items-center justify-between gap-1.5">
+                <span class="text-xs font-medium text-white group-hover:text-[#cbd8e6] truncate">{{ proj.name }}</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-[#00ce7c] shrink-0"></span>
+              </div>
+              <div class="font-mono text-[10px] text-[#b4c7db] mt-0.5 tabular-nums">
+                {{ proj.built_area || 0 }} m² · {{ getStatusLabel(proj.status) }}
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    }
+
     <!-- Future Architectural Modules -->
-    <div>
+    <div class="pt-2 border-t border-white/10">
       <div class="px-3 mb-2 flex items-center justify-between">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Próximos Módulos</span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">Fase 2</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#9ab0c7]">Fase 2 (Próximo)</span>
+        <span class="text-[9px] px-1.5 py-0.5 rounded bg-[#0a284b] text-[#cbd8e6] font-mono">IAM</span>
       </div>
 
-      <div class="space-y-1.5 opacity-70">
-        @for (fut of futureItems; track fut.label) {
-          <div class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 text-slate-500 select-none">
-            <div class="w-5 h-5 flex items-center justify-center shrink-0 text-slate-400">
-              @if (fut.icon === 'users') {
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              } @else if (fut.icon === 'calculator') {
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              } @else {
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              }
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-xs font-medium text-slate-700 truncate">{{ fut.label }}</div>
-              <div class="text-[10px] text-slate-400 truncate">{{ fut.subtitle }}</div>
-            </div>
-            <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-400 font-semibold">Pronto</span>
+      <div class="space-y-1 opacity-70">
+        @for (fut of futureItems.slice(0, 2); track fut.label) {
+          <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-dashed border-white/15 bg-white/5 text-[#cbd8e6] select-none text-xs">
+            <span class="truncate">{{ fut.label }}</span>
           </div>
         }
       </div>
     </div>
   </div>
 
-  <!-- Bottom Workspace Card -->
-  <div class="p-4 border-t border-slate-100 bg-slate-50/50">
-    <div class="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center gap-3">
-      <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-bold text-xs">
-        aN
-      </div>
+  <!-- Bottom Workspace Card (Pantone 540C #0a284b) -->
+  <div class="p-3 border-t border-white/10 bg-[#0a284b]">
+    <div class="p-2.5 rounded-xl bg-white/10 border border-white/15 flex items-center gap-2.5">
+      <span class="w-7 h-7 rounded-lg bg-white/15 border border-white/20 text-white font-bold text-xs flex items-center justify-center shrink-0">aN</span>
       <div class="flex-1 min-w-0">
-        <p class="text-xs font-bold text-slate-800 truncate">Espacio Principal</p>
-        <p class="text-[10px] text-emerald-600 flex items-center gap-1 font-medium">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Core & Materials API
+        <p class="text-xs font-bold text-white truncate">aNivel · Ingeniería</p>
+        <p class="text-[10px] text-[#00ce7c] flex items-center gap-1 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#00ce7c]"></span>
+          Control de Presupuestos
         </p>
       </div>
     </div>

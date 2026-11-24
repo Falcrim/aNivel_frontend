@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategoryService } from '../../../core/services/category.service';
 import { SubcategoryService } from '../../../core/services/subcategory.service';
+import { ConstructionStageService } from '../../../core/services/construction-stage.service';
 import { Category } from '../../../core/models/category.model';
 import { Subcategory } from '../../../core/models/subcategory.model';
+import { ConstructionStage, CreateConstructionStageDto, UpdateConstructionStageDto } from '../../../core/models/construction-stage.model';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CustomSelectComponent, CustomSelectOption } from '../../../shared/components/custom-select/custom-select.component';
+import { InfoTooltipComponent } from '../../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-categories-manager',
@@ -18,6 +21,7 @@ import { CustomSelectComponent, CustomSelectOption } from '../../../shared/compo
     ModalComponent,
     ConfirmDialogComponent,
     CustomSelectComponent,
+    InfoTooltipComponent,
   ],
   templateUrl: './categories-manager.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,9 +29,10 @@ import { CustomSelectComponent, CustomSelectOption } from '../../../shared/compo
 export class CategoriesManagerComponent implements OnInit {
   protected readonly categoryService = inject(CategoryService);
   protected readonly subcategoryService = inject(SubcategoryService);
+  protected readonly stageService = inject(ConstructionStageService);
 
-  // Active tab: 'hierarchy' (master-detail) | 'table' (flat table)
-  activeTab = signal<'hierarchy' | 'table'>('hierarchy');
+  // Active tab: 'hierarchy' (master-detail) | 'table' (flat table) | 'stages' (etapas de obra)
+  activeTab = signal<'hierarchy' | 'table' | 'stages'>('hierarchy');
 
   // Selected Category in Hierarchy view
   selectedCategory = signal<Category | null>(null);
@@ -40,14 +45,14 @@ export class CategoriesManagerComponent implements OnInit {
   readonly categoryFilterOptions = computed<CustomSelectOption<number | null>[]>(() => [
     { label: 'Todas las categorías', value: null },
     ...this.categoryService.categories().map((c) => ({
-      label: c.name,
+      label: c.is_active === false ? `${c.name} (Próximamente)` : c.name,
       value: c.id,
     })),
   ]);
 
   readonly categoryFormOptions = computed<CustomSelectOption<number>[]>(() =>
     this.categoryService.categories().map((c) => ({
-      label: c.name,
+      label: c.is_active === false ? `${c.name} (Próximamente)` : c.name,
       value: c.id,
     }))
   );
@@ -58,11 +63,9 @@ export class CategoriesManagerComponent implements OnInit {
   // Modals state
   isCategoryModalOpen = signal(false);
   isSubcategoryModalOpen = signal(false);
-  isDeleteCategoryOpen = signal(false);
   isDeleteSubcategoryOpen = signal(false);
 
   // Form states
-  categoryFormMode = signal<'create' | 'edit'>('create');
   categoryNameForm = signal('');
   categoryToEdit = signal<Category | null>(null);
 
@@ -71,8 +74,18 @@ export class CategoriesManagerComponent implements OnInit {
   subcategoryCategoryIdForm = signal<number>(0);
   subcategoryToEdit = signal<Subcategory | null>(null);
 
-  categoryToDelete = signal<Category | null>(null);
   subcategoryToDelete = signal<Subcategory | null>(null);
+
+  // Stage Modals & Form states
+  isStageModalOpen = signal(false);
+  isDeleteStageOpen = signal(false);
+  stageFormMode = signal<'create' | 'edit'>('create');
+  stageNameForm = signal('');
+  stageDescriptionForm = signal('');
+  stageOrderForm = signal(1);
+  stageColorForm = signal('amber');
+  stageToEdit = signal<ConstructionStage | null>(null);
+  stageToDelete = signal<ConstructionStage | null>(null);
 
   isProcessing = signal(false);
 
@@ -86,6 +99,7 @@ export class CategoriesManagerComponent implements OnInit {
       return {
         ...sub,
         category_name: parentCat ? parentCat.name : `Categoría #${sub.category}`,
+        category_is_active: parentCat ? parentCat.is_active !== false : true,
       };
     });
   });
@@ -112,15 +126,22 @@ export class CategoriesManagerComponent implements OnInit {
     return list;
   });
 
-  // Categories with counts
+  // Categories with counts (activas primero, luego futuras)
   categoriesWithCount = computed(() => {
     const categories = this.categoryService.categories();
     const subcategories = this.subcategoryService.subcategories();
 
-    return categories.map((cat) => ({
-      ...cat,
-      count: subcategories.filter((s) => s.category === cat.id).length,
-    }));
+    return [...categories]
+      .sort((a, b) => {
+        const activeA = a.is_active === false ? 1 : 0;
+        const activeB = b.is_active === false ? 1 : 0;
+        if (activeA !== activeB) return activeA - activeB;
+        return a.name.localeCompare(b.name);
+      })
+      .map((cat) => ({
+        ...cat,
+        count: subcategories.filter((s) => s.category === cat.id).length,
+      }));
   });
 
   // Current subcategories for the selected category in hierarchy view
@@ -132,29 +153,23 @@ export class CategoriesManagerComponent implements OnInit {
 
   ngOnInit(): void {
     this.categoryService.loadCategories().subscribe({
-      next: (cats) => {
-        if (cats.length > 0 && !this.selectedCategory()) {
-          this.selectedCategory.set(cats[0]);
+      next: () => {
+        const sorted = this.categoriesWithCount();
+        if (sorted.length > 0 && !this.selectedCategory()) {
+          this.selectedCategory.set(sorted[0]);
         }
       },
     });
     this.subcategoryService.loadSubcategories().subscribe();
+    this.stageService.loadStages().subscribe();
   }
 
   selectCategory(cat: Category): void {
     this.selectedCategory.set(cat);
   }
 
-  // Category CRUD
-  openCreateCategoryModal(): void {
-    this.categoryFormMode.set('create');
-    this.categoryNameForm.set('');
-    this.categoryToEdit.set(null);
-    this.isCategoryModalOpen.set(true);
-  }
-
+  // Category Rename (Create/Delete blocked intentionally)
   openEditCategoryModal(cat: Category): void {
-    this.categoryFormMode.set('edit');
     this.categoryNameForm.set(cat.name);
     this.categoryToEdit.set(cat);
     this.isCategoryModalOpen.set(true);
@@ -167,59 +182,18 @@ export class CategoriesManagerComponent implements OnInit {
 
   submitCategory(): void {
     const name = this.categoryNameForm().trim();
-    if (!name) return;
+    const cat = this.categoryToEdit();
+    if (!name || !cat) return;
 
     this.isProcessing.set(true);
-    if (this.categoryFormMode() === 'create') {
-      this.categoryService.createCategory({ name }).subscribe({
-        next: (newCat) => {
-          this.isProcessing.set(false);
-          this.closeCategoryModal();
-          this.selectedCategory.set(newCat);
-        },
-        error: () => {
-          this.isProcessing.set(false);
-        },
-      });
-    } else {
-      const cat = this.categoryToEdit();
-      if (!cat) return;
-      this.categoryService.updateCategory(cat.id, { name }).subscribe({
-        next: (updated) => {
-          this.isProcessing.set(false);
-          this.closeCategoryModal();
-          if (this.selectedCategory()?.id === updated.id) {
-            this.selectedCategory.set(updated);
-          }
-        },
-        error: () => {
-          this.isProcessing.set(false);
-        },
-      });
-    }
-  }
-
-  openDeleteCategoryModal(cat: Category): void {
-    this.categoryToDelete.set(cat);
-    this.isDeleteCategoryOpen.set(true);
-  }
-
-  closeDeleteCategoryModal(): void {
-    this.isDeleteCategoryOpen.set(false);
-    this.categoryToDelete.set(null);
-  }
-
-  submitDeleteCategory(): void {
-    const cat = this.categoryToDelete();
-    if (!cat) return;
-
-    this.isProcessing.set(true);
-    this.categoryService.deleteCategory(cat.id).subscribe({
-      next: () => {
+    this.categoryService.updateCategory(cat.id, { name }).subscribe({
+      next: (updated) => {
         this.isProcessing.set(false);
-        this.closeDeleteCategoryModal();
-        const remaining = this.categoryService.categories();
-        this.selectedCategory.set(remaining.length > 0 ? remaining[0] : null);
+        this.closeCategoryModal();
+        if (this.selectedCategory()?.id === updated.id) {
+          this.selectedCategory.set(updated);
+        }
+        this.subcategoryService.loadSubcategories().subscribe();
       },
       error: () => {
         this.isProcessing.set(false);
@@ -324,6 +298,99 @@ export class CategoriesManagerComponent implements OnInit {
       error: () => {
         this.isProcessing.set(false);
       },
+    });
+  }
+
+  // --- Handlers para Etapas Constructivas ---
+  openCreateStageModal(): void {
+    this.stageFormMode.set('create');
+    this.stageToEdit.set(null);
+    this.stageNameForm.set('');
+    this.stageDescriptionForm.set('');
+    const nextOrder = (this.stageService.stages().length + 1) * 10;
+    this.stageOrderForm.set(nextOrder);
+    this.stageColorForm.set('amber');
+    this.isStageModalOpen.set(true);
+  }
+
+  openEditStageModal(stage: ConstructionStage): void {
+    this.stageFormMode.set('edit');
+    this.stageToEdit.set(stage);
+    this.stageNameForm.set(stage.name);
+    this.stageDescriptionForm.set(stage.description || '');
+    this.stageOrderForm.set(stage.order);
+    this.stageColorForm.set(stage.color || 'amber');
+    this.isStageModalOpen.set(true);
+  }
+
+  closeStageModal(): void {
+    this.isStageModalOpen.set(false);
+    this.stageToEdit.set(null);
+  }
+
+  openDeleteStageModal(stage: ConstructionStage): void {
+    this.stageToDelete.set(stage);
+    this.isDeleteStageOpen.set(true);
+  }
+
+  closeDeleteStageModal(): void {
+    this.isDeleteStageOpen.set(false);
+    this.stageToDelete.set(null);
+  }
+
+  submitStageForm(): void {
+    const name = this.stageNameForm().trim();
+    if (!name) return;
+
+    this.isProcessing.set(true);
+
+    if (this.stageFormMode() === 'create') {
+      const dto: CreateConstructionStageDto = {
+        name,
+        description: this.stageDescriptionForm().trim() || undefined,
+        order: this.stageOrderForm(),
+        color: this.stageColorForm(),
+      };
+
+      this.stageService.createStage(dto).subscribe({
+        next: () => {
+          this.isProcessing.set(false);
+          this.closeStageModal();
+        },
+        error: () => this.isProcessing.set(false),
+      });
+    } else {
+      const target = this.stageToEdit();
+      if (!target) return;
+
+      const dto: UpdateConstructionStageDto = {
+        name,
+        description: this.stageDescriptionForm().trim() || undefined,
+        order: this.stageOrderForm(),
+        color: this.stageColorForm(),
+      };
+
+      this.stageService.updateStage(target.id, dto).subscribe({
+        next: () => {
+          this.isProcessing.set(false);
+          this.closeStageModal();
+        },
+        error: () => this.isProcessing.set(false),
+      });
+    }
+  }
+
+  submitDeleteStage(): void {
+    const target = this.stageToDelete();
+    if (!target) return;
+
+    this.isProcessing.set(true);
+    this.stageService.deleteStage(target.id).subscribe({
+      next: () => {
+        this.isProcessing.set(false);
+        this.closeDeleteStageModal();
+      },
+      error: () => this.isProcessing.set(false),
     });
   }
 }

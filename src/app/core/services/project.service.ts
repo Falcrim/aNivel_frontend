@@ -1,8 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { finalize, Observable, tap } from 'rxjs';
+import { finalize, map, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateProjectDto, Project, UpdateProjectDto } from '../models/project.model';
+import { PaginatedResponse } from '../models/pagination.model';
+import { extractResults } from '../utils/pagination.utils';
 import { ToastService } from './toast.service';
 
 @Injectable({
@@ -14,19 +16,44 @@ export class ProjectService {
   private readonly apiUrl = `${environment.apiUrl}/core/projects/`;
 
   private readonly _projects = signal<Project[]>([]);
+  private readonly _totalCount = signal<number>(0);
   private readonly _loading = signal<boolean>(false);
   private readonly _selectedProject = signal<Project | null>(null);
 
   readonly projects = this._projects.asReadonly();
+  readonly totalCount = this._totalCount.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly selectedProject = this._selectedProject.asReadonly();
 
-  loadProjects(): Observable<Project[]> {
+  loadProjects(filters?: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+    ordering?: string;
+  }): Observable<Project[]> {
     this._loading.set(true);
-    return this.http.get<Project[]>(this.apiUrl).pipe(
-      tap((data) => {
-        this._projects.set(data);
+
+    let params = new HttpParams();
+    if (filters?.page) {
+      params = params.set('page', filters.page.toString());
+    }
+    if (filters?.page_size) {
+      params = params.set('page_size', filters.page_size.toString());
+    }
+    if (filters?.search) {
+      params = params.set('search', filters.search);
+    }
+    if (filters?.ordering) {
+      params = params.set('ordering', filters.ordering);
+    }
+
+    return this.http.get<PaginatedResponse<Project> | Project[]>(this.apiUrl, { params }).pipe(
+      map((response) => extractResults(response)),
+      tap(({ items, totalCount }) => {
+        this._projects.set(items);
+        this._totalCount.set(totalCount);
       }),
+      map(({ items }) => items),
       finalize(() => this._loading.set(false))
     );
   }
@@ -45,6 +72,7 @@ export class ProjectService {
     return this.http.post<Project>(this.apiUrl, dto).pipe(
       tap((newProject) => {
         this._projects.update((list) => [newProject, ...list]);
+        this._totalCount.update((count) => count + 1);
         this.toast.success('Obra creada', `La obra "${newProject.name}" se creó correctamente.`);
       })
     );
@@ -69,6 +97,7 @@ export class ProjectService {
       tap(() => {
         const target = this._projects().find((p) => p.id === id);
         this._projects.update((list) => list.filter((p) => p.id !== id));
+        this._totalCount.update((count) => Math.max(0, count - 1));
         if (this._selectedProject()?.id === id) {
           this._selectedProject.set(null);
         }

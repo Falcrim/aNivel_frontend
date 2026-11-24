@@ -2,11 +2,9 @@ import { Subcategory } from './subcategory.model';
 
 export interface Category {
   id: number;
+  code?: string;
   name: string;
-}
-
-export interface CreateCategoryDto {
-  name: string;
+  is_active?: boolean;
 }
 
 export interface UpdateCategoryDto {

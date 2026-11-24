@@ -1,113 +1,255 @@
 <app-modal
   [isOpen]="isOpen()"
-  title="Editar Ítem de Presupuesto"
+  title="Editar Ítem Presupuestario"
   [subtitle]="'Modificando ' + (item()?.name || 'ítem')"
   (close)="handleClose()"
 >
   <form (submit)="$event.preventDefault(); submit()" class="space-y-4">
-    <div class="p-3.5 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-white border border-amber-200/80 rounded-2xl">
-      <span class="text-xs font-black text-slate-900 block">{{ item()?.name }}</span>
-      <span class="text-[11px] text-slate-600">
-        {{ item()?.subcategory_detail?.name }} • 
-        {{ item()?.is_global ? 'Ítem Global' : 'Ítem Métrico (Factor: ' + item()?.conversion_factor + ')' }}
+    <div class="p-3.5 bg-[#edf1f5] border border-[#c3d3e5] rounded-2xl">
+      <span class="text-xs font-black text-[#0a284b] block">{{ item()?.name }}</span>
+      <span class="text-[11px] text-[#4b637c]">
+        {{ item()?.subcategory_name || 'Subcategoría' }} • {{ item()?.category_type_display }}
       </span>
     </div>
 
-    @if (!item()?.is_global) {
-      <div class="grid grid-cols-2 gap-4">
+    <!-- Reasignar Subcategoría y Etapa (Strict 42px alignment) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+      <div>
+        <app-custom-select
+          [options]="subcategoryOptions()"
+          [value]="form().subcategory_id"
+          (valueChange)="updateField('subcategory_id', $event)"
+          label="Subcategoría (Mover sección)"
+          placeholder="Seleccionar subcategoría..."
+        />
+      </div>
+
+      <div>
+        <app-custom-select
+          [options]="stageOptions()"
+          [value]="form().stage_id"
+          (valueChange)="updateField('stage_id', $event)"
+          label="Etapa Constructiva"
+          placeholder="Sin etapa específica..."
+        />
+      </div>
+    </div>
+
+    @if (item()?.category_type === 'materials') {
+      @if (!item()?.is_global) {
+        <label class="p-3.5 bg-[#edf1f5] border border-[#c3d3e5] rounded-2xl flex items-center justify-between gap-3 cursor-pointer">
+          <div class="min-w-0">
+            <span class="text-xs font-bold text-[#0a284b] flex items-center gap-1.5">
+              Redondear a unidades enteras
+              <app-info-tooltip text="Ajusta hacia arriba al número entero superior para comprar bolsas, barras o piezas completas." />
+            </span>
+            <span class="text-[11px] text-[#4b637c] block mt-0.5">Evita fracciones al comprar envases o barras comerciales.</span>
+          </div>
+          <input
+            type="checkbox"
+            [ngModel]="form().apply_ceil"
+            (ngModelChange)="updateField('apply_ceil', $event)"
+            name="editApplyCeil"
+            class="w-4 h-4 shrink-0 accent-[#11406e] rounded cursor-pointer"
+          />
+        </label>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div>
+            <label for="editQtyObra" class="an-label">
+              Cómputo en Obra <span class="text-[#e52521]">*</span>
+            </label>
+            <div class="an-input-group">
+              <input
+                id="editQtyObra"
+                type="number"
+                step="0.01"
+                min="0.01"
+                [ngModel]="form().quantity_obra"
+                (ngModelChange)="updateField('quantity_obra', $event)"
+                name="editQtyObra"
+                required
+                class="w-full h-full px-3.5 pr-12 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+              />
+              <span class="absolute right-3.5 text-[11px] font-bold text-[#4b637c] pointer-events-none">
+                {{ item()?.unit_measure_abbr || 'u' }}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label for="editWaste" class="an-label !flex items-center gap-1.5">
+              <span>% Merma</span>
+              <app-info-tooltip text="Porcentaje adicional estimado de desperdicio en obra." />
+            </label>
+            <div class="an-input-group">
+              <input
+                id="editWaste"
+                type="number"
+                step="1"
+                min="0"
+                max="100"
+                [ngModel]="form().waste_pct"
+                (ngModelChange)="updateField('waste_pct', $event)"
+                name="editWaste"
+                class="w-full h-full px-3.5 pr-9 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+              />
+              <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">%</span>
+            </div>
+          </div>
+        </div>
+      } @else {
         <div>
-          <label for="editQtyObra" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-            Cómputo en Obra *
+          <label for="editQtyPu" class="an-label">
+            Cantidad a Comprar (Paquete) <span class="text-[#e52521]">*</span>
           </label>
-          <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all shadow-2xs">
+          <div class="an-input-group">
             <input
-              id="editQtyObra"
+              id="editQtyPu"
               type="number"
               step="0.01"
               min="0.01"
-              [(ngModel)]="form().quantity_obra"
-              name="editQtyObra"
+              [ngModel]="form().quantity_purchase"
+              (ngModelChange)="updateField('quantity_purchase', $event)"
+              name="editQtyPu"
               required
-              class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+              class="w-full h-full px-3.5 pr-14 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
             />
-            <span class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 pointer-events-none">
-              {{ item()?.unit_measure_detail?.abbreviation || 'u' }}
+            <span class="absolute right-3.5 text-[11px] font-bold text-[#4b637c] pointer-events-none">
+              {{ item()?.unit_purchase_abbr || 'u' }}
+            </span>
+          </div>
+        </div>
+      }
+    } @else if (item()?.category_type === 'labor') {
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div>
+          <label for="editLaborQty" class="an-label">
+            Metrado / Cantidad <span class="text-[#e52521]">*</span>
+          </label>
+          <div class="an-input-group">
+            <input
+              id="editLaborQty"
+              type="number"
+              step="0.01"
+              min="0.01"
+              [ngModel]="form().quantity_obra"
+              (ngModelChange)="updateField('quantity_obra', $event)"
+              name="editLaborQty"
+              required
+              class="w-full h-full px-3.5 pr-12 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+            />
+            <span class="absolute right-3.5 text-[11px] font-bold text-[#4b637c] pointer-events-none">
+              {{ item()?.unit_measure_abbr || 'u' }}
             </span>
           </div>
         </div>
 
         <div>
-          <label for="editWaste" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-            % Merma
+          <label for="editContractor" class="an-label">
+            Contratista / Especialidad
           </label>
-          <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all shadow-2xs">
-            <input
-              id="editWaste"
-              type="number"
-              step="1"
-              min="0"
-              max="100"
-              [(ngModel)]="form().waste_pct"
-              name="editWaste"
-              class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden pr-8"
-            />
-            <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">%</span>
-          </div>
+          <input
+            id="editContractor"
+            type="text"
+            [ngModel]="form().contractor_name"
+            (ngModelChange)="updateField('contractor_name', $event)"
+            name="editContractor"
+            class="an-input"
+          />
         </div>
       </div>
     } @else {
-      <div>
-        <label for="editQtyPu" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Cantidad a Comprar (Paquete) *
-        </label>
-        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all shadow-2xs">
+      @if (isParametricItem()) {
+        <div class="grid grid-cols-2 gap-4 items-start">
+          <div>
+            <label for="editPct" class="an-label">
+              % Aplicado <span class="text-[#e52521]">*</span>
+            </label>
+            <input
+              id="editPct"
+              type="number"
+              step="0.01"
+              min="0.01"
+              [ngModel]="form().percentage_applied_pct"
+              (ngModelChange)="updateField('percentage_applied_pct', $event)"
+              name="editPct"
+              required
+              class="an-input font-mono tabular-nums"
+            />
+          </div>
+
+          <div>
+            <label for="editBase" class="an-label">
+              Base de Costo (Bs) <span class="text-[#e52521]">*</span>
+            </label>
+            <input
+              id="editBase"
+              type="number"
+              step="0.01"
+              min="0.01"
+              [ngModel]="form().target_base_cost"
+              (ngModelChange)="updateField('target_base_cost', $event)"
+              name="editBase"
+              required
+              class="an-input font-mono tabular-nums"
+            />
+          </div>
+        </div>
+      } @else {
+        <div>
+          <label for="editGoQty" class="an-label">
+            Cantidad <span class="text-[#e52521]">*</span>
+          </label>
           <input
-            id="editQtyPu"
+            id="editGoQty"
             type="number"
             step="0.01"
             min="0.01"
-            [(ngModel)]="form().quantity_purchase"
-            name="editQtyPu"
+            [ngModel]="form().quantity_purchase"
+            (ngModelChange)="updateField('quantity_purchase', $event)"
+            name="editGoQty"
             required
-            class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+            class="an-input font-mono tabular-nums"
           />
-          <span class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 pointer-events-none">
-            {{ item()?.unit_purchase_detail?.abbreviation || 'u' }}
-          </span>
+        </div>
+      }
+    }
+
+    @if (!isParametricItem()) {
+      <div>
+        <label for="editPrice" class="an-label">
+          Precio / Tarifa Unitaria (Bs) <span class="text-[#e52521]">*</span>
+        </label>
+        <div class="an-input-group">
+          <span class="absolute left-3.5 text-xs text-[#4b637c] font-bold pointer-events-none font-mono">Bs</span>
+          <input
+            id="editPrice"
+            type="number"
+            step="0.01"
+            min="0"
+            [ngModel]="form().unit_price"
+            (ngModelChange)="updateField('unit_price', $event)"
+            name="editPrice"
+            required
+            class="w-full h-full pl-9 pr-3.5 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
+          />
         </div>
       </div>
     }
 
     <div>
-      <label for="editPrice" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-        Precio Unit. Compra (Bs) *
-      </label>
-      <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all shadow-2xs">
-        <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none font-mono">Bs</span>
-        <input
-          id="editPrice"
-          type="number"
-          step="0.01"
-          min="0"
-          [(ngModel)]="form().price_per_purchase_unit"
-          name="editPrice"
-          required
-          class="w-full pl-9 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
-        />
-      </div>
-    </div>
-
-    <div>
-      <label for="editDetail" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+      <label for="editDetail" class="an-label">
         Detalle / Observación
       </label>
       <input
         id="editDetail"
         type="text"
-        [(ngModel)]="form().detail"
+        [ngModel]="form().detail"
+        (ngModelChange)="updateField('detail', $event)"
         name="editDetail"
         placeholder="Ej. Especificación técnica modificada..."
-        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+        class="an-input"
       />
     </div>
 
@@ -116,14 +258,14 @@
         type="button"
         (click)="handleClose()"
         [disabled]="isProcessing()"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="isProcessing()"
-        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold transition-all shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer"
       >
         @if (isProcessing()) {
           <svg class="animate-spin w-4 h-4 text-white inline-block mr-1" fill="none" viewBox="0 0 24 24">

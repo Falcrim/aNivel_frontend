@@ -26,11 +26,24 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
           if (error.status === 0) {
             title = 'Error de conexión';
           } else if (error.status === 400) {
-            title = 'Datos inválidos';
+            const errBody = error.error;
+            if (
+              errBody &&
+              typeof errBody === 'object' &&
+              (errBody as Record<string, unknown>)['code'] === 'protected_dependency_error'
+            ) {
+              title = 'Acción no permitida';
+            } else {
+              title = 'Datos inválidos';
+            }
+          } else if (error.status === 403) {
+            title = 'Acceso denegado';
           } else if (error.status === 404) {
             title = 'Recurso no encontrado';
+          } else if (error.status === 409) {
+            title = 'Conflicto de datos';
           } else if (error.status >= 500) {
-            title = 'Error interno del servidor';
+            title = 'Error interno';
           }
         }
 

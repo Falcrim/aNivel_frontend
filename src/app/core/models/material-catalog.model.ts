@@ -6,6 +6,9 @@ export interface MaterialCatalogItem {
   id: number;
   subcategory: number;
   subcategory_detail?: Subcategory;
+  supplier?: number | null;
+  supplier_name?: string | null;
+  supplier_photo_url?: string | null;
   name: string;
   description: string;
   unit_measure: number;
@@ -23,6 +26,7 @@ export interface MaterialCatalogItem {
 
 export interface CreateMaterialCatalogItemDto {
   subcategory: number;
+  supplier?: number | null;
   name: string;
   description?: string;
   unit_measure: number;
@@ -36,6 +40,7 @@ export interface CreateMaterialCatalogItemDto {
 
 export interface UpdateMaterialCatalogItemDto {
   subcategory: number;
+  supplier?: number | null;
   name: string;
   description?: string;
   unit_measure: number;

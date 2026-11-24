@@ -1,119 +1,221 @@
-<div class="overflow-x-auto">
-  <table class="w-full text-left text-xs text-slate-600">
-    <thead class="bg-slate-50/80 text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200/80">
+<div class="overflow-x-auto scrollbar-thin">
+  <table class="w-full text-left text-xs text-[#385370] min-w-[780px]">
+    <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#e2e9f2]">
       <tr>
         @if (showSubcategoryColumn()) {
-          <th scope="col" class="px-5 py-3.5">Subcategoría</th>
+          <th scope="col" class="px-5 py-3.5 whitespace-nowrap">Subcategoría</th>
         }
-        <th scope="col" class="px-5 py-3.5">Material / Detalle</th>
-        <th scope="col" class="px-3 py-3.5 text-center">Tipo</th>
-        <th scope="col" class="px-4 py-3.5 text-right">Cómputo Obra</th>
-        <th scope="col" class="px-3 py-3.5 text-center">Factor / Merma</th>
-        <th scope="col" class="px-4 py-3.5 text-right">Compra Requerida</th>
-        <th scope="col" class="px-4 py-3.5 text-right">Precio Unit. (Bs)</th>
-        <th scope="col" class="px-5 py-3.5 text-right font-black text-slate-900">Costo Estimado (Bs)</th>
-        <th scope="col" class="px-4 py-3.5 text-right">Acciones</th>
+        <th scope="col" class="px-5 py-3.5 whitespace-nowrap">Ítem</th>
+
+        @if (categoryType() === 'materials') {
+          <th scope="col" class="px-3 py-3.5 text-center whitespace-nowrap">
+            <span class="inline-flex items-center justify-center gap-1">
+              Modalidad
+              <app-info-tooltip text="Métrico calcula bolsas o barras desde la cantidad de obra; Global es una cantidad comercial fija." position="bottom" />
+            </span>
+          </th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">Cómputo Obra</th>
+          <th scope="col" class="px-3 py-3.5 text-center whitespace-nowrap">
+            <span class="inline-flex items-center justify-center gap-1">
+              Factor / Merma
+              <app-info-tooltip text="Rendimiento comercial (factor de equivalencia) más el porcentaje adicional por desperdicio." position="bottom" />
+            </span>
+          </th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">
+            <span class="inline-flex items-center justify-end gap-1">
+              Compra Requerida
+              <app-info-tooltip text="Cantidad comercial final a comprar (redondeada a unidad entera si aplica)." position="bottom" />
+            </span>
+          </th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">Precio Unit. (Bs)</th>
+        } @else if (categoryType() === 'labor') {
+          <th scope="col" class="px-4 py-3.5 whitespace-nowrap">Contratista / Especialidad</th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">Metrado / Cant.</th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">Tarifa Unit. (Bs)</th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">
+            <span class="inline-flex items-center justify-end gap-1">
+              Incidencia $/m²
+              <app-info-tooltip text="Costo en dólares de esta partida por cada metro cuadrado construido en la obra." position="bottom" />
+            </span>
+          </th>
+        } @else {
+          <th scope="col" class="px-3 py-3.5 text-center whitespace-nowrap">Cálculo</th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">Base / Cantidad</th>
+          <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">% / Precio Unit.</th>
+        }
+
+        <th scope="col" class="px-5 py-3.5 text-right font-black text-[#0a284b] whitespace-nowrap">Costo Estimado (Bs)</th>
+        <th scope="col" class="px-4 py-3.5 text-right font-bold text-emerald-700 whitespace-nowrap">Equiv. ($)</th>
+        <th scope="col" class="px-4 py-3.5 text-right whitespace-nowrap">Acciones</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 bg-white">
       @for (item of items(); track item.id) {
-        <tr class="hover:bg-amber-50/20 transition-colors group">
+        <tr class="hover:bg-[#edf1f5]/50 transition-colors group">
           <!-- Subcategory Name (only if flat view) -->
           @if (showSubcategoryColumn()) {
-            <td class="px-5 py-3.5 font-bold text-slate-800 text-xs">
-              {{ item.subcategory_detail?.name || 'Subcategoría #' + item.subcategory }}
+            <td class="px-5 py-3.5 font-bold text-[#0a284b] text-xs whitespace-nowrap">
+              {{ item.subcategory_name || 'Sin Subcategoría' }}
             </td>
           }
 
-          <!-- Name & Detail -->
+          <!-- Name & Supplier Only -->
           <td class="px-5 py-3.5">
-            <div class="font-bold text-slate-900 text-[13px] tracking-tight group-hover:text-amber-700 transition-colors">
+            <div class="font-bold text-[#0a284b] text-[13px] tracking-tight group-hover:text-[#11406e] transition-colors">
               {{ item.name }}
             </div>
             @if (item.detail) {
-              <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">{{ item.detail }}</div>
+              <div class="text-[11px] text-[#4b637c] mt-0.5 line-clamp-1">
+                {{ item.detail }}
+              </div>
             }
-            <div class="flex items-center gap-2 mt-1">
-              @if (item.catalog_item) {
-                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
-                  <span class="w-1 h-1 rounded-full bg-indigo-500"></span>
-                  Catálogo #{{ item.catalog_item }}
+            @if (item.supplier_name) {
+              <div class="mt-1">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 shadow-2xs whitespace-nowrap">
+                  <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  {{ item.supplier_name }}
+                </span>
+              </div>
+            }
+          </td>
+
+          @if (categoryType() === 'materials') {
+            <!-- Modalidad (Global / Métrico + Unidad entera / Exacto) -->
+            <td class="px-3 py-3.5 text-center space-y-1 whitespace-nowrap">
+              @if (item.is_global) {
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs inline-block whitespace-nowrap">
+                  Compra Directa
                 </span>
               } @else {
-                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/60">
-                  <span class="w-1 h-1 rounded-full bg-amber-500"></span>
-                  Ítem Ad-hoc
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs inline-block whitespace-nowrap">
+                  Métrico
+                </span>
+                <span
+                  [ngClass]="item.apply_ceil ? 'bg-[#edf1f5] text-[#11406e] border-[#c3d3e5]' : 'bg-blue-50 text-blue-700 border-blue-200'"
+                  class="px-2 py-0.5 rounded text-[9px] font-bold border block mx-auto w-fit whitespace-nowrap"
+                  [title]="item.apply_ceil ? 'Redondeo hacia arriba a unidad entera' : 'Cantidad continua exacta'"
+                >
+                  {{ item.apply_ceil ? 'Unidad entera' : 'Exacto' }}
                 </span>
               }
-              @if (item.weight_total && +item.weight_total > 0) {
-                <span class="text-[10px] text-slate-400 font-mono">
-                  &bull; {{ item.weight_total }} kg
+            </td>
+
+            <!-- Cómputo Obra -->
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs whitespace-nowrap">
+              @if (!item.is_global) {
+                <span class="font-medium text-[#0a284b]">{{ item.quantity_obra ? (item.quantity_obra | appDecimal) : '-' }}</span>
+                <span class="text-[10px] text-[#7e91a4] font-sans ml-1">{{ item.unit_measure_abbr }}</span>
+              } @else {
+                <span class="text-slate-300 font-sans text-xs">-</span>
+              }
+            </td>
+
+            <!-- Factor / Merma -->
+            <td class="px-3 py-3.5 text-center font-mono tabular-nums text-[11px] whitespace-nowrap">
+              @if (!item.is_global) {
+                <span class="text-[#0a284b] font-semibold">x{{ item.conversion_factor | appDecimal }}</span>
+                <span class="text-[#11406e] text-[10px] block font-medium">
+                  +{{ item.waste_pct | appPercent }}
+                </span>
+              } @else {
+                <span class="text-slate-300 font-sans text-xs">-</span>
+              }
+            </td>
+
+            <!-- Compra Requerida -->
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums whitespace-nowrap">
+              <span class="text-sm font-extrabold text-[#0a284b] bg-[#edf1f5] px-2.5 py-0.5 rounded-lg border border-[#c3d3e5] inline-block whitespace-nowrap">
+                {{ item.quantity_purchase | appDecimal }}
+              </span>
+              <span class="text-[10px] text-[#4b637c] font-sans block mt-0.5 whitespace-nowrap">{{ item.unit_purchase_abbr || item.unit_measure_abbr || 'u' }}</span>
+            </td>
+
+            <!-- Precio Unitario -->
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs text-[#385370] font-medium whitespace-nowrap">
+              {{ item.unit_price | appCurrency }}
+            </td>
+          } @else if (categoryType() === 'labor') {
+            <!-- Contratista -->
+            <td class="px-4 py-3.5 text-xs">
+              @if (item.contractor_name) {
+                <span class="font-semibold text-[#0a284b]">{{ item.contractor_name }}</span>
+              } @else if (item.supplier_name) {
+                <span class="font-semibold text-[#0a284b]">{{ item.supplier_name }}</span>
+              } @else {
+                <span class="text-[#7e91a4] italic">Por asignar</span>
+              }
+            </td>
+
+            <!-- Metrado / Cantidad -->
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs whitespace-nowrap">
+              <span class="font-bold text-[#0a284b]">
+                {{ (item.quantity_obra || item.quantity_purchase || 0) | appDecimal }}
+              </span>
+              <span class="text-[10px] text-[#7e91a4] font-sans ml-1">{{ item.unit_measure_abbr || 'glb' }}</span>
+            </td>
+
+            <!-- Tarifa Unitaria -->
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs text-[#385370] font-medium whitespace-nowrap">
+              {{ item.unit_price | appCurrency }}
+            </td>
+
+            <!-- $/m2 -->
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs text-[#4b637c] whitespace-nowrap">
+              {{ item.cost_per_m2_usd | appUsd }} / m²
+            </td>
+          } @else {
+            <!-- Gastos Operativos / Administrativos -->
+            <td class="px-3 py-3.5 text-center whitespace-nowrap">
+              @if (isParametric(item)) {
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap">
+                  Cálculo por %
+                </span>
+              } @else {
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
+                  Ítem Directo
                 </span>
               }
-            </div>
-          </td>
+            </td>
 
-          <!-- Tipo (Global / Normal) -->
-          <td class="px-3 py-3.5 text-center">
-            @if (item.is_global) {
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/70 shadow-2xs">
-                Global
-              </span>
-            } @else {
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200/80 shadow-2xs">
-                Normal
-              </span>
-            }
-          </td>
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs whitespace-nowrap">
+              @if (isParametric(item)) {
+                <span class="text-[10px] text-[#7e91a4] block font-sans">Base de costo:</span>
+                <span class="font-semibold text-[#0a284b]">{{ item.target_base_cost | appCurrency }}</span>
+              } @else {
+                <span class="font-semibold text-[#0a284b]">{{ (item.quantity_purchase || item.quantity_obra || 1) | appDecimal }}</span>
+                <span class="text-[10px] text-[#7e91a4] font-sans ml-1">{{ item.unit_measure_abbr || 'glb' }}</span>
+              }
+            </td>
 
-          <!-- Cómputo Obra -->
-          <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs">
-            @if (!item.is_global) {
-              <span class="font-medium text-slate-700">{{ item.quantity_obra ? (+item.quantity_obra).toFixed(2) : '-' }}</span>
-              <span class="text-[10px] text-slate-400 font-sans ml-1">{{ item.unit_measure_detail?.abbreviation }}</span>
-            } @else {
-              <span class="text-slate-300 font-sans text-xs">-</span>
-            }
-          </td>
+            <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs whitespace-nowrap">
+              @if (isParametric(item)) {
+                <span class="font-bold text-indigo-700">{{ item.percentage_applied | appPercent }}</span>
+              } @else {
+                <span class="font-medium text-[#385370]">{{ item.unit_price | appCurrency }}</span>
+              }
+            </td>
+          }
 
-          <!-- Factor / Merma -->
-          <td class="px-3 py-3.5 text-center font-mono tabular-nums text-[11px]">
-            @if (!item.is_global) {
-              <span class="text-slate-700 font-semibold">x{{ item.conversion_factor }}</span>
-              <span class="text-amber-700/80 text-[10px] block font-medium">
-                +{{ item.waste_pct | appPercent }}
-              </span>
-            } @else {
-              <span class="text-slate-300 font-sans text-xs">-</span>
-            }
-          </td>
-
-          <!-- Compra Requerida -->
-          <td class="px-4 py-3.5 text-right font-mono tabular-nums">
-            <span class="text-sm font-extrabold text-amber-900 bg-amber-50/80 px-2 py-0.5 rounded-lg border border-amber-200/70">
-              {{ (+item.quantity_purchase).toFixed(2) }}
-            </span>
-            <span class="text-[10px] text-slate-500 font-sans block mt-0.5">{{ item.unit_purchase_detail?.abbreviation }}</span>
-          </td>
-
-          <!-- Precio Unitario -->
-          <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs text-slate-700 font-medium">
-            {{ item.price_per_purchase_unit | appCurrency }}
-          </td>
-
-          <!-- Costo Estimado -->
-          <td class="px-5 py-3.5 text-right font-mono tabular-nums text-[13px] font-black text-slate-900">
+          <!-- Costo Estimado Bs -->
+          <td class="px-5 py-3.5 text-right font-mono tabular-nums text-[13px] font-black text-[#0a284b] whitespace-nowrap">
             {{ item.estimated_cost | appCurrency }}
           </td>
 
-          <!-- Acciones -->
-          <td class="px-4 py-3.5 text-right">
-            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+          <!-- Costo USD -->
+          <td class="px-4 py-3.5 text-right font-mono tabular-nums text-xs font-bold text-emerald-700 whitespace-nowrap">
+            {{ item.cost_usd | appUsd }}
+          </td>
+
+          <!-- Acciones (Esquema 1: Editar azul / Eliminar rojo) -->
+          <td class="px-4 py-3.5 text-right whitespace-nowrap">
+            <div class="flex items-center justify-end gap-1.5">
               <button
                 type="button"
                 (click)="edit.emit(item)"
-                class="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all cursor-pointer shadow-2xs"
-                title="Editar línea"
+                class="an-btn-edit"
+                title="Editar ítem"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -122,7 +224,7 @@
               <button
                 type="button"
                 (click)="delete.emit(item)"
-                class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all cursor-pointer shadow-2xs"
+                class="an-btn-delete"
                 title="Eliminar del presupuesto"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,15 +1,15 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <!-- Top Navigation / Action Bar -->
-  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-[#d1dce7] p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
     <!-- View Tabs -->
-    <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 w-full lg:w-auto justify-center shadow-2xs">
+    <div class="flex items-center p-1 rounded-2xl bg-[#f1f5f9] border border-[#d1dce7] w-full lg:w-auto justify-center shadow-2xs">
       <button
         type="button"
         (click)="activeTab.set('hierarchy')"
-        [ngClass]="activeTab() === 'hierarchy' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+        [ngClass]="activeTab() === 'hierarchy' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
         class="flex-1 lg:flex-initial px-3 sm:px-3.5 py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
       >
-        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-4 h-4 text-[#11406e] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
         <span class="truncate">Jerárquica</span>
@@ -18,39 +18,53 @@
       <button
         type="button"
         (click)="activeTab.set('table')"
-        [ngClass]="activeTab() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
+        [ngClass]="activeTab() === 'table' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
         class="flex-1 lg:flex-initial px-3 sm:px-3.5 py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
       >
-        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-4 h-4 text-[#11406e] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
         </svg>
         <span class="truncate">Subcategorías ({{ enrichedSubcategories().length }})</span>
       </button>
+
+      <button
+        type="button"
+        (click)="activeTab.set('stages')"
+        [ngClass]="activeTab() === 'stages' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+        class="flex-1 lg:flex-initial px-3 sm:px-3.5 py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
+      >
+        <svg class="w-4 h-4 text-[#11406e] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span class="truncate">Etapas de Obra ({{ stageService.stages().length }})</span>
+      </button>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
-      <button
-        type="button"
-        (click)="openCreateCategoryModal()"
-        class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer"
-      >
-        <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-        </svg>
-        Nueva Categoría
-      </button>
-
-      <button
-        type="button"
-        (click)="openCreateSubcategoryModal()"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
-      >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-        </svg>
-        Nueva Subcategoría
-      </button>
+    <!-- Action Button -->
+    <div class="flex items-center gap-2.5 w-full lg:w-auto">
+      @if (activeTab() === 'stages') {
+        <button
+          type="button"
+          (click)="openCreateStageModal()"
+          class="w-full lg:w-auto h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer whitespace-nowrap"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva Etapa
+        </button>
+      } @else {
+        <button
+          type="button"
+          (click)="openCreateSubcategoryModal()"
+          class="w-full lg:w-auto h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer whitespace-nowrap"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva Subcategoría
+        </button>
+      }
     </div>
   </div>
 
@@ -58,13 +72,20 @@
   @if (activeTab() === 'hierarchy') {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Left: Categories Master List (4 Cols) -->
-      <div class="lg:col-span-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4">
+      <div class="lg:col-span-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-[#d1dce7] shadow-xs space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
-            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Categorías Maestras</h3>
-            <p class="text-[11px] text-slate-400">Nivel 1 de clasificación</p>
+            <h3 class="text-xs font-bold text-[#0a284b] uppercase tracking-wider flex items-center gap-1.5">
+              Categorías Maestras
+              <app-info-tooltip
+                title="Estructura Fija de Módulos"
+                text="Las categorías de primer nivel están vinculadas a cada módulo del sistema (solo se editan en nombre). Las futuras se habilitarán al incorporar su módulo."
+                position="bottom"
+              />
+            </h3>
+            <p class="text-[11px] text-[#4b637c]">Nivel 1 de clasificación</p>
           </div>
-          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-amber-800 font-mono tabular-nums">
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#edf1f5] text-[#11406e] border border-[#c3d3e5] font-mono tabular-nums">
             {{ categoriesWithCount().length }}
           </span>
         </div>
@@ -76,37 +97,53 @@
               <div class="h-14 rounded-2xl bg-slate-100 animate-pulse"></div>
             }
           </div>
-        } @else if (categoriesWithCount().length === 0) {
-          <div class="p-6 text-center border border-dashed border-slate-200 rounded-2xl space-y-2">
-            <p class="text-xs text-slate-500">No hay categorías maestras creadas.</p>
-            <button
-              (click)="openCreateCategoryModal()"
-              class="text-xs text-amber-600 font-bold hover:underline"
-            >
-              + Crear categoría
-            </button>
-          </div>
         } @else {
           <div class="space-y-2">
             @for (cat of categoriesWithCount(); track cat.id) {
+              @let isSelected = selectedCategory()?.id === cat.id;
+              @let isFuture = cat.is_active === false;
               <div
                 (click)="selectCategory(cat)"
-                [ngClass]="selectedCategory()?.id === cat.id ? 'bg-amber-500 text-white font-bold border-amber-500 shadow-sm shadow-amber-500/20' : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-slate-100'"
-                class="p-3.5 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all group"
+                [ngClass]="
+                  isSelected
+                    ? 'bg-[#11406e] text-white font-bold border-[#11406e] shadow-md shadow-[#11406e]/20'
+                    : isFuture
+                      ? 'bg-[#f8fafc] border-[#e2e9f2] text-[#4b637c] hover:bg-[#edf1f5] hover:border-[#c3d3e5]'
+                      : 'bg-[#f8fafc] border-[#d1dce7] text-[#0a284b] hover:bg-[#edf1f5] hover:border-[#11406e]/40'
+                "
+                class="p-3.5 rounded-2xl border flex items-center justify-between gap-2.5 cursor-pointer transition-all group"
               >
-                <div class="flex items-center gap-3 min-w-0">
+                <div class="flex items-center gap-2.5 min-w-0 flex-1">
                   <div
-                    [ngClass]="selectedCategory()?.id === cat.id ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-slate-200'"
+                    [ngClass]="
+                      isSelected
+                        ? 'bg-white/20 text-white border border-white/25'
+                        : 'bg-white text-[#11406e] border border-[#cfd9e4]'
+                    "
                     class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition-colors shadow-2xs"
                   >
                     {{ cat.name.charAt(0).toUpperCase() }}
                   </div>
-                  <span class="text-xs truncate">{{ cat.name }}</span>
+                  <div class="min-w-0 flex-1">
+                    <span class="text-xs truncate block">{{ cat.name }}</span>
+                    @if (isFuture) {
+                      <span
+                        [ngClass]="
+                          isSelected
+                            ? 'bg-white/20 text-white border-white/25'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        "
+                        class="inline-block mt-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide border"
+                      >
+                        Próximamente
+                      </span>
+                    }
+                  </div>
                 </div>
 
                 <div class="flex items-center gap-1.5 shrink-0">
                   <span
-                    [ngClass]="selectedCategory()?.id === cat.id ? 'bg-white/20 text-white' : 'bg-slate-200/80 text-slate-700'"
+                    [ngClass]="isSelected ? 'bg-white/20 text-white' : 'bg-white text-[#385370] border border-[#cfd9e4]'"
                     class="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tabular-nums"
                   >
                     {{ cat.count }}
@@ -115,24 +152,16 @@
                   <button
                     type="button"
                     (click)="$event.stopPropagation(); openEditCategoryModal(cat)"
-                    [ngClass]="selectedCategory()?.id === cat.id ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-slate-800 hover:bg-slate-200'"
-                    class="p-1 rounded-lg transition-colors cursor-pointer"
-                    title="Editar categoría"
+                    [ngClass]="
+                      isSelected
+                        ? 'bg-white/15 hover:bg-white/25 text-white border border-white/25'
+                        : 'bg-[#edf1f5] hover:bg-[#11406e] text-[#11406e] hover:text-white border border-[#c3d3e5]'
+                    "
+                    class="p-1.5 rounded-xl transition-colors cursor-pointer"
+                    title="Renombrar categoría"
                   >
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
-
-                  <button
-                    type="button"
-                    (click)="$event.stopPropagation(); openDeleteCategoryModal(cat)"
-                    [ngClass]="selectedCategory()?.id === cat.id ? 'hover:bg-rose-600 text-white' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'"
-                    class="p-1 rounded-lg transition-colors cursor-pointer"
-                    title="Eliminar categoría"
-                  >
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
                 </div>
@@ -145,16 +174,23 @@
       <!-- Right: Subcategories Detail for Selected Category (8 Cols) -->
       <div class="lg:col-span-8 space-y-4">
         @if (selectedCategory(); as selCat) {
-          <div class="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-5">
+          <div class="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-[#d1dce7] shadow-xs space-y-5">
             <!-- Detail Header -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-bold text-sm shadow-2xs">
+                <div class="w-10 h-10 rounded-2xl bg-[#edf1f5] border border-[#c3d3e5] text-[#11406e] flex items-center justify-center font-bold text-sm shadow-2xs">
                   {{ selCat.name.charAt(0).toUpperCase() }}
                 </div>
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">{{ selCat.name }}</h3>
-                  <p class="text-xs text-slate-400">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-base font-extrabold text-[#0a284b]">{{ selCat.name }}</h3>
+                    @if (selCat.is_active === false) {
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                        Módulo Futuro
+                      </span>
+                    }
+                  </div>
+                  <p class="text-xs text-[#4b637c]">
                     {{ currentSubcategories().length }} subcategorías asociadas
                   </p>
                 </div>
@@ -163,53 +199,72 @@
               <button
                 type="button"
                 (click)="openCreateSubcategoryModal(selCat.id)"
-                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer self-start sm:self-auto"
+                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs transition-all shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer self-start sm:self-auto whitespace-nowrap"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
-                + Subcategoría en {{ selCat.name }}
+                Nueva Subcategoría
               </button>
             </div>
 
-            <!-- Inline Quick Add Input -->
-            <form (submit)="$event.preventDefault(); submitQuickSubcategory()" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            @if (selCat.is_active === false) {
+              <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>
+                  Esta categoría pertenece a un <strong>módulo futuro</strong> y aún no aparece en los presupuestos de obra. Puedes pre-configurar aquí sus subcategorías sin problema.
+                </span>
+              </div>
+            }
+
+            <!-- Inline Quick Add Input (Button stays vibrant corporate blue, never dull gray) -->
+            <form (submit)="$event.preventDefault(); submitQuickSubcategory()" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
               <input
                 type="text"
                 [(ngModel)]="quickSubcategoryName"
                 name="quickSubName"
                 placeholder="Añadir subcategoría rápida en {{ selCat.name }}..."
-                class="flex-1 px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+                class="an-input flex-1"
               />
               <button
                 type="submit"
                 [disabled]="!quickSubcategoryName().trim() || isProcessing()"
-                class="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all disabled:opacity-40 cursor-pointer shadow-2xs active:scale-95"
+                [ngClass]="
+                  quickSubcategoryName().trim()
+                    ? 'bg-[#11406e] hover:bg-[#0a284b] text-white shadow-md shadow-[#11406e]/20 cursor-pointer'
+                    : 'bg-[#e2e9f2] text-[#11406e] border border-[#c3d3e5] cursor-not-allowed'
+                "
+                class="h-[42px] px-4 rounded-xl font-bold text-xs transition-all shrink-0 flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
               >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
                 Añadir Rápido
               </button>
             </form>
 
             <!-- Subcategories List in Selected Category -->
             @if (currentSubcategories().length === 0) {
-              <div class="p-8 text-center border border-dashed border-slate-200 rounded-2xl space-y-2">
-                <p class="text-xs text-slate-500">Esta categoría aún no tiene subcategorías.</p>
+              <div class="p-8 text-center border border-dashed border-[#cfd9e4] rounded-2xl space-y-2 bg-[#f8fafc]">
+                <p class="text-xs text-[#4b637c]">Esta categoría aún no tiene subcategorías registradas.</p>
               </div>
             } @else {
-              <div class="divide-y divide-slate-100 border border-slate-100 rounded-2xl overflow-hidden">
+              <div class="divide-y divide-slate-100 border border-[#d1dce7] rounded-2xl overflow-hidden">
                 @for (sub of currentSubcategories(); track sub.id) {
-                  <div class="p-3.5 bg-slate-50/50 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3">
+                  <div class="p-3.5 bg-white hover:bg-[#f8fafc] transition-colors flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2.5 min-w-0">
-                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
-                      <span class="text-xs font-bold text-slate-800 truncate">{{ sub.name }}</span>
-                      <span class="text-[10px] text-slate-400 font-mono tabular-nums">#{{ sub.id }}</span>
+                      <span class="w-2 h-2 rounded-full bg-[#11406e] shrink-0"></span>
+                      <span class="text-xs font-bold text-[#0a284b] truncate">{{ sub.name }}</span>
+                      <span class="text-[10px] text-[#7e91a4] font-mono tabular-nums">#{{ sub.id }}</span>
                     </div>
 
-                    <div class="flex items-center gap-1 shrink-0">
+                    <div class="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
                         (click)="openEditSubcategoryModal(sub)"
-                        class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-200/80 transition-colors"
+                        class="an-btn-edit"
                         title="Editar subcategoría"
                       >
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,7 +274,7 @@
                       <button
                         type="button"
                         (click)="openDeleteSubcategoryModal(sub)"
-                        class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        class="an-btn-delete"
                         title="Eliminar subcategoría"
                       >
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -233,27 +288,32 @@
             }
           </div>
         } @else {
-          <div class="p-8 text-center bg-white border border-slate-200/80 rounded-3xl shadow-xs">
-            <p class="text-xs text-slate-400">Selecciona una categoría de la izquierda para ver y gestionar sus subcategorías.</p>
+          <div class="p-8 text-center bg-white border border-[#d1dce7] rounded-3xl shadow-xs">
+            <p class="text-xs text-[#4b637c]">Selecciona una categoría de la izquierda para ver y gestionar sus subcategorías.</p>
           </div>
         }
       </div>
     </div>
-  } @else {
+  } @else if (activeTab() === 'table') {
     <!-- TAB 2: Flat Subcategories Table -->
-    <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden space-y-4 p-4 sm:p-5">
-      <!-- Search and Filter in Table View -->
+    <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs space-y-4 p-4 sm:p-5">
+      <!-- Search and Filter in Table View (Strict h-[42px] alignment) -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="relative flex-1 max-w-sm">
           <input
             type="text"
             [(ngModel)]="searchTerm"
             placeholder="Buscar subcategoría..."
-            class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs"
+            class="an-input pl-9"
           />
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#7e91a4] pointer-events-none">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
         </div>
 
-        <div class="w-full sm:w-60">
+        <div class="w-full sm:w-64">
           <app-custom-select
             [options]="categoryFilterOptions()"
             [(value)]="filterCategory"
@@ -262,9 +322,9 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-2xl border border-slate-200">
-        <table class="w-full text-left text-xs text-slate-600">
-          <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-200">
+      <div class="overflow-x-auto rounded-2xl border border-[#d1dce7] scrollbar-thin">
+        <table class="w-full text-left text-xs text-[#385370] min-w-[600px]">
+          <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#d1dce7]">
             <tr>
               <th scope="col" class="px-5 py-3.5">ID</th>
               <th scope="col" class="px-5 py-3.5">Subcategoría</th>
@@ -274,20 +334,23 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (sub of filteredSubcategories(); track sub.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors">
-                <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-amber-700">#{{ sub.id }}</td>
-                <td class="px-5 py-3.5 font-bold text-slate-900 text-[13px]">{{ sub.name }}</td>
+              <tr class="hover:bg-[#edf1f5]/50 transition-colors">
+                <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-[#11406e]">#{{ sub.id }}</td>
+                <td class="px-5 py-3.5 font-bold text-[#0a284b] text-[13px]">{{ sub.name }}</td>
                 <td class="px-5 py-3.5">
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#edf1f5] text-[#11406e] border border-[#c3d3e5] inline-flex items-center gap-1.5">
                     {{ sub.category_name }}
+                    @if (!sub.category_is_active) {
+                      <span class="text-amber-700 font-semibold">(Pronto)</span>
+                    }
                   </span>
                 </td>
                 <td class="px-5 py-3.5 text-right">
-                  <div class="flex items-center justify-end gap-1">
+                  <div class="flex items-center justify-end gap-1.5">
                     <button
                       type="button"
                       (click)="openEditSubcategoryModal(sub)"
-                      class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                      class="an-btn-edit"
                       title="Editar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -297,7 +360,7 @@
                     <button
                       type="button"
                       (click)="openDeleteSubcategoryModal(sub)"
-                      class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      class="an-btn-delete"
                       title="Eliminar"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -312,21 +375,106 @@
         </table>
       </div>
     </div>
+  } @else if (activeTab() === 'stages') {
+    <!-- TAB 3: Etapas Constructivas Dinámicas -->
+    <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs space-y-4 p-4 sm:p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-sm font-bold text-[#0a284b] flex items-center gap-1.5">
+            Etapas Constructivas de la Empresa
+            <app-info-tooltip text="Fases operativas (Obra Bruta, Obra Fina, Instalaciones) para agrupar materiales y mano de obra dentro de cada obra." position="right" />
+          </h2>
+          <p class="text-xs text-[#4b637c]">Configura las fases operativas para organizar ítems y presupuestos.</p>
+        </div>
+        <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-[#edf1f5] text-[#11406e] border border-[#c3d3e5] font-mono">
+          {{ stageService.stages().length }} Etapas
+        </span>
+      </div>
+
+      @if (stageService.loading()) {
+        <div class="p-8 text-center text-xs text-[#4b637c]">Cargando etapas constructivas...</div>
+      } @else if (stageService.stages().length === 0) {
+        <div class="p-8 text-center bg-[#f8fafc] border border-dashed border-[#cfd9e4] rounded-2xl space-y-3">
+          <p class="text-xs text-[#4b637c]">No hay etapas constructivas registradas aún.</p>
+          <button
+            type="button"
+            (click)="openCreateStageModal()"
+            class="px-4 py-2 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs cursor-pointer shadow-md shadow-[#11406e]/20"
+          >
+            + Registrar Primera Etapa
+          </button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (stage of stageService.stages(); track stage.id) {
+            <div class="p-4 rounded-2xl border border-[#d1dce7] bg-[#f8fafc] hover:bg-white hover:border-[#11406e]/50 hover:shadow-sm transition-all flex flex-col justify-between group">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-[#e2e9f2] text-[#11406e] border border-[#c3d3e5] flex items-center justify-center font-mono font-bold text-xs">
+                      {{ stage.order }}
+                    </span>
+                    <h3 class="text-sm font-bold text-[#0a284b] group-hover:text-[#11406e] transition-colors">
+                      {{ stage.name }}
+                    </h3>
+                  </div>
+                  <span
+                    class="w-2.5 h-2.5 rounded-full"
+                    [ngClass]="stage.is_active ? 'bg-emerald-500' : 'bg-slate-300'"
+                    [title]="stage.is_active ? 'Activa' : 'Inactiva'"
+                  ></span>
+                </div>
+                @if (stage.description) {
+                  <p class="text-xs text-[#4b637c] line-clamp-2 mb-3">
+                    {{ stage.description }}
+                  </p>
+                } @else {
+                  <p class="text-xs text-[#7e91a4] italic mb-3">Sin descripción técnica</p>
+                }
+              </div>
+
+              <div class="pt-2.5 border-t border-[#e2e9f2] flex items-center justify-end gap-1.5">
+                <button
+                  type="button"
+                  (click)="openEditStageModal(stage)"
+                  class="an-btn-edit"
+                  title="Editar etapa"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  (click)="openDeleteStageModal(stage)"
+                  class="an-btn-delete"
+                  title="Eliminar etapa"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
   }
 </div>
 
 <!-- Modals -->
-<!-- Modal 1: Category Create/Edit -->
+<!-- Modal 1: Rename Category Only -->
 <app-modal
   [isOpen]="isCategoryModalOpen()"
-  [title]="categoryFormMode() === 'create' ? 'Nueva Categoría Maestra' : 'Editar Categoría Maestra'"
-  subtitle="Las categorías maestras representan el primer nivel de división presupuestaria"
+  title="Renombrar Categoría Maestra"
+  subtitle="Solo es posible actualizar el nombre visible; el código interno y módulos asociados permanecen intactos"
   (close)="closeCategoryModal()"
 >
   <form (submit)="$event.preventDefault(); submitCategory()" class="space-y-4">
     <div>
-      <label for="catNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-        Nombre de la Categoría *
+      <label for="catNameInput" class="an-label">
+        Nombre de la Categoría <span class="text-[#e52521]">*</span>
       </label>
       <input
         id="catNameInput"
@@ -334,8 +482,8 @@
         [(ngModel)]="categoryNameForm"
         name="catNameForm"
         required
-        placeholder="Ej. Materiales, Mano de Obra, Subcontratos..."
-        class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+        placeholder="Ej. Materiales e Insumos, Mano de Obra..."
+        class="an-input"
       />
     </div>
 
@@ -344,16 +492,16 @@
         type="button"
         (click)="closeCategoryModal()"
         [disabled]="isProcessing()"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="!categoryNameForm().trim() || isProcessing()"
-        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer disabled:opacity-50"
       >
-        {{ categoryFormMode() === 'create' ? 'Crear Categoría' : 'Guardar Cambios' }}
+        Guardar Nombre
       </button>
     </div>
   </form>
@@ -378,8 +526,8 @@
     </div>
 
     <div>
-      <label for="subcatNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-        Nombre de la Subcategoría *
+      <label for="subcatNameInput" class="an-label">
+        Nombre de la Subcategoría <span class="text-[#e52521]">*</span>
       </label>
       <input
         id="subcatNameInput"
@@ -388,7 +536,7 @@
         name="subcatNameInput"
         required
         placeholder="Ej. Fierros, Cementos, Áridos, Pinturas..."
-        class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-hidden focus:border-amber-500 shadow-2xs font-medium"
+        class="an-input"
       />
     </div>
 
@@ -397,14 +545,14 @@
         type="button"
         (click)="closeSubcategoryModal()"
         [disabled]="isProcessing()"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="!subcategoryNameForm().trim() || !subcategoryCategoryIdForm() || isProcessing()"
-        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer disabled:opacity-50"
       >
         {{ subcategoryFormMode() === 'create' ? 'Crear Subcategoría' : 'Guardar Cambios' }}
       </button>
@@ -412,24 +560,99 @@
   </form>
 </app-modal>
 
-<!-- Modal 3: Delete Category Confirm -->
-<app-confirm-dialog
-  [isOpen]="isDeleteCategoryOpen()"
-  title="Eliminar Categoría"
-  [message]="'¿Estás seguro de que deseas eliminar la categoría \'' + (categoryToDelete()?.name || '') + '\' y sus subcategorías asociadas?'"
-  confirmText="Sí, eliminar"
-  [loading]="isProcessing()"
-  (confirm)="submitDeleteCategory()"
-  (cancel)="closeDeleteCategoryModal()"
-/>
-
-<!-- Modal 4: Delete Subcategory Confirm -->
+<!-- Modal 3: Delete Subcategory Confirm -->
 <app-confirm-dialog
   [isOpen]="isDeleteSubcategoryOpen()"
   title="Eliminar Subcategoría"
   [message]="'¿Estás seguro de que deseas eliminar la subcategoría \'' + (subcategoryToDelete()?.name || '') + '\'?'"
   confirmText="Sí, eliminar"
+  [isDanger]="true"
   [loading]="isProcessing()"
   (confirm)="submitDeleteSubcategory()"
   (cancel)="closeDeleteSubcategoryModal()"
+/>
+
+<!-- Modal 4: Construction Stage Create/Edit -->
+<app-modal
+  [isOpen]="isStageModalOpen()"
+  [title]="stageFormMode() === 'create' ? 'Nueva Etapa Constructiva' : 'Editar Etapa Constructiva'"
+  subtitle="Define una fase de obra para clasificar ítems de presupuesto"
+  (close)="closeStageModal()"
+>
+  <form (submit)="$event.preventDefault(); submitStageForm()" class="space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+      <div class="sm:col-span-2">
+        <label class="an-label">
+          Nombre de la Etapa <span class="text-[#e52521]">*</span>
+        </label>
+        <input
+          type="text"
+          [ngModel]="stageNameForm()"
+          (ngModelChange)="stageNameForm.set($event)"
+          name="stageNameForm"
+          required
+          placeholder="Ej: Obra Bruta, Obra Fina..."
+          class="an-input"
+        />
+      </div>
+
+      <div>
+        <label class="an-label !flex items-center gap-1.5">
+          <span>Orden</span>
+          <app-info-tooltip text="Determina el orden numérico en que aparecerán las etapas dentro del presupuesto (10, 20, 30...)." />
+        </label>
+        <input
+          type="number"
+          [ngModel]="stageOrderForm()"
+          (ngModelChange)="stageOrderForm.set($event)"
+          name="stageOrderForm"
+          class="an-input font-mono tabular-nums"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label class="an-label">
+        Descripción / Alcance
+      </label>
+      <textarea
+        [ngModel]="stageDescriptionForm()"
+        (ngModelChange)="stageDescriptionForm.set($event)"
+        name="stageDescriptionForm"
+        rows="2"
+        placeholder="Especifica los trabajos que comprende esta etapa..."
+        class="an-textarea resize-none"
+      ></textarea>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+      <button
+        type="button"
+        (click)="closeStageModal()"
+        [disabled]="isProcessing()"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="!stageNameForm().trim() || isProcessing()"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer disabled:opacity-50"
+      >
+        {{ stageFormMode() === 'create' ? 'Crear Etapa' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Modal 5: Delete Stage Confirm -->
+<app-confirm-dialog
+  [isOpen]="isDeleteStageOpen()"
+  title="Eliminar Etapa Constructiva"
+  [message]="'¿Estás seguro de que deseas eliminar la etapa \'' + (stageToDelete()?.name || '') + '\'?'"
+  confirmText="Sí, eliminar"
+  [isDanger]="true"
+  [loading]="isProcessing()"
+  (confirm)="submitDeleteStage()"
+  (cancel)="closeDeleteStageModal()"
 />

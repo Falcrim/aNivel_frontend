@@ -5,6 +5,9 @@ export interface LaborCatalogItem {
   id: number;
   subcategory: number;
   subcategory_detail?: Subcategory;
+  supplier?: number | null;
+  supplier_name?: string | null;
+  supplier_phone?: string | null;
   name: string;
   detail?: string;
   unit: number;
@@ -18,6 +21,7 @@ export interface LaborCatalogItem {
 
 export interface CreateLaborCatalogItemDto {
   subcategory: number;
+  supplier?: number | null;
   name: string;
   detail?: string;
   unit: number;

@@ -1,20 +1,25 @@
 <div class="space-y-6 animate-in fade-in duration-300">
-  <!-- Controls & Action Bar -->
-  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
-    <!-- Left: Search & Subcategory Filter -->
+  <!-- Controls & Action Bar (Normalized h-[42px] alignment) -->
+  <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white border border-[#d1dce7] p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
+    <!-- Left: Search & Filters -->
     <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1 min-w-0">
       <!-- Search Input -->
-      <div class="relative w-full sm:max-w-xs min-w-0">
+      <div class="relative w-full sm:w-64 lg:w-72 shrink-0">
         <input
           type="text"
           [(ngModel)]="searchTerm"
           placeholder="Buscar material en catálogo..."
-          class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+          class="an-input pl-9"
         />
+        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#7e91a4] pointer-events-none">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
       </div>
 
       <!-- Filter Subcategory -->
-      <div class="w-full sm:w-60">
+      <div class="w-full sm:w-52 shrink-0">
         <app-custom-select
           [options]="subcategoryFilterOptions()"
           [(value)]="selectedSubcategoryFilter"
@@ -22,45 +27,76 @@
         />
       </div>
 
+      <!-- Filter Supplier -->
+      <div class="w-full sm:w-52 shrink-0">
+        <app-custom-select
+          [options]="supplierFilterOptions()"
+          [(value)]="selectedSupplierFilter"
+          placeholder="Proveedor"
+        />
+      </div>
+
       <!-- Active switch -->
-      <label class="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none py-1 sm:py-0">
+      <label class="flex items-center gap-2 text-xs font-semibold text-[#385370] cursor-pointer select-none h-[42px] px-2">
         <input
           type="checkbox"
           [ngModel]="onlyActiveFilter()"
           (ngModelChange)="onlyActiveFilter.set($event)"
-          class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+          class="w-4 h-4 accent-[#11406e] rounded cursor-pointer shrink-0"
         />
-        Solo activos
+        <span class="whitespace-nowrap">Solo activos</span>
       </label>
     </div>
 
     <!-- Right: View Mode Toggle & New Button -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full xl:w-auto shrink-0">
       <!-- Toggle Grouped vs Table -->
-      <div class="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 w-full sm:w-auto justify-center shadow-2xs">
+      <div class="flex items-center p-1 rounded-xl bg-[#f1f5f9] border border-[#d1dce7] h-[42px] w-full sm:w-auto justify-center shadow-2xs">
         <button
           type="button"
           (click)="viewMode.set('grouped')"
-          [ngClass]="viewMode() === 'grouped' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+          [ngClass]="viewMode() === 'grouped' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer text-center whitespace-nowrap"
         >
           Por Subcategoría
         </button>
         <button
           type="button"
           (click)="viewMode.set('table')"
-          [ngClass]="viewMode() === 'table' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-900 font-medium'"
-          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer text-center"
+          [ngClass]="viewMode() === 'table' ? 'bg-white text-[#0a284b] font-bold shadow-xs' : 'text-[#4b637c] hover:text-[#0a284b] font-medium'"
+          class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer text-center whitespace-nowrap"
         >
           Tabla Plana
         </button>
       </div>
 
-      <!-- New Material Action -->
+      <!-- Toggle Expand/Collapse All Subcategories -->
+      @if (viewMode() === 'grouped' && filteredGrouped().length > 0) {
+        <button
+          type="button"
+          (click)="toggleAllSubcategoriesCollapse()"
+          class="h-[42px] px-3.5 rounded-xl bg-white border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] hover:text-[#0a284b] text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+          [title]="isAllSubcategoriesCollapsed() ? 'Expandir todas las subcategorías' : 'Colapsar todas las subcategorías'"
+        >
+          @if (isAllSubcategoriesCollapsed()) {
+            <svg class="w-4 h-4 text-[#11406e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <span>Expandir todo</span>
+          } @else {
+            <svg class="w-4 h-4 text-[#4b637c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+            <span>Colapsar todo</span>
+          }
+        </button>
+      }
+
+      <!-- New Material Action (Esquema 1) -->
       <button
         type="button"
         (click)="openCreateModal()"
-        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer"
+        class="h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#11406e]/20 active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer whitespace-nowrap"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -74,11 +110,10 @@
   @if (catalogService.loading()) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-        <div class="p-6 rounded-3xl bg-white border border-slate-200 animate-pulse h-48 shadow-xs"></div>
+        <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] animate-pulse h-48 shadow-xs"></div>
       }
     </div>
   } @else if (filteredItems().length === 0) {
-    <!-- Empty State -->
     <app-empty-state
       iconType="category"
       title="No hay materiales en el catálogo"
@@ -91,17 +126,31 @@
     @if (viewMode() === 'grouped') {
       <div class="space-y-6">
         @for (group of filteredGrouped(); track group.subcategory_id) {
-          <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
-            <!-- Header of Subcategory Group -->
-            <div class="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/80 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+          <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs">
+            <!-- Header of Subcategory Group (Accordion) -->
+            <div
+              (click)="toggleSubcategoryCollapse(group.subcategory_id)"
+              [ngClass]="isSubcategoryCollapsed(group.subcategory_id) ? 'rounded-2xl sm:rounded-3xl' : 'rounded-t-2xl sm:rounded-t-3xl border-b border-[#d1dce7]'"
+              class="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#f4f7fb] hover:bg-[#eaf0f7] flex flex-wrap items-center justify-between gap-3 cursor-pointer select-none transition-colors"
+            >
               <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+                <button
+                  type="button"
+                  class="w-6 h-6 rounded-lg bg-white border border-[#cfd9e4] flex items-center justify-center text-[#11406e] transition-transform duration-200 shadow-2xs"
+                  [ngClass]="isSubcategoryCollapsed(group.subcategory_id) ? '-rotate-90' : 'rotate-0'"
+                  title="Minimizar / Expandir subcategoría"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div class="w-8 h-8 rounded-xl bg-white border border-[#c3d3e5] text-[#11406e] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
                   {{ group.subcategory_name.charAt(0).toUpperCase() }}
                 </div>
                 <div class="min-w-0">
-                  <h4 class="text-sm font-black text-slate-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <h4 class="text-sm font-black text-[#0a284b] flex flex-wrap items-center gap-1.5 sm:gap-2">
                     <span class="truncate">{{ group.subcategory_name }}</span>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shadow-2xs whitespace-nowrap">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#385370] border border-[#cfd9e4] shadow-2xs whitespace-nowrap">
                       {{ group.items_count }} materiales
                     </span>
                   </h4>
@@ -110,57 +159,78 @@
 
               <button
                 type="button"
-                (click)="openCreateModal(group.subcategory_id)"
-                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-800 hover:text-white hover:bg-amber-500 bg-amber-50/80 border border-amber-200 hover:border-amber-500 transition-all cursor-pointer shadow-2xs active:scale-95 ml-auto sm:ml-0"
+                (click)="$event.stopPropagation(); openCreateModal(group.subcategory_id)"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-[#11406e] hover:text-white hover:bg-[#11406e] bg-white border border-[#c3d3e5] hover:border-[#11406e] transition-all cursor-pointer shadow-2xs active:scale-95 ml-auto sm:ml-0 whitespace-nowrap"
               >
-                + Añadir aquí
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+                Añadir Material
               </button>
             </div>
 
-            <!-- Table for Group Items -->
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-600">
-                <thead class="bg-white text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
-                  <tr>
-                    <th scope="col" class="px-5 py-3">Nombre / Descripción</th>
-                    <th scope="col" class="px-4 py-3 text-center">Unidad Obra</th>
-                    <th scope="col" class="px-4 py-3 text-center">Unidad Compra</th>
-                    <th scope="col" class="px-4 py-3 text-center">Factor Conversión</th>
-                    <th scope="col" class="px-4 py-3 text-center">Merma</th>
-                    <th scope="col" class="px-4 py-3 text-right">Precio Ref. (Bs)</th>
-                    <th scope="col" class="px-4 py-3 text-center">Estado</th>
-                    <th scope="col" class="px-4 py-3 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  @for (item of group.items; track item.id) {
-                    <tr class="hover:bg-slate-50/80 transition-colors">
+            <!-- Body of Subcategory Group (Minimizable Accordion) -->
+            @if (!isSubcategoryCollapsed(group.subcategory_id)) {
+              <div class="overflow-x-auto scrollbar-thin">
+                <table class="w-full text-left text-xs text-[#385370] min-w-[780px]">
+                  <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#e2e9f2]">
+                    <tr>
+                      <th scope="col" class="px-5 py-3 whitespace-nowrap">Nombre / Descripción</th>
+                      <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">Unidad Obra</th>
+                      <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">Unidad Compra</th>
+                      <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">
+                        <span class="inline-flex items-center justify-center gap-1">
+                          Factor Conversión
+                          <app-info-tooltip text="Cantidad de unidades de obra contenidas en 1 unidad comercial de compra." position="bottom" />
+                        </span>
+                      </th>
+                      <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">
+                        <span class="inline-flex items-center justify-center gap-1">
+                          Merma
+                          <app-info-tooltip text="Porcentaje de desperdicio sugerido por defecto al presupuestar este material." position="bottom" />
+                        </span>
+                      </th>
+                      <th scope="col" class="px-4 py-3 text-right whitespace-nowrap">Precio Ref. (Bs)</th>
+                      <th scope="col" class="px-4 py-3 text-center whitespace-nowrap">Estado</th>
+                      <th scope="col" class="px-4 py-3 text-right whitespace-nowrap">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    @for (item of getPagedItems(group.items, getClusterPage(group.subcategory_id)); track item.id) {
+                    <tr class="hover:bg-[#edf1f5]/50 transition-colors">
                       <td class="px-5 py-3.5">
-                        <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                        <div class="font-bold text-[#0a284b] text-xs sm:text-[13px] flex items-center gap-1.5 flex-wrap">
+                          <span>{{ item.name }}</span>
+                          @if (item.supplier_name) {
+                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold whitespace-nowrap">
+                              {{ item.supplier_name }}
+                            </span>
+                          }
+                        </div>
                         @if (item.description) {
-                          <div class="text-[11px] text-slate-400 mt-0.5">{{ item.description }}</div>
+                          <div class="text-[11px] text-[#4b637c] mt-0.5">{{ item.description }}</div>
                         }
                       </td>
-                      <td class="px-4 py-3.5 text-center font-medium">
+                      <td class="px-4 py-3.5 text-center font-medium whitespace-nowrap">
                         <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[11px]">
                           {{ item.unit_measure_detail?.abbreviation || 'N/A' }}
                         </span>
                       </td>
-                      <td class="px-4 py-3.5 text-center font-medium">
-                        <span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold">
+                      <td class="px-4 py-3.5 text-center font-medium whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded-lg bg-[#edf1f5] text-[#11406e] border border-[#c3d3e5] text-[11px] font-bold">
                           {{ item.unit_purchase_detail?.abbreviation || 'N/A' }}
                         </span>
                       </td>
-                      <td class="px-4 py-3.5 text-center font-mono tabular-nums font-medium text-slate-700 text-xs">
-                        1 {{ item.unit_purchase_detail?.abbreviation }} = {{ item.conversion_factor }} {{ item.unit_measure_detail?.abbreviation }}
+                      <td class="px-4 py-3.5 text-center font-mono tabular-nums font-medium text-[#0a284b] text-xs whitespace-nowrap">
+                        1 {{ item.unit_purchase_detail?.abbreviation }} = {{ item.conversion_factor | appDecimal }} {{ item.unit_measure_detail?.abbreviation }}
                       </td>
-                      <td class="px-4 py-3.5 text-center font-mono tabular-nums font-semibold text-amber-700">
+                      <td class="px-4 py-3.5 text-center font-mono tabular-nums font-semibold text-[#11406e] whitespace-nowrap">
                         {{ item.waste_pct | appPercent }}
                       </td>
-                      <td class="px-4 py-3.5 text-right font-mono tabular-nums font-bold text-slate-900 text-xs">
+                      <td class="px-4 py-3.5 text-right font-mono tabular-nums font-bold text-[#0a284b] text-xs whitespace-nowrap">
                         {{ item.price_per_purchase_unit | appCurrency }}
                       </td>
-                      <td class="px-4 py-3.5 text-center">
+                      <td class="px-4 py-3.5 text-center whitespace-nowrap">
                         @if (item.is_active) {
                           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                             Activo
@@ -171,12 +241,12 @@
                           </span>
                         }
                       </td>
-                      <td class="px-4 py-3.5 text-right">
-                        <div class="flex items-center justify-end gap-1">
+                      <td class="px-4 py-3.5 text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
                             (click)="openEditModal(item)"
-                            class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                            class="an-btn-edit"
                             title="Editar"
                           >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -186,7 +256,7 @@
                           <button
                             type="button"
                             (click)="openDeleteModal(item)"
-                            class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            class="an-btn-delete"
                             title="Eliminar"
                           >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -200,53 +270,69 @@
                 </tbody>
               </table>
             </div>
-          </div>
-        }
+
+            <app-cluster-pagination
+              [currentPage]="getClusterPage(group.subcategory_id)"
+              [pageSize]="10"
+              [totalItems]="group.items.length"
+              entityLabel="materiales"
+              (pageChange)="setClusterPage(group.subcategory_id, $event)"
+            />
+          }
+        </div>
+      }
       </div>
     } @else {
       <!-- VIEW 2: FLAT TABLE -->
-      <div class="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs text-slate-600">
-            <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-200">
+      <div class="bg-white border border-[#d1dce7] rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden">
+        <div class="overflow-x-auto scrollbar-thin">
+          <table class="w-full text-left text-xs text-[#385370] min-w-[820px]">
+            <thead class="bg-[#f8fafc] text-[10px] uppercase tracking-wider text-[#4b637c] font-bold border-b border-[#d1dce7]">
               <tr>
-                <th scope="col" class="px-5 py-4">ID</th>
-                <th scope="col" class="px-5 py-4">Nombre / Descripción</th>
-                <th scope="col" class="px-4 py-4">Subcategoría</th>
-                <th scope="col" class="px-4 py-4 text-center">Unidad Obra</th>
-                <th scope="col" class="px-4 py-4 text-center">Unidad Compra</th>
-                <th scope="col" class="px-4 py-4 text-center">Factor Conversión</th>
-                <th scope="col" class="px-4 py-4 text-right">Precio Ref. (Bs)</th>
-                <th scope="col" class="px-4 py-4 text-center">Estado</th>
-                <th scope="col" class="px-4 py-4 text-right">Acciones</th>
+                <th scope="col" class="px-5 py-4 whitespace-nowrap">ID</th>
+                <th scope="col" class="px-5 py-4 whitespace-nowrap">Nombre / Descripción</th>
+                <th scope="col" class="px-4 py-4 whitespace-nowrap">Subcategoría</th>
+                <th scope="col" class="px-4 py-4 text-center whitespace-nowrap">Unidad Obra</th>
+                <th scope="col" class="px-4 py-4 text-center whitespace-nowrap">Unidad Compra</th>
+                <th scope="col" class="px-4 py-4 text-center whitespace-nowrap">Factor Conversión</th>
+                <th scope="col" class="px-4 py-4 text-right whitespace-nowrap">Precio Ref. (Bs)</th>
+                <th scope="col" class="px-4 py-4 text-center whitespace-nowrap">Estado</th>
+                <th scope="col" class="px-4 py-4 text-right whitespace-nowrap">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               @for (item of filteredItems(); track item.id) {
-                <tr class="hover:bg-slate-50/80 transition-colors">
-                  <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-amber-700">#{{ item.id }}</td>
+                <tr class="hover:bg-[#edf1f5]/50 transition-colors">
+                  <td class="px-5 py-3.5 font-mono tabular-nums font-bold text-[#11406e] whitespace-nowrap">#{{ item.id }}</td>
                   <td class="px-5 py-3.5">
-                    <div class="font-bold text-slate-900 text-xs sm:text-[13px]">{{ item.name }}</div>
+                    <div class="font-bold text-[#0a284b] text-xs sm:text-[13px] flex items-center gap-1.5 flex-wrap">
+                      <span>{{ item.name }}</span>
+                      @if (item.supplier_name) {
+                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold whitespace-nowrap">
+                          {{ item.supplier_name }}
+                        </span>
+                      }
+                    </div>
                     @if (item.description) {
-                      <div class="text-[11px] text-slate-400">{{ item.description }}</div>
+                      <div class="text-[11px] text-[#4b637c]">{{ item.description }}</div>
                     }
                   </td>
-                  <td class="px-4 py-3.5 font-semibold text-slate-700">
+                  <td class="px-4 py-3.5 font-semibold text-[#385370] whitespace-nowrap">
                     {{ item.subcategory_detail?.name }}
                   </td>
-                  <td class="px-4 py-3.5 text-center">
+                  <td class="px-4 py-3.5 text-center whitespace-nowrap">
                     {{ item.unit_measure_detail?.abbreviation }}
                   </td>
-                  <td class="px-4 py-3.5 text-center font-bold text-amber-800">
+                  <td class="px-4 py-3.5 text-center font-bold text-[#11406e] whitespace-nowrap">
                     {{ item.unit_purchase_detail?.abbreviation }}
                   </td>
-                  <td class="px-4 py-3.5 text-center font-mono tabular-nums">
-                    1 {{ item.unit_purchase_detail?.abbreviation }} = {{ item.conversion_factor }} {{ item.unit_measure_detail?.abbreviation }}
+                  <td class="px-4 py-3.5 text-center font-mono tabular-nums whitespace-nowrap">
+                    1 {{ item.unit_purchase_detail?.abbreviation }} = {{ item.conversion_factor | appDecimal }} {{ item.unit_measure_detail?.abbreviation }}
                   </td>
-                  <td class="px-4 py-3.5 text-right font-mono tabular-nums font-bold text-slate-900">
+                  <td class="px-4 py-3.5 text-right font-mono tabular-nums font-bold text-[#0a284b] whitespace-nowrap">
                     {{ item.price_per_purchase_unit | appCurrency }}
                   </td>
-                  <td class="px-4 py-3.5 text-center">
+                  <td class="px-4 py-3.5 text-center whitespace-nowrap">
                     @if (item.is_active) {
                       <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                         Activo
@@ -257,12 +343,13 @@
                       </span>
                     }
                   </td>
-                  <td class="px-4 py-3.5 text-right">
-                    <div class="flex items-center justify-end gap-1">
+                  <td class="px-4 py-3.5 text-right whitespace-nowrap">
+                    <div class="flex items-center justify-end gap-1.5">
                       <button
                         type="button"
                         (click)="openEditModal(item)"
-                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                        class="an-btn-edit"
+                        title="Editar"
                       >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -271,7 +358,8 @@
                       <button
                         type="button"
                         (click)="openDeleteModal(item)"
-                        class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        class="an-btn-delete"
+                        title="Eliminar"
                       >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -290,7 +378,7 @@
 </div>
 
 <!-- ========================================================================= -->
-<!-- MODAL: CREAR / EDITAR MATERIAL EN CATÁLOGO MAESTRO -->
+<!-- MODAL: CREAR / EDITAR MATERIAL EN CATÁLOGO MAESTRO (100% Pixel-Aligned)   -->
 <!-- ========================================================================= -->
 <app-modal
   [isOpen]="isCreateModalOpen() || isEditModalOpen()"
@@ -300,7 +388,8 @@
   (close)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
 >
   <form (submit)="$event.preventDefault(); isCreateModalOpen() ? submitCreate() : submitEdit()" class="space-y-4">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Row 1: Subcategoría, Proveedor, Nombre (All 42px exact height & top-aligned) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
       <div>
         <app-custom-select
           [options]="subcategoryFormOptions()"
@@ -312,8 +401,17 @@
       </div>
 
       <div>
-        <label for="matNameInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-          Nombre del Material <span class="text-rose-500">*</span>
+        <app-custom-select
+          [options]="supplierFormOptions()"
+          [(value)]="formSupplierId"
+          label="Proveedor Sugerido"
+          placeholder="Sin proveedor"
+        />
+      </div>
+
+      <div>
+        <label for="matNameInput" class="an-label">
+          Nombre del Material <span class="text-[#e52521]">*</span>
         </label>
         <input
           id="matNameInput"
@@ -322,32 +420,35 @@
           name="formName"
           required
           placeholder="Ej. Fierro corrugado 12mm..."
-          class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-hidden focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 shadow-2xs font-medium"
+          class="an-input"
         />
       </div>
     </div>
 
+    <!-- Row 2: Descripción -->
     <div>
-      <label for="matDescInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-        Descripción / Especificación General
+      <label for="matDescInput" class="an-label !flex items-center gap-1.5">
+        <span>Descripción / Técnica / Especificación</span>
+        <app-info-tooltip text="Ayuda a diferenciar variantes con el mismo nombre al armar presupuestos (ej. 'Echado', 'Parado', '18H', 'Bolsa 50kg')." position="right" />
       </label>
       <input
         id="matDescInput"
         type="text"
         [(ngModel)]="formDescription"
         name="formDescription"
-        placeholder="Ej. Barras de 12 metros según norma técnica..."
-        class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-hidden focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+        placeholder="Ej. Ladrillo echado, Barras 12m según norma técnica..."
+        class="an-input"
       />
     </div>
 
-    <!-- Units and Conversion -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Row 3: Units and Conversion (All 42px exact height & top-aligned) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
       <div>
         <app-custom-select
           [options]="uomFormOptions()"
           [(value)]="formUnitMeasureId"
           label="Unidad Obra"
+          tooltip="Unidad métrica en la que cuantificas este material en planos o cómputo (ej. m², m³, ml, pza)."
           [required]="true"
           placeholder="Unidad de obra..."
         />
@@ -358,14 +459,18 @@
           [options]="puFormOptions()"
           [(value)]="formUnitPurchaseId"
           label="Unidad Compra"
+          tooltip="Formato comercial en el que compras este material al proveedor (ej. bolsa, barra, balde, tira)."
           [required]="true"
           placeholder="Unidad de compra..."
         />
       </div>
 
       <div>
-        <label for="matConvFactorInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Factor Conversión *
+        <label for="matConvFactorInput" class="an-label !flex items-center gap-1.5">
+          <span>
+            Factor Conversión <span class="text-[#e52521]">*</span>
+          </span>
+          <app-info-tooltip text="Cuántas unidades de obra rinde 1 unidad de compra comercial (ej. 1 barra = 12 ml; factor = 12)." />
         </label>
         <input
           id="matConvFactorInput"
@@ -376,18 +481,19 @@
           name="formConvFactor"
           required
           placeholder="Ej. 12.00"
-          class="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden focus:border-amber-500 shadow-2xs"
+          class="an-input font-mono tabular-nums"
         />
       </div>
     </div>
 
-    <!-- Weight, Waste, Price -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Row 4: Weight, Waste, Price (All 42px exact height & top-aligned) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
       <div>
-        <label for="matWasteInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          % Merma Sugerida
+        <label for="matWasteInput" class="an-label !flex items-center gap-1.5">
+          <span>% Merma Sugerida</span>
+          <app-info-tooltip text="Porcentaje sugerido de desperdicio o recorte que se aplicará al vincular este material a una obra." />
         </label>
-        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
+        <div class="an-input-group">
           <input
             id="matWasteInput"
             type="number"
@@ -397,17 +503,18 @@
             [(ngModel)]="formWastePct"
             name="formWaste"
             placeholder="0"
-            class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden pr-8"
+            class="w-full h-full px-3.5 pr-9 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
           />
-          <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">%</span>
+          <span class="absolute right-3.5 text-xs text-[#4b637c] font-bold pointer-events-none">%</span>
         </div>
       </div>
 
       <div>
-        <label for="matWeightInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Peso en kg / unidad
+        <label for="matWeightInput" class="an-label !flex items-center gap-1.5">
+          <span>Peso kg / unidad</span>
+          <app-info-tooltip text="Peso en kilogramos por cada unidad de compra para calcular el peso total logístico en obra." />
         </label>
-        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
+        <div class="an-input-group">
           <input
             id="matWeightInput"
             type="number"
@@ -416,18 +523,18 @@
             [(ngModel)]="formWeight"
             name="formWeight"
             placeholder="0.00"
-            class="w-full px-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden pr-8"
+            class="w-full h-full px-3.5 pr-10 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
           />
-          <span class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 pointer-events-none">kg</span>
+          <span class="absolute right-3.5 text-[11px] font-bold text-[#4b637c] pointer-events-none">kg</span>
         </div>
       </div>
 
       <div>
-        <label for="matPriceInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+        <label for="matPriceInput" class="an-label">
           Precio Unit. Ref. (Bs)
         </label>
-        <div class="relative rounded-2xl bg-white border border-slate-300 focus-within:border-amber-500 transition-all shadow-2xs">
-          <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none font-mono">Bs</span>
+        <div class="an-input-group">
+          <span class="absolute left-3.5 text-xs text-[#4b637c] font-bold pointer-events-none font-mono">Bs</span>
           <input
             id="matPriceInput"
             type="number"
@@ -436,22 +543,22 @@
             [(ngModel)]="formPrice"
             name="formPrice"
             placeholder="0.00"
-            class="w-full pl-9 pr-4 py-2.5 bg-transparent text-slate-900 text-xs font-mono tabular-nums focus:outline-hidden"
+            class="w-full h-full pl-9 pr-3.5 bg-transparent text-[#0a284b] text-[13px] font-mono tabular-nums focus:outline-hidden"
           />
         </div>
       </div>
     </div>
 
     <!-- Active checkbox -->
-    <div class="flex items-center gap-2 pt-2">
+    <div class="flex items-center gap-2.5 pt-2">
       <input
         id="matIsActiveInput"
         type="checkbox"
         [(ngModel)]="formIsActive"
         name="formIsActive"
-        class="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+        class="w-4 h-4 accent-[#11406e] rounded cursor-pointer shrink-0"
       />
-      <label for="matIsActiveInput" class="text-xs font-bold text-slate-700 cursor-pointer">
+      <label for="matIsActiveInput" class="text-xs font-bold text-[#0a284b] cursor-pointer">
         Material activo para presupuestación
       </label>
     </div>
@@ -461,14 +568,14 @@
         type="button"
         (click)="isCreateModalOpen() ? closeCreateModal() : closeEditModal()"
         [disabled]="isProcessing()"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="!formName().trim() || !formSubcategoryId() || isProcessing()"
-        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold shadow-md shadow-[#11406e]/20 active:scale-95 cursor-pointer disabled:opacity-50"
       >
         {{ isCreateModalOpen() ? 'Crear Material' : 'Guardar Cambios' }}
       </button>
@@ -482,6 +589,7 @@
   title="Eliminar Material del Catálogo"
   [message]="'¿Estás seguro de que deseas eliminar \'' + (itemToDelete()?.name || '') + '\' del catálogo maestro?'"
   confirmText="Sí, eliminar"
+  [isDanger]="true"
   [loading]="isProcessing()"
   (confirm)="submitDelete()"
   (cancel)="closeDeleteModal()"

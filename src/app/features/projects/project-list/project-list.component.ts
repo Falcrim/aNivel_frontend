@@ -8,6 +8,7 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { CustomSelectComponent, CustomSelectOption } from '../../../shared/components/custom-select/custom-select.component';
+import { InfoTooltipComponent } from '../../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-project-list',
@@ -20,6 +21,7 @@ import { CustomSelectComponent, CustomSelectOption } from '../../../shared/compo
     ConfirmDialogComponent,
     EmptyStateComponent,
     CustomSelectComponent,
+    InfoTooltipComponent,
   ],
   templateUrl: './project-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

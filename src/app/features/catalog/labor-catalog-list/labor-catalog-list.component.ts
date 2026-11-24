@@ -5,6 +5,7 @@ import { LaborCatalogService } from '../../../core/services/labor-catalog.servic
 import { SubcategoryService } from '../../../core/services/subcategory.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { UnitOfMeasureService } from '../../../core/services/unit-of-measure.service';
+import { SupplierService } from '../../../core/services/supplier.service';
 import {
   CreateLaborCatalogItemDto,
   LaborCatalogGrouped,
@@ -14,8 +15,10 @@ import {
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ClusterPaginationComponent } from '../../../shared/components/cluster-pagination/cluster-pagination.component';
 import { CurrencyClpPipe } from '../../../shared/pipes/currency-clp.pipe';
 import { CustomSelectComponent, CustomSelectOption } from '../../../shared/components/custom-select/custom-select.component';
+import { InfoTooltipComponent } from '../../../shared/components/info-tooltip/info-tooltip.component';
 
 @Component({
   selector: 'app-labor-catalog-list',
@@ -26,8 +29,10 @@ import { CustomSelectComponent, CustomSelectOption } from '../../../shared/compo
     ModalComponent,
     ConfirmDialogComponent,
     EmptyStateComponent,
+    ClusterPaginationComponent,
     CurrencyClpPipe,
     CustomSelectComponent,
+    InfoTooltipComponent,
   ],
   templateUrl: './labor-catalog-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,23 +42,17 @@ export class LaborCatalogListComponent implements OnInit {
   protected readonly subcategoryService = inject(SubcategoryService);
   protected readonly categoryService = inject(CategoryService);
   protected readonly uomService = inject(UnitOfMeasureService);
+  protected readonly supplierService = inject(SupplierService);
 
   viewMode = signal<'grouped' | 'table'>('grouped');
   searchTerm = signal<string>('');
   selectedSubcategoryFilter = signal<number | null>(null);
+  selectedSupplierFilter = signal<number | null>(null);
   onlyActiveFilter = signal<boolean>(false);
 
   // Subcategorías pertenecientes a Mano de Obra
   readonly laborSubcategories = computed(() => {
-    const all = this.subcategoryService.subcategories();
-    const laborCat = this.categoryService
-      .categories()
-      .find((c) => c.name.toLowerCase().includes('mano'));
-    if (laborCat) {
-      const filtered = all.filter((s) => s.category === laborCat.id);
-      return filtered.length > 0 ? filtered : all;
-    }
-    return all;
+    return this.subcategoryService.getSubcategoriesForCategoryType('labor');
   });
 
   // Computed Select Options
@@ -79,6 +78,22 @@ export class LaborCatalogListComponent implements OnInit {
     }))
   );
 
+  readonly supplierFilterOptions = computed<CustomSelectOption<number | null>[]>(() => [
+    { label: 'Todos los contratistas', value: null },
+    ...this.supplierService.suppliers().map((s) => ({
+      label: s.name,
+      value: s.id,
+    })),
+  ]);
+
+  readonly supplierFormOptions = computed<CustomSelectOption<number | null>[]>(() => [
+    { label: 'Sin contratista específico (Genérico)', value: null },
+    ...this.supplierService.suppliers().map((s) => ({
+      label: s.name,
+      value: s.id,
+    })),
+  ]);
+
   // Modals state
   isCreateModalOpen = signal(false);
   isEditModalOpen = signal(false);
@@ -87,6 +102,7 @@ export class LaborCatalogListComponent implements OnInit {
 
   // Form states
   formSubcategoryId = signal<number>(0);
+  formSupplierId = signal<number | null>(null);
   formName = signal<string>('');
   formDetail = signal<string>('');
   formUnitId = signal<number>(0);
@@ -97,10 +113,67 @@ export class LaborCatalogListComponent implements OnInit {
   itemToEdit = signal<LaborCatalogItem | null>(null);
   itemToDelete = signal<LaborCatalogItem | null>(null);
 
+  // --- Estado de Acordeón por Subcategoría (Todos expandidos por defecto) ---
+  readonly collapsedSubcategories = signal<Set<number>>(new Set());
+
+  readonly isAllSubcategoriesCollapsed = computed(() => {
+    const groups = this.filteredGrouped();
+    if (groups.length === 0) return false;
+    return groups.every((g) => this.collapsedSubcategories().has(g.subcategory_id));
+  });
+
+  toggleSubcategoryCollapse(subcategoryId: number): void {
+    this.collapsedSubcategories.update((set) => {
+      const next = new Set(set);
+      if (next.has(subcategoryId)) {
+        next.delete(subcategoryId);
+      } else {
+        next.add(subcategoryId);
+      }
+      return next;
+    });
+  }
+
+  isSubcategoryCollapsed(subcategoryId: number): boolean {
+    return this.collapsedSubcategories().has(subcategoryId);
+  }
+
+  toggleAllSubcategoriesCollapse(): void {
+    const groups = this.filteredGrouped();
+    const isAnyOpen = groups.some((g) => !this.isSubcategoryCollapsed(g.subcategory_id));
+    if (isAnyOpen) {
+      const allIds = new Set(groups.map((g) => g.subcategory_id));
+      this.collapsedSubcategories.set(allIds);
+    } else {
+      this.collapsedSubcategories.set(new Set());
+    }
+  }
+
+  // --- Paginación Aislada por Cluster (10 ítems por página) ---
+  readonly clusterPages = signal<Map<number, number>>(new Map());
+
+  getClusterPage(subcategoryId: number): number {
+    return this.clusterPages().get(subcategoryId) || 1;
+  }
+
+  setClusterPage(subcategoryId: number, page: number): void {
+    this.clusterPages.update((map) => {
+      const next = new Map(map);
+      next.set(subcategoryId, page);
+      return next;
+    });
+  }
+
+  getPagedItems(items: LaborCatalogItem[], page: number, pageSize = 10): LaborCatalogItem[] {
+    const start = (page - 1) * pageSize;
+    return items.slice(start, start + pageSize);
+  }
+
   // Filtered Flat Catalog Items
   readonly filteredItems = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     const subcatId = this.selectedSubcategoryFilter();
+    const supplierId = this.selectedSupplierFilter();
     const onlyActive = this.onlyActiveFilter();
     let list = this.catalogService.items();
 
@@ -110,6 +183,9 @@ export class LaborCatalogListComponent implements OnInit {
     if (subcatId) {
       list = list.filter((i) => i.subcategory === subcatId);
     }
+    if (supplierId) {
+      list = list.filter((i) => i.supplier === supplierId);
+    }
     if (term) {
       list = list.filter(
         (i) =>
@@ -117,6 +193,7 @@ export class LaborCatalogListComponent implements OnInit {
           (i.detail && i.detail.toLowerCase().includes(term)) ||
           (i.contractor_type && i.contractor_type.toLowerCase().includes(term)) ||
           (i.subcategory_detail?.name && i.subcategory_detail.name.toLowerCase().includes(term)) ||
+          (i.supplier_name && i.supplier_name.toLowerCase().includes(term)) ||
           i.id.toString().includes(term)
       );
     }
@@ -128,6 +205,7 @@ export class LaborCatalogListComponent implements OnInit {
   readonly filteredGrouped = computed<LaborCatalogGrouped[]>(() => {
     const term = this.searchTerm().toLowerCase().trim();
     const subcatId = this.selectedSubcategoryFilter();
+    const supplierId = this.selectedSupplierFilter();
     const onlyActive = this.onlyActiveFilter();
     const items = this.catalogService.items();
     const subcats = this.laborSubcategories();
@@ -138,12 +216,14 @@ export class LaborCatalogListComponent implements OnInit {
     for (const item of items) {
       if (onlyActive && !item.is_active) continue;
       if (subcatId && item.subcategory !== subcatId) continue;
+      if (supplierId && item.supplier !== supplierId) continue;
       if (term) {
         const matches =
           item.name.toLowerCase().includes(term) ||
           (item.detail && item.detail.toLowerCase().includes(term)) ||
           (item.contractor_type && item.contractor_type.toLowerCase().includes(term)) ||
-          (item.subcategory_detail?.name && item.subcategory_detail.name.toLowerCase().includes(term));
+          (item.subcategory_detail?.name && item.subcategory_detail.name.toLowerCase().includes(term)) ||
+          (item.supplier_name && item.supplier_name.toLowerCase().includes(term));
         if (!matches) continue;
       }
 
@@ -158,7 +238,7 @@ export class LaborCatalogListComponent implements OnInit {
     for (const sub of subcats) {
       if (subcatId && sub.id !== subcatId) continue;
       const subItems = groupsMap.get(sub.id) || [];
-      if (subItems.length > 0 || (!term && !onlyActive && !subcatId)) {
+      if (subItems.length > 0 || (!term && !onlyActive && !subcatId && !supplierId)) {
         grouped.push({
           subcategory_id: sub.id,
           subcategory_name: sub.name,
@@ -168,7 +248,7 @@ export class LaborCatalogListComponent implements OnInit {
       }
     }
 
-    return grouped.filter((g) => g.items.length > 0 || (term === '' && !onlyActive));
+    return grouped.filter((g) => g.items.length > 0 || (term === '' && !onlyActive && !supplierId));
   });
 
   ngOnInit(): void {
@@ -176,6 +256,7 @@ export class LaborCatalogListComponent implements OnInit {
     this.categoryService.loadCategories().subscribe();
     this.subcategoryService.loadSubcategories().subscribe();
     this.uomService.loadUnits().subscribe();
+    this.supplierService.loadSuppliers('labor').subscribe();
   }
 
   refreshCatalog(): void {
@@ -188,6 +269,7 @@ export class LaborCatalogListComponent implements OnInit {
     const uoms = this.uomService.units();
 
     this.formSubcategoryId.set(presetSubcategoryId || (subcats[0]?.id ?? 0));
+    this.formSupplierId.set(null);
     this.formName.set('');
     this.formDetail.set('');
     this.formUnitId.set(uoms[0]?.id ?? 0);
@@ -212,6 +294,7 @@ export class LaborCatalogListComponent implements OnInit {
 
     const dto: CreateLaborCatalogItemDto = {
       subcategory,
+      supplier: this.formSupplierId() ? Number(this.formSupplierId()) : null,
       name,
       detail: this.formDetail().trim(),
       unit,
@@ -237,6 +320,7 @@ export class LaborCatalogListComponent implements OnInit {
   openEditModal(item: LaborCatalogItem): void {
     this.itemToEdit.set(item);
     this.formSubcategoryId.set(item.subcategory);
+    this.formSupplierId.set(item.supplier ?? null);
     this.formName.set(item.name);
     this.formDetail.set(item.detail || '');
     this.formUnitId.set(item.unit);
@@ -258,6 +342,7 @@ export class LaborCatalogListComponent implements OnInit {
 
     const dto: UpdateLaborCatalogItemDto = {
       subcategory: Number(this.formSubcategoryId()),
+      supplier: this.formSupplierId() ? Number(this.formSupplierId()) : null,
       name: this.formName().trim(),
       detail: this.formDetail().trim(),
       unit: Number(this.formUnitId()),

@@ -1,23 +1,23 @@
 <div class="space-y-8 animate-in fade-in duration-300">
-  <!-- Welcome Banner Bento Hero -->
-  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-white border border-amber-200/80 p-8 shadow-xs">
-    <div class="relative z-10 max-w-2xl space-y-3">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/90 border border-amber-300/80 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider shadow-2xs">
-        <span class="w-2 h-2 rounded-full bg-amber-600 animate-ping"></span>
-        Plataforma aNivel • Control Presupuestario
+  <!-- Welcome Banner Bento Hero (Pantone 540C 20% Tint #e2e9f2) -->
+  <div class="relative overflow-hidden rounded-3xl bg-[#e2e9f2] border border-[#c3d0df] p-6 sm:p-8 shadow-xs">
+    <div class="relative z-10 max-w-3xl space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#c3d0df] text-[#11406e] text-[11px] font-bold uppercase tracking-wider shadow-2xs">
+        <span class="w-2 h-2 rounded-full bg-[#00ce7c] animate-pulse"></span>
+        Plataforma aNivel • Control Presupuestario & Cómputo Métrico
       </div>
-      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-        Panel de Control & Cómputo Métrico
+      <h2 class="text-2xl sm:text-3xl font-bold text-[#0a284b] tracking-tight" style="font-family: 'Montserrat', sans-serif;">
+        Panel de Control & Cómputo de Obras
       </h2>
-      <p class="text-sm text-slate-600 leading-relaxed">
-        Gestiona tus proyectos de construcción, catálogo maestro con factores de conversión y presupuestos de obra con cálculo matemático en tiempo real.
+      <p class="text-xs sm:text-sm text-[#385370] leading-relaxed">
+        Gestiona tus obras con cálculo congelado por proyecto, porcentaje de merma y redondeo automático de compra a unidad entera (sin alterar el histórico si cambian los precios del catálogo).
       </p>
 
-      <div class="pt-2 flex flex-wrap items-center gap-3">
+      <div class="pt-3 flex flex-wrap items-center gap-3">
         <button
           type="button"
           (click)="openCreateProjectModal()"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs tracking-wide uppercase transition-all shadow-md shadow-amber-500/25 active:scale-95 cursor-pointer"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#e52521] hover:bg-[#aa1414] text-white font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-[#e52521]/20 active:scale-95 cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -27,9 +27,9 @@
 
         <a
           routerLink="/catalogo-materiales"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs tracking-wide uppercase border border-slate-200 shadow-2xs transition-all active:scale-95"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-[#edf1f5] text-[#0a284b] font-bold text-xs tracking-wide uppercase border border-[#cfd9e4] shadow-2xs transition-all active:scale-95 cursor-pointer"
         >
-          <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-4 h-4 text-[#11406e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
           Catálogo Maestro
@@ -37,112 +37,110 @@
 
         <a
           routerLink="/categorias"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs tracking-wide uppercase border border-slate-200 shadow-2xs transition-all active:scale-95"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-[#edf1f5] text-[#0a284b] font-bold text-xs tracking-wide uppercase border border-[#cfd9e4] shadow-2xs transition-all active:scale-95 cursor-pointer"
         >
-          <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-4 h-4 text-[#11406e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
-          Categorías
+          Estructura Maestra
         </a>
 
         <a
-          routerLink="/inventario"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs tracking-wide uppercase border border-slate-200 shadow-2xs transition-all active:scale-95"
+          routerLink="/proveedores"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-[#edf1f5] text-[#0a284b] font-bold text-xs tracking-wide uppercase border border-[#cfd9e4] shadow-2xs transition-all active:scale-95 cursor-pointer"
         >
-          <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <svg class="w-4 h-4 text-[#11406e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17a2 2 0 100 4 2 2 0 000-4zm11 0a2 2 0 100 4 2 2 0 000-4zM3 4h11v13H3V4zm11 4h4l3 3v6h-7V8z" />
           </svg>
-          Inventario
+          Proveedores ({{ totalSuppliers() }})
         </a>
       </div>
     </div>
-
-    <!-- Decorative background elements -->
-    <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-amber-500/10 to-transparent pointer-events-none hidden md:block"></div>
-    <div class="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
   </div>
 
-  <!-- Bento Grid Stat Cards -->
+  <!-- Bento Grid Stat Cards (Corporate Colors Pantone 541C / 540C / 5545C) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
     <!-- Stat 1: Obras -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-amber-400/50 transition-all group relative overflow-hidden">
+    <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] shadow-xs hover:shadow-md hover:border-[#11406e] transition-all group relative overflow-hidden">
       <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Obras Registradas</span>
-        <div class="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+        <span class="text-xs font-bold text-[#4b637c] uppercase tracking-wider">Obras Registradas</span>
+        <div class="w-10 h-10 rounded-2xl bg-[#edf1f5] border border-[#cfd9e4] text-[#11406e] flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
         </div>
       </div>
       <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-3xl font-black text-slate-900 tracking-tight tabular-nums">{{ totalProjects() }}</span>
-        <span class="text-xs text-slate-400 font-medium">proyectos activos</span>
+        <span class="text-3xl font-black text-[#0a284b] tracking-tight tabular-nums font-mono">{{ totalProjects() }}</span>
+        <span class="text-xs text-[#7e91a4] font-medium">proyectos activos</span>
       </div>
-      <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-        <a routerLink="/obras" class="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 group-hover:underline">
-          Ver todas &rarr;
+      <div class="mt-3 pt-3 border-t border-[#edf1f5] flex items-center justify-between text-xs">
+        <a routerLink="/obras" class="text-[#11406e] hover:text-[#0a284b] font-bold flex items-center gap-1 group-hover:underline">
+          Ver cartera completa &rarr;
         </a>
       </div>
     </div>
 
     <!-- Stat 2: Catálogo Maestro -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-indigo-400/50 transition-all group relative overflow-hidden">
+    <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] shadow-xs hover:shadow-md hover:border-[#11406e] transition-all group relative overflow-hidden">
       <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Catálogo Maestro</span>
-        <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+        <span class="text-xs font-bold text-[#4b637c] uppercase tracking-wider">Catálogo Maestro</span>
+        <div class="w-10 h-10 rounded-2xl bg-[#edf1f5] border border-[#cfd9e4] text-[#11406e] flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
         </div>
       </div>
       <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-3xl font-black text-slate-900 tracking-tight tabular-nums">{{ totalCatalogItems() }}</span>
-        <span class="text-xs text-slate-400 font-medium">materiales globales</span>
+        <span class="text-3xl font-black text-[#0a284b] tracking-tight tabular-nums font-mono">{{ totalCatalogItems() }}</span>
+        <span class="text-xs text-[#7e91a4] font-medium">materiales globales</span>
       </div>
-      <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-        <a routerLink="/catalogo-materiales" class="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 group-hover:underline">
+      <div class="mt-3 pt-3 border-t border-[#edf1f5] flex items-center justify-between text-xs">
+        <a routerLink="/catalogo-materiales" class="text-[#11406e] hover:text-[#0a284b] font-bold flex items-center gap-1 group-hover:underline">
           Explorar catálogo &rarr;
         </a>
       </div>
     </div>
 
     <!-- Stat 3: Categorías -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-400/50 transition-all group relative overflow-hidden">
+    <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] shadow-xs hover:shadow-md hover:border-[#11406e] transition-all group relative overflow-hidden">
       <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Categorías</span>
-        <div class="w-10 h-10 rounded-2xl bg-sky-50 border border-sky-200 text-sky-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+        <span class="text-xs font-bold text-[#4b637c] uppercase tracking-wider">Categorías</span>
+        <div class="w-10 h-10 rounded-2xl bg-[#edf1f5] border border-[#cfd9e4] text-[#11406e] flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
         </div>
       </div>
       <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-3xl font-black text-slate-900 tracking-tight tabular-nums">{{ totalCategories() }}</span>
-        <span class="text-xs text-slate-400 font-medium">grupos nivel 1</span>
+        <span class="text-3xl font-black text-[#0a284b] tracking-tight tabular-nums font-mono">{{ totalCategories() }}</span>
+        <span class="text-xs text-[#7e91a4] font-medium">grupos nivel 1</span>
       </div>
-      <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-        <a routerLink="/categorias" class="text-sky-600 hover:text-sky-700 font-bold flex items-center gap-1 group-hover:underline">
+      <div class="mt-3 pt-3 border-t border-[#edf1f5] flex items-center justify-between text-xs">
+        <a routerLink="/categorias" class="text-[#11406e] hover:text-[#0a284b] font-bold flex items-center gap-1 group-hover:underline">
           Ver estructura &rarr;
         </a>
       </div>
     </div>
 
     <!-- Stat 4: Subcategorías -->
-    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-400/50 transition-all group relative overflow-hidden">
+    <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] shadow-xs hover:shadow-md hover:border-[#11406e] transition-all group relative">
       <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Subcategorías</span>
-        <div class="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+        <span class="text-xs font-bold text-[#4b637c] uppercase tracking-wider flex items-center gap-1.5">
+          Subcategorías
+          <app-info-tooltip text="Agrupaciones de nivel 2 (ej. Cementos, Fierros, Obra Fina) usadas para ordenar catálogos y presupuestos." />
+        </span>
+        <div class="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
           </svg>
         </div>
       </div>
       <div class="mt-4 flex items-baseline gap-2">
-        <span class="text-3xl font-black text-slate-900 tracking-tight tabular-nums">{{ totalSubcategories() }}</span>
-        <span class="text-xs text-slate-400 font-medium">clasificaciones</span>
+        <span class="text-3xl font-black text-[#0a284b] tracking-tight tabular-nums font-mono">{{ totalSubcategories() }}</span>
+        <span class="text-xs text-[#7e91a4] font-medium">clasificaciones</span>
       </div>
-      <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+      <div class="mt-3 pt-3 border-t border-[#edf1f5] flex items-center justify-between text-xs">
         <span class="text-emerald-700 font-bold">Clasificación activa</span>
       </div>
     </div>
@@ -154,10 +152,10 @@
     <div class="lg:col-span-2 space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-lg font-extrabold text-slate-900 tracking-tight">Obras Recientes</h3>
-          <p class="text-xs text-slate-500">Últimos proyectos incorporados a la plataforma</p>
+          <h3 class="text-lg font-bold text-[#0a284b] tracking-tight" style="font-family: 'Montserrat', sans-serif;">Obras Recientes</h3>
+          <p class="text-xs text-[#4b637c]">Últimos proyectos incorporados a la plataforma</p>
         </div>
-        <a routerLink="/obras" class="text-xs font-extrabold text-amber-600 hover:text-amber-700 transition-colors">
+        <a routerLink="/obras" class="text-xs font-bold text-[#11406e] hover:text-[#0a284b] transition-colors">
           Ver todas ({{ totalProjects() }}) &rarr;
         </a>
       </div>
@@ -165,15 +163,15 @@
       @if (projectService.loading()) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           @for (i of [1, 2, 3, 4]; track i) {
-            <div class="p-5 rounded-3xl bg-white border border-slate-200/80 animate-pulse h-32"></div>
+            <div class="p-5 rounded-3xl bg-white border border-[#d1dce7] animate-pulse h-32"></div>
           }
         </div>
       } @else if (recentProjects().length === 0) {
-        <div class="p-8 rounded-3xl bg-white border border-dashed border-slate-200 text-center space-y-3 shadow-xs">
-          <p class="text-sm text-slate-500 font-medium">Aún no has registrado ninguna obra.</p>
+        <div class="p-8 rounded-3xl bg-white border border-dashed border-[#cfd9e4] text-center space-y-3 shadow-xs">
+          <p class="text-sm text-[#4b637c] font-medium">Aún no has registrado ninguna obra.</p>
           <button
             (click)="openCreateProjectModal()"
-            class="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs uppercase shadow-xs hover:bg-amber-600 cursor-pointer"
+            class="px-4 py-2 rounded-xl bg-[#e52521] text-white font-bold text-xs uppercase shadow-xs hover:bg-[#aa1414] cursor-pointer"
           >
             Crear Primera Obra
           </button>
@@ -182,27 +180,28 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           @for (proj of recentProjects(); track proj.id) {
             <div
-              class="p-5 rounded-3xl bg-white border border-slate-200/80 hover:border-amber-400/60 shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
+              class="p-5 rounded-3xl bg-white border border-[#d1dce7] hover:border-[#11406e] shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div>
                 <div class="flex items-start justify-between gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center font-black text-xs shrink-0 font-mono tabular-nums">
+                  <div class="w-9 h-9 rounded-xl bg-[#edf1f5] border border-[#cfd9e4] text-[#11406e] flex items-center justify-center font-bold text-xs shrink-0 font-mono tabular-nums">
                     #{{ proj.id }}
                   </div>
-                  <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold shadow-2xs">
-                    Activa
+                  <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold shadow-2xs">
+                    {{ getStatusLabel(proj.status) }}
                   </span>
                 </div>
-                <h4 class="text-base font-extrabold text-slate-900 mt-3 group-hover:text-amber-700 transition-colors line-clamp-1">
+                <h4 class="text-base font-bold text-[#0a284b] mt-3 group-hover:text-[#11406e] transition-colors line-clamp-1" style="font-family: 'Montserrat', sans-serif;">
                   {{ proj.name }}
                 </h4>
+                <p class="text-xs text-[#4b637c] mt-1">{{ proj.built_area || 0 }} m² · T/C {{ proj.exchange_rate || 6.96 }} Bs/$</p>
               </div>
 
-              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-[11px] text-slate-400 font-mono tabular-nums">Obra #{{ proj.id }}</span>
+              <div class="mt-4 pt-3 border-t border-[#edf1f5] flex items-center justify-between">
+                <span class="text-[11px] text-[#7e91a4] font-mono tabular-nums">Obra #{{ proj.id }}</span>
                 <a
                   [routerLink]="['/obras', proj.id]"
-                  class="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 group-hover:underline"
+                  class="text-xs font-bold text-[#11406e] hover:text-[#0a284b] flex items-center gap-1 group-hover:underline"
                 >
                   Abrir Presupuesto &rarr;
                 </a>
@@ -216,19 +215,19 @@
     <!-- Right 1 Col: Architecture Explanation Bento Box -->
     <div class="space-y-4">
       <div>
-        <h3 class="text-lg font-extrabold text-slate-900 tracking-tight">Estructura aNivel</h3>
-        <p class="text-xs text-slate-500">Flujo de datos y cálculo de presupuestos</p>
+        <h3 class="text-lg font-bold text-[#0a284b] tracking-tight" style="font-family: 'Montserrat', sans-serif;">Estructura aNivel</h3>
+        <p class="text-xs text-[#4b637c]">Flujo de datos y cálculo de presupuestos</p>
       </div>
 
-      <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-5">
+      <div class="p-6 rounded-3xl bg-white border border-[#d1dce7] shadow-xs space-y-5">
         <!-- Step 1 -->
         <div class="flex items-start gap-3.5">
-          <div class="w-7 h-7 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+          <div class="w-7 h-7 rounded-xl bg-[#edf1f5] text-[#11406e] border border-[#cfd9e4] flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
             1
           </div>
           <div>
-            <h5 class="text-xs font-bold text-slate-900">Categorías & Subcategorías</h5>
-            <p class="text-[11px] text-slate-500 leading-relaxed mt-0.5">
+            <h5 class="text-xs font-bold text-[#0a284b]">Categorías & Subcategorías</h5>
+            <p class="text-[11px] text-[#4b637c] leading-relaxed mt-0.5">
               Taxonomía central (ej. <em>Materiales &rarr; Fierros, Cementos</em>) que agrupa todos los elementos.
             </p>
           </div>
@@ -236,12 +235,12 @@
 
         <!-- Step 2 -->
         <div class="flex items-start gap-3.5">
-          <div class="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-900 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+          <div class="w-7 h-7 rounded-xl bg-[#edf1f5] text-[#11406e] border border-[#cfd9e4] flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
             2
           </div>
           <div>
-            <h5 class="text-xs font-bold text-slate-900">Catálogo Maestro Global</h5>
-            <p class="text-[11px] text-slate-500 leading-relaxed mt-0.5">
+            <h5 class="text-xs font-bold text-[#0a284b]">Catálogo Maestro Global</h5>
+            <p class="text-[11px] text-[#4b637c] leading-relaxed mt-0.5">
               Inventario con factores de conversión, precios comerciales y mermas sugeridas.
             </p>
           </div>
@@ -249,14 +248,16 @@
 
         <!-- Step 3 -->
         <div class="flex items-start gap-3.5">
-          <div class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-900 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+          <div class="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
             3
           </div>
           <div>
-            <h5 class="text-xs font-bold text-slate-900">Presupuestos por Obra (Snapshot)</h5>
-            <p class="text-[11px] text-slate-500 leading-relaxed mt-0.5">
-              Al vincular a la obra, se congela una copia independiente calculando compra con redondeo hacia arriba:
-              <span class="font-mono tabular-nums text-[10px] block text-emerald-700 mt-1 font-bold">ceil((cómputo * (1 + merma)) / factor)</span>
+            <h5 class="text-xs font-bold text-[#0a284b] flex items-center gap-1.5">
+              Presupuestos por Obra
+              <app-info-tooltip text="Al vincular ítems a una obra, sus precios y factores quedan congelados en ella para no alterar presupuestos pasados." position="left" />
+            </h5>
+            <p class="text-[11px] text-[#4b637c] leading-relaxed mt-0.5">
+              Cada obra conserva sus precios pactados y calcula automáticamente la compra requerida con merma y redondeo a unidad entera.
             </p>
           </div>
         </div>
@@ -274,8 +275,8 @@
 >
   <form (submit)="$event.preventDefault(); submitCreateProject()" class="space-y-5">
     <div>
-      <label for="projectName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-        Nombre de la Obra *
+      <label for="projectName" class="an-label">
+        Nombre de la Obra <span class="text-[#e52521]">*</span>
       </label>
       <input
         id="projectName"
@@ -284,24 +285,24 @@
         name="projectName"
         required
         placeholder="Ej. Edificio Las Condes, Condominio El Roble..."
-        class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-2xs font-medium"
+        class="an-input"
         autofocus
       />
     </div>
 
-    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#edf1f5]">
       <button
         type="button"
         (click)="closeCreateProjectModal()"
         [disabled]="isCreatingProject()"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+        class="px-4 py-2.5 rounded-xl border border-[#cfd9e4] hover:bg-[#edf1f5] text-[#385370] text-xs font-bold transition-colors cursor-pointer"
       >
         Cancelar
       </button>
       <button
         type="submit"
         [disabled]="!newProjectName().trim() || isCreatingProject()"
-        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer active:scale-95"
+        class="px-5 py-2.5 rounded-xl bg-[#11406e] hover:bg-[#0a284b] text-white text-xs font-bold transition-all shadow-md shadow-[#11406e]/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer active:scale-95"
       >
         @if (isCreatingProject()) {
           <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">

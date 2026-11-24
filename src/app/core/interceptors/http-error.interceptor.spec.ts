@@ -42,6 +42,27 @@ describe('HttpErrorInterceptor', () => {
     expect(toasts[0].message).toBe('Parámetros inválidos');
   });
 
+  it('should format protected dependency 400 error with distinct title', () => {
+    httpClient.delete('/api/subcategories/1').subscribe({
+      next: () => expect.unreachable('Should have failed'),
+      error: (error) => {
+        expect(error.status).toBe(400);
+      },
+    });
+
+    const req = httpTestingController.expectOne('/api/subcategories/1');
+    req.flush(
+      { code: 'protected_dependency_error', detail: 'No se puede eliminar porque tiene 3 registros dependientes.' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    const toasts = toastService.toasts();
+    expect(toasts.length).toBe(1);
+    expect(toasts[0].type).toBe('error');
+    expect(toasts[0].title).toBe('Acción no permitida');
+    expect(toasts[0].message).toBe('No se puede eliminar porque tiene 3 registros dependientes.');
+  });
+
   it('should allow skipping global toast via context token', () => {
     const context = new HttpContext().set(SKIP_GLOBAL_ERROR_TOAST, true);
 

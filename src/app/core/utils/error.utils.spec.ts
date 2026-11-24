@@ -12,6 +12,11 @@ describe('Error Utils - extractHttpErrorMessage', () => {
     expect(extractHttpErrorMessage(error)).toBe('No tienes permisos para esta acción');
   });
 
+  it('should sanitize raw HTML debug error pages into friendly user message', () => {
+    const error = { error: '<!DOCTYPE html><html><head><title>500 Internal Server Error</title></head><body><h1>Traceback</h1></body></html>' };
+    expect(extractHttpErrorMessage(error)).toBe('Ha ocurrido un error en el servidor. Por favor intenta nuevamente más tarde.');
+  });
+
   it('should extract DRF detail field', () => {
     const error = { error: { detail: 'Obra no encontrada' } };
     expect(extractHttpErrorMessage(error)).toBe('Obra no encontrada');
@@ -27,9 +32,11 @@ describe('Error Utils - extractHttpErrorMessage', () => {
     expect(extractHttpErrorMessage(error)).toBe('La combinación de campos no es válida');
   });
 
-  it('should extract multiple field errors', () => {
+  it('should extract multiple field errors and ignore internal metadata keys', () => {
     const error = {
       error: {
+        code: 'validation_error',
+        status_code: 400,
         unit_measure: ['Este campo es requerido'],
         unit_purchase: ['Este campo es requerido'],
       },
@@ -37,5 +44,6 @@ describe('Error Utils - extractHttpErrorMessage', () => {
     const result = extractHttpErrorMessage(error);
     expect(result).toContain('unit_measure');
     expect(result).toContain('unit_purchase');
+    expect(result).not.toContain('validation_error');
   });
 });

@@ -1,6 +1,7 @@
 /**
  * Extrae de forma segura y consistente un mensaje de error legible para el usuario
  * a partir de respuestas HttpErrorResponse de Django REST Framework o errores genéricos.
+ * Filtra proactivamente páginas HTML de depuración, trazas técnicas y códigos de estado internos.
  */
 export function extractHttpErrorMessage(err: unknown): string {
   if (!err) return 'Error desconocido';
@@ -12,7 +13,17 @@ export function extractHttpErrorMessage(err: unknown): string {
 
   if (errorObj.error) {
     if (typeof errorObj.error === 'string') {
-      return errorObj.error;
+      const errStr = errorObj.error.trim();
+      // Si la respuesta es una página HTML de error (Django debug, nginx, proxy, etc.)
+      if (
+        errStr.startsWith('<!DOCTYPE') ||
+        errStr.startsWith('<html') ||
+        errStr.includes('<body') ||
+        errStr.includes('Traceback (most recent call last)')
+      ) {
+        return 'Ha ocurrido un error en el servidor. Por favor intenta nuevamente más tarde.';
+      }
+      return errStr;
     }
 
     if (typeof errorObj.error === 'object' && errorObj.error !== null) {
@@ -20,6 +31,10 @@ export function extractHttpErrorMessage(err: unknown): string {
 
       if (errorMap['detail'] && typeof errorMap['detail'] === 'string') {
         return errorMap['detail'];
+      }
+
+      if (errorMap['message'] && typeof errorMap['message'] === 'string') {
+        return errorMap['message'];
       }
 
       if (errorMap['name']) {
@@ -34,8 +49,11 @@ export function extractHttpErrorMessage(err: unknown): string {
           : String(errorMap['non_field_errors']);
       }
 
-      // Concatenar mensajes de campos si vienen como objeto clave -> [errores]
+      // Concatenar mensajes de campos si vienen como objeto clave -> [errores],
+      // excluyendo claves de metadatos internos como 'code', 'status_code' o 'count'.
+      const ignoredKeys = new Set(['code', 'status_code', 'count']);
       const fieldErrors = Object.entries(errorMap)
+        .filter(([field]) => !ignoredKeys.has(field))
         .map(([field, msgs]) => {
           const formattedMsgs = Array.isArray(msgs) ? msgs.join(', ') : String(msgs);
           return `${field}: ${formattedMsgs}`;
@@ -44,9 +62,17 @@ export function extractHttpErrorMessage(err: unknown): string {
 
       if (fieldErrors) return fieldErrors;
 
-      return JSON.stringify(errorObj.error);
+      return 'Ha ocurrido un error en el procesamiento de la solicitud.';
     }
   }
 
-  return errorObj.message || 'Error de conexión con el servidor';
+  if (errorObj.message) {
+    // Si contiene texto técnico de Angular Http failure
+    if (errorObj.message.includes('Http failure response')) {
+      return 'No fue posible conectar con el servidor. Verifica tu conexión a internet o intenta más tarde.';
+    }
+    return errorObj.message;
+  }
+
+  return 'Error de conexión con el servidor';
 }
